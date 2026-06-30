@@ -1277,8 +1277,16 @@ async function berekenStraks() {
       + rij("Heffingskortingen (verzilverd)", p.verzilverd) + rij("Te betalen", p.te_betalen)}</table></details>`;
     let html = `<h2>Straks — je situatie vanaf pensioen (${r.jaar}-tarieven)</h2>` + blk(r.partner?"Jij":"Belastingplichtige", r.jij);
     if (r.partner) html += blk("Partner", r.partner);
-    html += `<p class="best">Huishouden samen: <b>${eur(r.huishouden.te_betalen)}</b> te betalen · netto besteedbaar ${eur(r.huishouden.netto)}.</p>
-      <p class="muted">Box 1 gaat tegen de AOW-tarieven (schijf 1 zonder AOW-premie ≈ 17,9%) + ouderenkorting — daarom is je druk straks lager dan nu op hetzelfde inkomen. Dat is precies het uitstelvoordeel van lijfrente/pensioen.</p>`;
+    html += `<p class="best">Huishouden samen: <b>${eur(r.huishouden.te_betalen)}</b> te betalen · netto besteedbaar ${eur(r.huishouden.netto)}.</p>`;
+    // Impliciet kapitaal achter de pensioenbelofte (de "black box" 2e pijler).
+    const wp = (+$("strPensioen").value) + ($("strPartner").checked ? +$("strpPensioen").value : 0);
+    if (wp > 0) {
+      html += `<details class="uitsplitsing"><summary>Impliciet kapitaal achter je pensioenbelofte — ± ${eur(wp*15)} – ${eur(wp*20)}</summary>
+        <p class="muted">Je ${$("strPartner").checked?"huishoudelijke ":""}werkgeverspensioen van <b>${eur(wp)}/jaar</b> wordt <b>buiten jou om</b> beheerd (collectief fonds/verzekeraar). Het kapitaal dat zo'n levenslange uitkering kost, is grofweg <b>${eur(wp*15)} tot ${eur(wp*20)}</b> (uitkering × annuïteitsfactor 15–20; indicatief — hangt af van rente, indexatie en partnerpensioen).</p>
+        <p class="muted">Plausibiliteitscheck: een DB-pensioen ≈ ~1,875% × pensioengevend salaris × dienstjaren. Wijkt het sterk af, vraag je uitvoerder om uitleg. Je <b>lijfrente / box 3</b> hierboven zijn je eigen, transparante deel — dáár stuur je zelf (de 3e pijler).</p>
+      </details>`;
+    }
+    html += `<p class="muted">Box 1 gaat tegen de AOW-tarieven (schijf 1 zonder AOW-premie ≈ 17,9%) + ouderenkorting — daarom is je druk straks lager dan nu op hetzelfde inkomen. Dat is precies het uitstelvoordeel van lijfrente/pensioen.</p>`;
     out.innerHTML = html;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
