@@ -1233,7 +1233,7 @@ async function berekenVermogensadvies() {
       proj = `
         <h2 style="margin-top:14px">Zo groeit het — doorkijk naar je pensioen (over ${P.jaren_opbouw} jaar, ${P.uitkeringsjaren} uitkeringsjaren)</h2>
         <table><thead><tr><th></th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>Reëel (van nu)</th></tr></thead><tbody>
-          ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)</td><td class="num">${eur(P.lijfrente_pot/defl)} (pot)</td></tr>`:""}
+          ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)<div class="muted">${eur(P.lijfrente_uitkering_reeel)} nu</div></td><td class="num">${eur(P.lijfrente_pot/defl)} (pot)</td></tr>`:""}
           ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_pot/defl)} (pot)</td></tr>`:""}
           ${P.box3_straks_totaal>0?`<tr><td>Beleggen (box 3)</td><td class="num">${eur(P.box3_straks_totaal)}</td><td class="num">—</td><td class="num">${eur(P.box3_straks_totaal/defl)} (pot)</td></tr>`:""}
           ${P.spaargeld_straks>0?`<tr><td>Sparen (box 3)</td><td class="num">${eur(P.spaargeld_straks)}</td><td class="num">—</td><td class="num">${eur(P.spaargeld_straks/defl)} (pot)</td></tr>`:""}
