@@ -240,6 +240,7 @@ en de voorlopige box 3-forfaits begin het jaar erna nalopen.
 | Bron-ID | Instantie | Onderwerp | Opgehaald op | URL |
 |---|---|---|---|---|
 | RO-rijksbelastingen | Rijksoverheid | overzicht rijksbelastingen | 2026-06-28 | https://www.rijksoverheid.nl/themas/belastingen-uitkeringen-en-toeslagen/belasting-betalen/overzicht-rijksbelastingen |
+| ECON-inflatie | ECB / DNB | inflatie-default 2% in projecties = ECB-doelstelling op middellange termijn (aanpasbaar in de tool) | 2026-06-30 | https://www.ecb.europa.eu/mopo/strategy/pricestab/html/index.nl.html |
 
 ## Bekende instabiele bronnen
 | Beschrijving | Probleem | Alternatief |

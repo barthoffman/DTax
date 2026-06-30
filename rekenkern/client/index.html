@@ -269,7 +269,7 @@
         <p class="muted">Gebruikt je inkomen, vermogen en besparing uit <b>Mijn belasting</b>.</p>
         <label>Nieuwe inleg per jaar (€, leeg = besparing uit Mijn belasting)<input type="number" id="vaNieuw" placeholder="besparing" min="0"></label>
         <div class="row">
-          <label>Vrij/liquide houden (€)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
+          <label>Van je spaargeld liquide houden (€)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
           <label>Inflatie (%)<input type="number" id="vaInflatie" value="2" min="0"></label>
         </div>
         <label>Uitkeringsjaren (spreiding van de uitkering)<input type="number" id="vaUitkeringsjaren" value="20" min="1"></label>
@@ -1117,6 +1117,14 @@ async function berekenVermogensadvies() {
       </tbody></table>
       ${r.lijfrente_optimaal && r.lijfrente_optimaal.gecapt ? `<p class="muted">Lijfrente begrensd op ± ${eur(A.lijfrente)}: méér zou je pensioenuitkering boven € ${(r.lijfrente_optimaal.target_box1).toLocaleString("nl-NL")} (box 1) duwen, waar het opnametarief je marginale tarief van nu (${(r.lijfrente_optimaal.marginaal_nu*100).toFixed(1)}%) raakt. Daarboven is box 3 gunstiger én flexibel — vandaar de rest in box 3.</p>` : ""}
       ${A.bv>0?`${sub("Zakelijk (BV)")}<table><tbody><tr><td>In de BV laten groeien</td><td class="num">${eur(A.bv)}</td></tr></tbody></table>`:""}
+      ${r.herverdeling ? `
+      <h2 style="margin-top:14px">Je bestaande spaargeld (${eur(r.herverdeling.spaargeld)})</h2>
+      <p class="muted">Je houdt <b>${eur(r.herverdeling.liquide)}</b> liquide. Het overschot van <b>${eur(r.herverdeling.surplus)}</b> staat nu tegen ~1,3% in box 3 — slimmer verdeeld:</p>
+      <table><tbody>
+        ${r.herverdeling.naar_lijfrente>0?`<tr class="win"><td>Naar lijfrente (vult je jaarruimte dit jaar)</td><td class="num">${eur(r.herverdeling.naar_lijfrente)}</td></tr>`:""}
+        ${r.herverdeling.naar_box3>0?`<tr><td>Naar box 3-beleggen (hoger rendement, flexibel)</td><td class="num">${eur(r.herverdeling.naar_box3)}</td></tr>`:""}
+      </tbody></table>
+      ${r.herverdeling.gefaseerd?`<p class="muted">Het box 3-deel kun je de komende jaren alsnog <b>gefaseerd</b> in je lijfrente leggen (telkens tot je jaarruimte) voor de belastingvrije groei — zolang je onder de pensioen-cap blijft.</p>`:""}` : ""}
       <h2 style="margin-top:14px">Per container — netto na ${r.jaren} jaar (volledige inleg)</h2>
       ${sub("Privé")}
       <table><thead><tr><th>Container</th><th>Netto-eind</th></tr></thead><tbody>${crowsFor(priveC)}</tbody></table>

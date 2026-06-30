@@ -357,7 +357,7 @@ def _vermogensadvies_handler(body: dict) -> dict:
         ],
         "allocatie": r.allocatie, "bestaand_box3_last": r.bestaand_box3_last,
         "bestaand_bv": r.bestaand_bv, "liquiditeit_advies": r.liquiditeit_advies,
-        "lijfrente_optimaal": r.lijfrente_optimaal,
+        "lijfrente_optimaal": r.lijfrente_optimaal, "herverdeling": r.herverdeling,
         "waarschuwingen": r.waarschuwingen,
     }
 

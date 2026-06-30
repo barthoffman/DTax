@@ -53,6 +53,7 @@ class VermogensadviesResultaat:
     liquiditeit_advies: str
     projectie: dict | None = None   # opgebouwde potten + jaarlijkse uitkering bij pensioen
     lijfrente_optimaal: dict | None = None  # pensioen-bewuste cap-uitleg
+    herverdeling: dict | None = None  # herverdeling van bestaand spaargeld-overschot
     waarschuwingen: list = field(default_factory=list)
 
 
@@ -123,20 +124,33 @@ def vermogensadvies(
     fv_factor = _fv_annuity(1.0, rendement, jaren)  # pot per €1 jaarlijkse inleg
     lijf_cap = (target_uitkering * uj / fv_factor) if fv_factor > 0 else jaarruimte
 
-    # Watervalallocatie: liquide eerst (box 3), dan lijfrente tot de cap, dan de rest → box 3/BV.
-    box3_liquide = min(vrij_opneembaar, inleg)
-    lockbaar = inleg - box3_liquide
-    lijf_deel = min(jaarruimte, lockbaar, lijf_cap) if jaarruimte > 0 else 0.0
-    overschot = lockbaar - lijf_deel
-    lijf_gecapt = lijf_cap < min(jaarruimte, lockbaar) - 1 if jaarruimte > 0 else False
+    # Watervalallocatie van de JAARLIJKSE inleg: lijfrente tot de cap, dan de rest → box 3/BV.
+    lijf_deel = min(jaarruimte, inleg, lijf_cap) if jaarruimte > 0 else 0.0
+    overschot = inleg - lijf_deel
+    lijf_gecapt = lijf_cap < min(jaarruimte, inleg) - 1 if jaarruimte > 0 else False
     overschot_naar = "box3"
     if is_ondernemer and inleg > 0 and (bv_net / eenheid) > (box3_net / eenheid):
         overschot_naar = "bv"
     allocatie = {
         "lijfrente": round(lijf_deel, 2),
-        "box3": round(box3_liquide + (overschot if overschot_naar == "box3" else 0.0), 2),
+        "box3": round(overschot if overschot_naar == "box3" else 0.0, 2),
         "bv": round(overschot if overschot_naar == "bv" else 0.0, 2),
     }
+
+    # Herverdeling van BESTAAND spaargeld: houd je buffer liquide, verdeel het overschot.
+    # Vul de resterende jaarruimte van dit jaar met lijfrente (tenzij gecapt), rest → box 3-beleggen.
+    liquide = min(max(0.0, vrij_opneembaar), bestaand_spaargeld)
+    surplus = round(bestaand_spaargeld - liquide, 2)
+    lijf_ruimte_over = max(0.0, min(jaarruimte, lijf_cap) - lijf_deel)
+    herv_lijfrente = 0.0 if lijf_gecapt else min(lijf_ruimte_over, surplus)
+    herv_box3 = surplus - herv_lijfrente
+    herverdeling = {
+        "spaargeld": round(bestaand_spaargeld, 2), "liquide": round(liquide, 2),
+        "surplus": surplus, "naar_lijfrente": round(herv_lijfrente, 2),
+        "naar_box3": round(herv_box3, 2),
+        # rest kan de komende jaren alsnog in lijfrente (tot je jaarruimte) i.p.v. in box 3
+        "gefaseerd": bool(herv_box3 > 1 and not lijf_gecapt),
+    } if surplus > 0 else None
 
     # Bestaand vermogen.
     bestaand_box3_last = round(
@@ -165,15 +179,17 @@ def vermogensadvies(
     # Projectie: jaarlijkse inleg per container → pot bij pensioen → jaarlijkse uitkering.
     pct3 = min(forfait, rendement)  # tegenbewijs-benadering voor de box 3-drag
     net_box3 = rendement - pct3 * tarief3
-    lijf_pot = _fv_annuity(allocatie["lijfrente"], rendement, jaren) + bestaande_lijf_pot  # incl. al opgebouwde pot
-    box3_pot = _fv_annuity(allocatie["box3"], net_box3, jaren)
+    # Jaarlijkse inleg (annuïteit) + bestaande lijfrente-pot + eenmalig herverdeeld spaargeld (lump).
+    lijf_pot = (_fv_annuity(allocatie["lijfrente"], rendement, jaren) + bestaande_lijf_pot
+                + herv_lijfrente * (1 + rendement) ** jaren)
+    box3_pot = _fv_annuity(allocatie["box3"], net_box3, jaren) + herv_box3 * (1 + net_box3) ** jaren
     bv_pot = _fv_annuity(allocatie["bv"], rendement * (1 - vpb), jaren)
     # Bestaand box 3-vermogen doorgegroeid tot pensioen + de nieuwe box 3-inleg.
     bestaand_box3_straks = bestaand_box3 * (1 + net_box3) ** jaren
     box3_straks_totaal = box3_pot + bestaand_box3_straks
-    # Spaargeld groeit mee tegen de (lage) banktegoeden-rente (forfait als benadering).
+    # Alleen de liquide buffer blijft sparen (de rest is herverdeeld).
     spaarrente = p.box3["forfait"]["banktegoeden"]
-    spaargeld_straks = bestaand_spaargeld * (1 + spaarrente) ** jaren
+    spaargeld_straks = liquide * (1 + spaarrente) ** jaren
     uj = max(1, int(uitkeringsjaren))
     defl = (1 + inflatie) ** jaren  # deflator naar euro's van nu (waarde bij pensioen)
     projectie = {
@@ -233,5 +249,6 @@ def vermogensadvies(
         containers=containers, allocatie=allocatie,
         bestaand_box3_last=bestaand_box3_last, bestaand_bv=bestaand_bv_res,
         liquiditeit_advies=liquiditeit_advies, projectie=projectie,
-        lijfrente_optimaal=lijfrente_optimaal, waarschuwingen=waarschuwingen,
+        lijfrente_optimaal=lijfrente_optimaal, herverdeling=herverdeling,
+        waarschuwingen=waarschuwingen,
     )
