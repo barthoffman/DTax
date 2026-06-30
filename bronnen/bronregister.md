@@ -60,6 +60,21 @@ Belastingdienst-`fisin<jaar>`-tabellen volgen rond **december/januari**.
 langs, vervang de `params/<jaar>.json`-waarden, en check expliciet de **voorlopige box 3-forfaits**
 (die worden pas ná het jaar definitief). Stempel de nieuwe verificatiedatum bovenaan.
 
+### Notificatie / attendering — laat je wáárschuwen i.p.v. handmatig pollen
+
+| Bron-ID | Mechanisme | Wat & wanneer | URL |
+|---|---|---|---|
+| UPD-01 | **Bijstellingsregeling directe belastingen** (Staatscourant) | Dé jaarlijkse regeling die de **geïndexeerde bedragen** van Wet IB/LB/Vpb/Successiewet vaststelt; verschijnt **eind december**. Eén document = bijna alle indexaties (bv. Stcrt. 2025, 40487 = Bijstellingsregeling 2026). | https://zoek.officielebekendmakingen.nl/stcrt-2025-40487.html |
+| UPD-02 | **Attenderingsservice officielebekendmakingen.nl** | E-mailalert op zoekterm (bv. "Bijstellingsregeling directe belastingen"); je krijgt automatisch bericht zodra de nieuwe in de Staatscourant staat. | https://www.officielebekendmakingen.nl/ |
+| UPD-03 | **Nieuwsbrief Loonheffingen** (Belastingdienst) | Volgend-jaar-tarieven/heffingskortingen/franchises voor loon & IB; verschijnt **nov–dec** (meerdere uitgaven). | https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/nieuwsbrief-loonheffingen |
+| UPD-04 | **oswo.nl — rekenregels loonheffingen** | Officiële, **machine-leesbare** rekenregels voor software (de tabellen/algoritmes); meest geschikt voor een tool als deze. | https://www.oswo.nl/ |
+| UPD-05 | **belastingdienst.nl/tabellen** + `fisin<jaar>` | Loonbelastingtabellen + "Fiscale cijfers" per jaar (dec/jan). | https://www.belastingdienst.nl/tabellen |
+
+**Aanbevolen minimale opzet:** abonneer op de **attenderingsservice** (UPD-02) met zoekterm
+"Bijstellingsregeling directe belastingen". Die fire't eind december → dan in één keer de
+`params/<jaar>.json` bijwerken (kruis-check tegen `fisin<jaar>` en de Nieuwsbrief Loonheffingen),
+en de voorlopige box 3-forfaits begin het jaar erna nalopen.
+
 ---
 
 ## Primaire wetten (wetten.overheid.nl) — kern voor update-checks
