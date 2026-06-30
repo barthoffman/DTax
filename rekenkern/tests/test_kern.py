@@ -497,7 +497,7 @@ def test_vermogensadvies_waterval():
     assert r.allocatie["lijfrente"] == 20000
     assert r.allocatie["box3"] == 10000
     assert r.allocatie["bv"] == 0
-    assert {c.naam for c in r.containers} == {"lijfrente", "box3"}  # geen BV (niet-ondernemer)
+    assert {c.naam for c in r.containers} == {"sparen", "lijfrente", "box3"}  # geen BV (niet-ondernemer)
     # Projectie: jaarlijkse lijfrente-inleg groeit tot een pot → jaarlijkse uitkering.
     P = r.projectie
     assert P["lijfrente_pot"] > r.allocatie["lijfrente"] * P["jaren_opbouw"]  # groei boven inleg

@@ -529,7 +529,7 @@ function mdVermogensadvies(r) {
   if (A.lijfrente>0) m += `- Lijfrente: ${eur(A.lijfrente)}\n`;
   if (A.box3>0) m += `- Box 3: ${eur(A.box3)}\n`;
   if (A.bv>0) m += `- In de BV laten: ${eur(A.bv)}\n`;
-  m += `\n## Per container — netto na ${r.jaren} jaar\n| Container | Netto-eind |\n|---|---|\n`;
+  m += `\n## Per potje — netto na ${r.jaren} jaar\n| Potje | Netto-eind |\n|---|---|\n`;
   r.containers.forEach(c => m += `| ${c.label} | ${eur(c.netto_eind)} |\n`);
   if (r.bestaand_bv) m += `\nBestaand BV-vermogen ${eur(r.bestaand_bv.bedrag)}: ${r.bestaand_bv.beste==='bv'?'in de BV laten':'uitkeren naar box 3'}.\n`;
   m += `\n${r.liquiditeit_advies}\n`;
@@ -936,21 +936,27 @@ async function berekenGroeiUitleg() {
     out.innerHTML = `
       <h2>Hoe we je groei inschatten — ${r.jaar}</h2>
       <p class="muted">Op basis van je ingevulde gegevens: <b>${eur(r.nieuwe_inleg)}/jaar</b> inleg, <b>${(r.rendement*100).toFixed(1)}%</b> rendement over <b>${r.jaren} jaar</b>. Eerst nominaal, daarna reëel (euro's van nu). De groei zelf is hetzelfde — het verschil zit in <b>wanneer</b> je belasting betaalt.</p>
-      <h2 style="margin-top:14px">Waarom elk potje anders groeit</h2>
-      ${sub("Privé")}
+      <h2 style="margin-top:14px">Onbelaste vs. belaste groei</h2>
+      <p class="muted">Je geld groeit op twee manieren — het verschil zit in <b>wanneer</b> je belasting betaalt:</p>
+      ${sub("Onbelaste groei (uitstel)")}
       <table>${kop}<tbody>
-        <tr><td>Lijfrente</td><td class="muted">belastingvrij — geen jaarlijkse heffing; box 1 pas bij opname</td><td class="num">${eur(P.lijfrente_pot)}</td></tr>
-        <tr><td>Box 3</td><td class="muted">jaarlijks forfait × 36% op het vermogen — die "drag" eet aan de groei</td><td class="num">${eur(P.box3_pot)}</td></tr>
+        <tr><td>Lijfrente / banksparen / pensioenbeleggen</td><td class="muted">geen jaarlijkse heffing, de pot groeit vol door; box 1 pas bij opname, vast tot pensioen</td><td class="num">${eur(P.lijfrente_pot)}</td></tr>
       </tbody></table>
-      ${bvOok ? `${sub("Zakelijk")}<table>${kop}<tbody>
+      ${sub("Belaste groei")}
+      <table>${kop}<tbody>
+        <tr><td>Box 3 (sparen + beleggen)</td><td class="muted">jaarlijks forfait × 36% op het vermogen ("drag"); maar vrij opneembaar en geen heffing bij opname</td><td class="num">${eur(P.box3_pot)}</td></tr>
+      </tbody></table>
+      ${bvOok ? `${sub("Zakelijk (BV)")}<table>${kop}<tbody>
         <tr><td>BV</td><td class="muted">jaarlijks Vpb (19%) over het rendement; box 2 bij opname</td><td class="num">${eur(P.bv_pot)}</td></tr>
       </tbody></table>`:""}
-      <p class="muted">Reëel (euro's van nu, ${(P.inflatie*100).toFixed(1)}% inflatie): lijfrente ${eur(P.lijfrente_pot_reeel)}, box 3 ${eur(P.box3_straks_reeel)}. Inflatie deflateert alle potjes ~evenredig, dus ze verandert vooral je koopkracht, nauwelijks de keuze.</p>
+      <h2 style="margin-top:14px">Onbelast klinkt altijd beter — waarom box 3 tóch vaak wint</h2>
       <ul class="tips">
-        <li>Aanname: ${r.jaren} jaar lang dezelfde inleg én een constant rendement van ${(r.rendement*100).toFixed(1)}% — een schatting, geen garantie.</li>
-        <li>Het heffingvrij vermogen en tegenbewijs verzachten de box 3-drag bij kleinere bedragen.</li>
-        <li>De volledige doorkijk (uitkering per jaar, netto straks) staat bij <b>Advies</b> en <b>Straks</b>.</li>
-      </ul>`;
+        <li><b>Flexibiliteit</b> — box 3 is liquide; lijfrente zit vast tot pensioen (revisierente bij vervroegd opnemen).</li>
+        <li><b>Heffingvrij vermogen</b> — tot € 59.357 p.p. is box 3 feitelijk onbelast.</li>
+        <li><b>De pensioen-cap</b> — lijfrentes belastingvrije groei reken je af in box 1 bij opname; zit je pensioen al vol (boven de schijfgrens), dan is dat tarief ≥ je tarief nu → geen voordeel meer.</li>
+        <li><b>Tegenbewijs</b> — bij laag werkelijk rendement is box 3 goedkoper dan het forfait.</li>
+      </ul>
+      <p class="muted">Reëel (euro's van nu, ${(P.inflatie*100).toFixed(1)}% inflatie): onbelast ${eur(P.lijfrente_pot_reeel)}, box 3 ${eur(P.box3_straks_reeel)}. Inflatie deflateert alles ~evenredig. Aanname: ${r.jaren} jaar dezelfde inleg én constant ${(r.rendement*100).toFixed(1)}% rendement — een schatting. De volledige doorkijk staat bij <b>Advies</b> en <b>Straks</b>.</p>`;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
 
@@ -1095,7 +1101,7 @@ async function berekenVermogensadvies() {
       const P = r.projectie;
       proj = `
         <h2 style="margin-top:14px">Doorkijk naar je pensioen (over ${P.jaren_opbouw} jaar, ${P.uitkeringsjaren} uitkeringsjaren)</h2>
-        <table><thead><tr><th>Container</th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>Reëel/jaar (van nu)</th></tr></thead><tbody>
+        <table><thead><tr><th>Potje</th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>Reëel/jaar (van nu)</th></tr></thead><tbody>
           ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)</td><td class="num">${eur(P.lijfrente_uitkering_reeel)}</td></tr>`:""}
           ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_dividend_reeel)}</td></tr>`:""}
           ${P.box3_pot>0?`<tr><td>Box 3</td><td class="num">${eur(P.box3_pot)}</td><td class="num">—</td><td class="num">${eur(P.box3_straks_reeel)} (pot)</td></tr>`:""}
@@ -1124,11 +1130,12 @@ async function berekenVermogensadvies() {
         ${r.herverdeling.naar_lijfrente>0?`<tr class="win"><td>Naar lijfrente (vult je jaarruimte dit jaar)</td><td class="num">${eur(r.herverdeling.naar_lijfrente)}</td></tr>`:""}
         ${r.herverdeling.naar_box3>0?`<tr><td>Naar box 3-beleggen (hoger rendement, flexibel)</td><td class="num">${eur(r.herverdeling.naar_box3)}</td></tr>`:""}
       </tbody></table>
-      ${r.herverdeling.gefaseerd?`<p class="muted">Het box 3-deel kun je de komende jaren alsnog <b>gefaseerd</b> in je lijfrente leggen (telkens tot je jaarruimte) voor de belastingvrije groei — zolang je onder de pensioen-cap blijft.</p>`:""}` : ""}
-      <h2 style="margin-top:14px">Per container — netto na ${r.jaren} jaar (volledige inleg)</h2>
+      ${r.herverdeling.gefaseerd?`<p class="muted">Het box 3-deel kun je de komende jaren alsnog <b>gefaseerd</b> in je lijfrente leggen (telkens tot je jaarruimte) voor de belastingvrije groei — maar <b>alleen zolang je pensioenuitkering onder de schijfgrens (± ${r.lijfrente_optimaal?eur(r.lijfrente_optimaal.target_box1):"de eerste schijf"}) blijft</b>. Daarboven raakt je opnametarief je tarief van nu en is box 3 net zo goed.</p>`:""}` : ""}
+      <h2 style="margin-top:14px">Als je je inleg in één potje zou stoppen — netto na ${r.jaren} jaar</h2>
+      <p class="muted">Vergelijking per potje (dezelfde inleg, ${r.jaren} jaar): lijfrente belegt het volle pre-tax bedrag belastingvrij, box 3 het ná-belaste bedrag mét jaarlijkse heffing, sparen tegen een lage rente.</p>
       ${sub("Privé")}
-      <table><thead><tr><th>Container</th><th>Netto-eind</th></tr></thead><tbody>${crowsFor(priveC)}</tbody></table>
-      ${zakC.length?`${sub("Zakelijk")}<table><thead><tr><th>Container</th><th>Netto-eind</th></tr></thead><tbody>${crowsFor(zakC)}</tbody></table>`:""}
+      <table><thead><tr><th>Potje</th><th>Netto-eind</th></tr></thead><tbody>${crowsFor(priveC)}</tbody></table>
+      ${zakC.length?`${sub("Zakelijk")}<table><thead><tr><th>Potje</th><th>Netto-eind</th></tr></thead><tbody>${crowsFor(zakC)}</tbody></table>`:""}
       ${proj}
       ${best}
       <p class="muted">${r.liquiditeit_advies}</p>

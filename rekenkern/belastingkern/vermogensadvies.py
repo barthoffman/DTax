@@ -90,8 +90,15 @@ def vermogensadvies(
                              marginaal_nu=marginaal_nu, tarief_uit=tarief_uit, partner=partner)
     lijf_net = lj.lijfrente_eindnetto if inleg > 0 else 0.0
     box3_net = lj.prive_eindnetto if inleg > 0 else 0.0
+    # Sparen = box 3 maar tegen de lage banktegoeden-rente — het "niets doen"-scenario.
+    spaarrente0 = p.box3["forfait"]["banktegoeden"]
+    lj_spaar = vergelijk_lijfrente(eenheid, spaarrente0, jaren, jaar,
+                                   marginaal_nu=marginaal_nu, tarief_uit=tarief_uit, partner=partner)
+    sparen_net = lj_spaar.prive_eindnetto if inleg > 0 else 0.0
     bv_net = 0.0
     containers = [
+        Container("sparen", "Sparen (box 3 banktegoeden, ~1,3%)", round(sparen_net, 2),
+                  "Volledig flexibel, maar laag rendement — het 'niets doen'-scenario.", None),
         Container("lijfrente", "Lijfrente / pensioensparen", round(lijf_net, 2),
                   "Vastzetten tot pensioen; aftrek nu, belastingvrije groei, box 1 bij opname.",
                   round(jaarruimte, 2)),
