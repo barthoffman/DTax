@@ -14,8 +14,8 @@ optimalisatie-regel.
 
 | # | Optimalisatie | Engine-veld | Voor wie | Grootte-orde | Inspanning |
 |---|---|---|---|---|---|
-| 1 | **IACK** (inkomensafhankelijke combinatiekorting) | `jongste_kind_leeftijd` | werkende ouders, jongste kind < 12 | tot ~€ 2.986/jr | klein — input "leeftijd jongste kind" bij Kinderen + doorgeven + regel |
-| 2 | **Startersaftrek** | `starter` | nieuwe ZZP'er (eerste 3 jr, max 3×) | € 2.123 × marginaal (~€ 800–1.050) | klein — vinkje "starter" bij onderneming + doorgeven |
+| ~~1~~ | ✅ **IACK** (gebouwd 2026-06-30) (inkomensafhankelijke combinatiekorting) | `jongste_kind_leeftijd` | werkende ouders, jongste kind < 12 | tot ~€ 2.986/jr | klein — input "leeftijd jongste kind" bij Kinderen + doorgeven + regel |
+| ~~2~~ | ✅ **Startersaftrek** (gebouwd 2026-06-30) | `starter` | nieuwe ZZP'er (eerste 3 jr, max 3×) | € 2.123 × marginaal (~€ 800–1.050) | klein — vinkje "starter" bij onderneming + doorgeven |
 | 3 | **Groene beleggingen** | `groene_beleggingen` | box 3-belegger | vrijstelling ~€ 26k p.p. + heffingskorting 0,1% | klein/middel — input bij box 3 + tonen |
 | 4 | **Meewerkaftrek** | `overige_ondernemersaftrek` | partner werkt mee in de zaak | variabel (% van winst) | klein — input meewerk-uren/forfait |
 
