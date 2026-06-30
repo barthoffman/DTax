@@ -1233,12 +1233,12 @@ async function berekenVermogensadvies() {
       proj = `
         <h2 style="margin-top:14px">Zo groeit het — doorkijk naar je pensioen (over ${P.jaren_opbouw} jaar, ${P.uitkeringsjaren} uitkeringsjaren)</h2>
         <table><thead><tr><th></th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>Reëel (van nu)</th></tr></thead><tbody>
-          ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)</td><td class="num">${eur(P.lijfrente_uitkering_reeel)}/jr</td></tr>`:""}
-          ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_dividend_reeel)}/jr</td></tr>`:""}
+          ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)</td><td class="num">${eur(P.lijfrente_pot/defl)} (pot)</td></tr>`:""}
+          ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_pot/defl)} (pot)</td></tr>`:""}
           ${P.box3_straks_totaal>0?`<tr><td>Beleggen (box 3)</td><td class="num">${eur(P.box3_straks_totaal)}</td><td class="num">—</td><td class="num">${eur(P.box3_straks_totaal/defl)} (pot)</td></tr>`:""}
           ${P.spaargeld_straks>0?`<tr><td>Sparen (box 3)</td><td class="num">${eur(P.spaargeld_straks)}</td><td class="num">—</td><td class="num">${eur(P.spaargeld_straks/defl)} (pot)</td></tr>`:""}
         </tbody></table>
-        <p class="muted">Reële bedragen bij ${(P.inflatie*100).toFixed(1)}% inflatie (euro's van nu). Ga naar de tab <b>Straks</b> en klik "Vul in vanuit mijn opbouw" om te zien wat je dan netto overhoudt.</p>`;
+        <p class="muted"><b>Reëel (van nu)</b> = de pot in <b>koopkracht van vandaag</b> (teruggerekend voor ${(P.inflatie*100).toFixed(1)}% inflatie) — lager omdat inflatie de waarde uitholt. <b>Per jaar uitkering</b>: lijfrente keert een vast bedrag uit (box 1); box 3 is een vrij opneembare pot (geen vaste uitkering). Ga naar de tab <b>Straks</b> en klik "Vul in vanuit mijn opbouw" om te zien wat je dan netto overhoudt.</p>`;
     }
     let best = "";
     if (r.bestaand_box3_last>0) best += `<p class="muted">Bestaand box 3-vermogen kost je nu ± ${eur(r.bestaand_box3_last)}/jaar.</p>`;
