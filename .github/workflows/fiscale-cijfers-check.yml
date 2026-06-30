@@ -1,0 +1,40 @@
+name: Fiscale cijfers — jaarlijkse update-check
+
+# Vangnet naast de attenderingsservice: checkt nov–feb of de cijfers voor het volgende
+# belastingjaar er zijn en opent één GitHub-issue als de params nog ontbreken.
+
+on:
+  schedule:
+    # 1e en 15e van nov, dec, jan, feb om 08:17 UTC (off-peak minuut).
+    - cron: "17 8 1,15 11,12,1,2 *"
+  workflow_dispatch: {}   # handmatig te starten via de Actions-tab
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detecteer of er een nieuw belastingjaar bijgewerkt moet worden
+        id: check
+        run: python3 .github/scripts/check_fiscale_cijfers.py
+
+      - name: Open een issue als er een update nodig is (met de-duplicatie)
+        if: steps.check.outputs.needs_update == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          YEAR: ${{ steps.check.outputs.target_year }}
+        run: |
+          TITLE="📅 Fiscale cijfers ${YEAR} bijwerken"
+          EXISTING=$(gh issue list --state open --search "Fiscale cijfers ${YEAR} in:title" \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "Open issue bestaat al (#${EXISTING}) — niets te doen."
+          else
+            gh issue create --title "$TITLE" --body-file issue_body.md
+            echo "Issue aangemaakt: $TITLE"
+          fi
