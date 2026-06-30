@@ -185,6 +185,43 @@ aan de verzekeraar): geen erfbelasting, maar ook niets voor de erfgenamen.
 hoe dan ook terug — bij jou of bij je erfgenamen. Erfbelasting beperken loopt via gewone
 estate-planning (vrijstellingen, schenken bij leven), niet via de lijfrente zelf.
 
+### Wat zit er achter je pensioenbelofte? (en wat kun je zelf doen)
+
+`mijnpensioenoverzicht.nl` toont de **belofte** — een jaarlijkse uitkering — maar **niet het
+kapitaal of de premie** erachter. Dat is precies het ene stuk waar je "vermogen" *buiten je om*
+wordt bepaald. Het hangt af van het soort regeling:
+
+- **Uitkeringsovereenkomst (DB)**: er ís geen individuele pot; je bouwt jaarlijks een *recht* op
+  (opbouwpercentage × pensioengevend salaris), collectief gedekt.
+- **Premieovereenkomst (DC)**: er is wél een pot (premies + rendement), maar het overzicht toont
+  meestal de resulterende uitkering, niet de pot.
+
+**Reverse-engineren — het kapitaal achter de belofte.** Een levenslange uitkering heeft een
+actuariële waarde: `kapitaal ≈ jaaruitkering × annuïteitsfactor`. Vuistregel rond 67–68: factor
+**~15 (nominaal, hogere rente)** tot **~20+ (geïndexeerd, lage rente)**. Voorbeeld € 47.178/jaar →
+impliciet **± € 0,7–0,95 mln**. *(Indicatief; sterk afhankelijk van rente, indexatie, partnerpensioen.)*
+
+**Tweede check (DB):** `jaarpensioen ≈ opbouwpercentage (~1,875%) × pensioengevend salaris ×
+dienstjaren`. Bijv. 1,875% × € 70.000 × 36 ≈ € 47.250 — dan klopt de belofte ongeveer.
+
+**Eerlijke grens:** zonder **premiehistorie**, **behaald rendement/dekkingsgraad** en de exacte
+**actuariële grondslagen** blijft het een plausibiliteitscheck, geen audit.
+
+**Naar eigen beheer?** Een werkgeverspensioen (2e pijler) is verplicht/collectief — je kunt het
+**niet** naar eigen beheer halen, en **pensioen in eigen beheer (PEB) voor DGA's is afgeschaft**
+(uitfasering 2017–2023, PEN-11). De enige echte eigen-beheer-knop is de **3e pijler** (lijfrente/
+banksparen/pensioenbeleggen): daar zie en stuur je de pot zelf. Dus:
+- belofte **mager** → méér zelf opbouwen in de 3e pijler;
+- belofte **royaal** → minder 3e pijler nodig.
+De knop is dus altijd de 3e pijler (jaarruimte, lijfrente-cap, herverdeling) — die het dashboard al
+optimaliseert. Maar eigen beheer is een **aanvulling, geen vervanging**: de 2e pijler levert vaak
+werkgeverspremie (~⅔), levenslange garantie (langlevenrisico gepoold) en lage collectieve kosten —
+dat geef je in eigen beheer op in ruil voor transparantie, controle en vererfbaarheid. Voor een
+**DGA** (geen werkgeverspensioen) ís de 3e pijler + de BV-oppot-beslissing het hele verhaal.
+
+> Rol van het dashboard: het 2e-pijler-deel **reverse-engineren** (transparantie geven die het
+> overzicht weglaat) én het 3e-pijler-deel **optimaliseren** (het deel dat van jou is).
+
 ---
 
 ## 4. Je vermogen in box 3

@@ -282,9 +282,10 @@
         <p class="muted" style="margin:8px 0 0">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, 2e pijler komt van je pensioenoverzicht:</p>
         <p class="muted" style="margin:8px 0 2px"><b>Bestaande aanspraken</b> — vermogen dat al vaststaat, maar vast tot je pensioen (van je pensioenoverzicht). Bepaalt mee hoeveel nieuwe lijfrente nog loont:</p>
         <div id="pensLijst"></div>
-        <div class="row" style="gap:8px">
+        <div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-end">
           <button type="button" id="pensAdd" style="width:auto;padding:6px 12px;margin-top:4px">+ aanspraak</button>
           <button type="button" id="pensImport" style="width:auto;padding:6px 12px;margin-top:4px;flex:0">Importeer pensioenoverzicht (JSON)</button>
+          <select id="pensImportWie" class="hide" style="flex:0;width:auto"><option value="jij">van jou</option><option value="partner">van partner</option></select>
         </div>
         <input type="file" id="pensFile" accept=".json,application/json" style="display:none">
         <p class="muted" id="pensImportInfo" style="margin:4px 0 0"></p>
@@ -354,7 +355,7 @@
         <p class="muted" id="straksLeeftijd">Vul je leeftijd in bij Mijn belasting om te zien over hoeveel jaar.</p>
         <button type="button" id="strVulIn" style="width:auto;padding:6px 12px;margin-bottom:10px">Vul in vanuit mijn opbouw</button>
         <div class="row">
-          <label>AOW per jaar (€)<input type="number" id="strAow" value="19650" min="0"></label>
+          <label>AOW per jaar (€)<input type="number" id="strAow" value="20929" min="0"></label>
           <label>Pensioen (2e pijler) per jaar (€)<input type="number" id="strPensioen" placeholder="0" min="0"></label>
         </div>
         <div class="row">
@@ -368,12 +369,12 @@
         <label class="chk"><input type="checkbox" id="strPartner"> Partner met eigen AOW/pensioen</label>
         <div id="strPartnerVelden" class="hide">
           <div class="row">
-            <label>AOW partner per jaar (€)<input type="number" id="strpAow" value="13465" min="0"></label>
+            <label>AOW partner per jaar (€)<input type="number" id="strpAow" value="14379" min="0"></label>
             <label>Pensioen partner per jaar (€)<input type="number" id="strpPensioen" placeholder="0" min="0"></label>
           </div>
           <label>Lijfrente-uitkering partner per jaar (€)<input type="number" id="strpLijfrente" placeholder="0" min="0"></label>
         </div>
-        <p class="muted">AOW-bedrag = SVB 2026 (alleenstaand € 19.650/jaar, gehuwd € 13.465 p.p.); pas aan naar jouw situatie.</p>
+        <p class="muted">AOW-bedrag = SVB 2026 (alleenstaand € 20.929/jaar, gehuwd € 14.379 p.p., incl. vakantiegeld); pas aan naar jouw situatie.</p>
       </fieldset>
     </div><!-- /modeStraks -->
 
@@ -645,6 +646,7 @@ function pensRij(type="werkgeverspensioen", bedrag="", wie="jij") {
 function togglePensWie() {  // "van wie" alleen tonen met een partner
   const show = $("hasPartner").checked;
   document.querySelectorAll("#pensLijst .pensWie").forEach(s => { s.style.display = show ? "" : "none"; if (!show) s.value = "jij"; });
+  $("pensImportWie").classList.toggle("hide", !show);  // import-doel ook
 }
 $("pensAdd").onclick = () => $("pensLijst").appendChild(pensRij());
 
@@ -658,16 +660,23 @@ $("pensFile").onchange = (e) => {
     try {
       const d = JSON.parse(reader.result);
       const tot = (((d.Totalen || {}).OuderdomsPensioenTotalen || {}).OuderdomsPensioenTotaal) || [];
-      let pensioen = 0, aowSamen = 0, aowAlleen = 0;
+      let pensioen = 0, overbrug = 0, aowAlleen = 0;
       tot.forEach(t => {
-        if (t.Pensioen) pensioen = Math.max(pensioen, +t.Pensioen);       // volledig ouderdomspensioen/jaar
-        if (t.AOWSamenwonend) aowSamen = +t.AOWSamenwonend;
+        if (t.Pensioen) pensioen = Math.max(pensioen, +t.Pensioen);             // volledig ouderdomspensioen/jaar
+        if (t.IndicatiefPensioen) overbrug = Math.max(overbrug, +t.IndicatiefPensioen);  // overbrugging/indicatief
         if (t.AOWAlleenstaand) aowAlleen = +t.AOWAlleenstaand;
       });
+      const wie = $("hasPartner").checked ? $("pensImportWie").value : "jij";
+      const nl = n => Math.round(n).toLocaleString("nl-NL");
       if (pensioen > 0) {
-        $("pensLijst").appendChild(pensRij("werkgeverspensioen", Math.round(pensioen)));
-        $("pensImportInfo").innerHTML = `Geïmporteerd: <b>€ ${Math.round(pensioen).toLocaleString("nl-NL")}/jaar</b> werkgeverspensioen toegevoegd`
-          + (aowAlleen ? ` · overzicht-AOW € ${aowSamen.toLocaleString("nl-NL")} samen / € ${aowAlleen.toLocaleString("nl-NL")} alleenstaand` : "");
+        $("pensLijst").appendChild(pensRij("werkgeverspensioen", Math.round(pensioen), wie));
+        if (overbrug > 0) $("pensLijst").appendChild(pensRij("ander_pensioen", Math.round(overbrug), wie));
+        // Impliciet kapitaal achter de belofte (actuariële schatting, factor ~15-20).
+        const kap = (f) => `€ ${nl(pensioen * f / 1000)}k`;
+        $("pensImportInfo").innerHTML =
+          `Geïmporteerd (${wie === "partner" ? "partner" : "jij"}): <b>€ ${nl(pensioen)}/jaar</b> werkgeverspensioen`
+          + (overbrug > 0 ? ` + € ${nl(overbrug)}/jaar overbrugging` : "")
+          + `.<br><span class="muted">Impliciet kapitaal achter die belofte: ± ${kap(15)}–${kap(20)} (uitkering × annuïteitsfactor 15–20; indicatief, hangt af van rente/indexatie). Controleer evt. met de opbouwformule: ~1,875% × salaris × dienstjaren.</span>`;
       } else {
         $("pensImportInfo").textContent = "Geen ouderdomspensioen gevonden in dit bestand.";
       }
@@ -679,7 +688,7 @@ $("pensFile").onchange = (e) => {
   e.target.value = "";  // reset zodat hetzelfde bestand opnieuw kan
 };
 
-function autoAOW() { return $("hasPartner").checked ? 13465 : 19650; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
+function autoAOW() { return $("hasPartner").checked ? 14379 : 20929; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
 function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
 function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}}
@@ -826,8 +835,8 @@ document.querySelectorAll(".subtab").forEach(t => t.onclick = () => {
   $("modeVermogensadvies").classList.toggle("hide", subV!=="advies");
   if (subV === "advies")  // AOW is bekend → automatisch, met uitleg
     $("aowInfo").innerHTML = $("hasPartner").checked
-      ? `AOW telt automatisch mee: <b>€ 13.465/jaar p.p.</b> — het samenwonend-tarief (per persoon lager dan een alleenstaande, omdat je de woonlasten deelt). Op basis van je <b>partner</b>-vinkje bij Mijn belasting (SVB 2026, volledige opbouw).`
-      : `AOW telt automatisch mee: <b>€ 19.650/jaar</b> — het alleenstaand-tarief. Vink je <b>partner</b> aan bij Mijn belasting, dan wordt het € 13.465 p.p. (SVB 2026, volledige opbouw).`;
+      ? `AOW telt automatisch mee: <b>€ 14.379/jaar p.p.</b> — het samenwonend-tarief (per persoon lager dan een alleenstaande, omdat je de woonlasten deelt). Op basis van je <b>partner</b>-vinkje bij Mijn belasting (SVB 2026 bruto incl. vakantiegeld, volledige opbouw).`
+      : `AOW telt automatisch mee: <b>€ 20.929/jaar</b> — het alleenstaand-tarief. Vink je <b>partner</b> aan bij Mijn belasting, dan wordt het € 14.379 p.p. (SVB 2026 bruto incl. vakantiegeld, volledige opbouw).`;
   $("modeBeleggen").classList.toggle("hide", subV!=="beleggen");
   $("modeUitstel").classList.toggle("hide", subV!=="uitstel");
   $("modeDividend").classList.toggle("hide", subV!=="dividend");
