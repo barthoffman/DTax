@@ -34,6 +34,34 @@ UWV, Staatscourant). **Vrijwel alles BEVESTIGD.** Aandachtspunten:
 
 ---
 
+## Update-kalender — wanneer komen de cijfers voor het volgende jaar (2027)?
+
+Het Nederlandse fiscale jaar volgt een vaste ritmiek. Gebruik dit om jaarlijks de waarden te
+verversen. **Vuistregel:** vrijwel alles verschijnt als **voorstel op Prinsjesdag (3e dinsdag
+september)** en wordt **definitief in december** (Belastingplan → Staatsblad); de
+Belastingdienst-`fisin<jaar>`-tabellen volgen rond **december/januari**.
+
+| Categorie (params) | Geldig nu | Status | 2027-waarde beschikbaar | Check bij |
+|---|---|---|---|---|
+| Box 1-schijven/tarieven, AOW-tarief, EWF, HRA-aftoptarief, Hillen | 2026 | definitief | voorstel sep 2026 → def. dec 2026 | Belastingplan; `belastingdienst.nl/fisin2027` |
+| Heffingskortingen (AHK, arbeidskorting, IACK, ouderen-) | 2026 | definitief | dec 2026 | `fisin2027` |
+| Onderneming (zelfst.aftrek, MKB-vrijstelling, startersaftrek) | 2026 | definitief | dec 2026 | `fisin2027` |
+| Vpb 19/25,8%, box 2 24,5/31% + grens, gebruikelijk loon | 2026 | definitief | voorstel sep 2026 → dec 2026 | Belastingplan |
+| Jaarruimte/franchise/aftoppingsgrens (PEN-07/10) | 2026 | definitief | nov–dec 2026 | Belastingdienst; aftoppingsgrens bevroren t/m 2026 |
+| AOW-bedragen (PEN-03) | 2026 | definitief | ~dec 2026 (per jan) **én** ~jun 2027 (per jul) | SVB (halfjaarlijks) |
+| Toeslagen: zorg/huur/KGB/kinderopvang | 2026 | definitief | dec 2026 | Belastingdienst/Toeslagen |
+| **Box 3-forfait banktegoeden (1,28%) + schulden (2,70%)** | 2026 | **VOORLOPIG** | **definitief begin 2027** (ná afloop jaar) | Belastingdienst box 3 — **expliciet nachecken** |
+| Box 3 overige-forfait (6,00%), heffingvrij (€ 59.357), schuldendrempel (€ 3.800) | 2026 | definitief | dec 2026 | Belastingplan |
+| Premies werknemersverz. (Awf/Aof) + Zvw-% en -max | 2025/2026 | definitief | ~nov 2026 | UWV; Belastingdienst |
+| Lijfrente: TOL-max (€ 27.192 / € 26.781), looptijd/ingangsdatum (PEN-13/15) | 2026 | definitief | dec 2026 / `fisin2027` | Belastingdienst |
+| Erfbelasting: latentie 30%, imputatie, vrijstellingen (PEN-14) | 2026 | structureel | vrijstellingen jaarlijks dec 2026 | Belastingdienst erfbelasting |
+
+**Jaarlijkse update-actie (begin van elk jaar):** loop deze tabel + de bron-tabellen hieronder
+langs, vervang de `params/<jaar>.json`-waarden, en check expliciet de **voorlopige box 3-forfaits**
+(die worden pas ná het jaar definitief). Stempel de nieuwe verificatiedatum bovenaan.
+
+---
+
 ## Primaire wetten (wetten.overheid.nl) — kern voor update-checks
 | BWBR | Wet | Gebruikt in | Toestand/versie vastgelegd |
 |---|---|---|---|
@@ -153,6 +181,7 @@ UWV, Staatscourant). **Vrijwel alles BEVESTIGD.** Aandachtspunten:
 | PEN-12 | naslag/wettekst | Wet LB 1964 (BWBR0002471) / NDFR | omkeerregel h. IIB art. 18–19f; Wtp (2023-07-01) | actueel | 2026-06-28 | https://nl.wikipedia.org/wiki/Wet_op_de_loonbelasting_1964 |
 | PEN-13 | wet/Belastingdienst | Wet IB 2001 art. 3.126a + Kennisgroepen Belastingdienst | bancaire (banksparen) lijfrente: standaardlooptijd 20 jr; start vóór AOW → 20 jr + jaren tot AOW; start ín/na AOW-jaar → min. 5 jr mits onder max. jaarbedrag tijdelijke oudedagslijfrente; uiterste ingangsdatum = AOW-leeftijd + 5 jr (art. 3.126a lid 4) | toestand 2026 | 2026-06-29 | https://kennisgroepen.belastingdienst.nl/publicaties/kg07020226-uiterste-ingangsdatum-als-de-opbouwfase-van-de-lijfrente-eindigt-5-jaar-na-de-aow-leeftijd/ |
 | PEN-14 | Belastingdienst/wet | Successiewet 1956 art. 20 (latentie) / art. 32 (imputatie) + Belastingdienst.nl | geërfde lijfrente(rekening): erfgenamen betalen box 1 over de uitkeringen (uitgestelde IB komt terug); erfbelasting op de waarde ná aftrek **30% latente inkomstenbelasting**; bij ervende **partner** geldt **imputatie** (½ waarde van pensioen-/lijfrente-aanspraken gaat van de partnervrijstelling af), bij een **kind** geen imputatie | 2026 | 2026-06-29 | https://www.belastingdienst.nl/wps/wcm/connect/nl/erfbelasting/content/lijfrente-of-pensioen-na-overlijden-partner-betaal-ik-erfbelasting |
+| PEN-15 | Belastingdienst (officieel) | Belastingdienst fisin2026 — Uitgaven voor inkomensvoorzieningen | **max. jaarbedrag tijdelijke oudedagslijfrente 2026 (1e jaar): € 27.192 (verzekering) / € 26.781 (banksparen/beleggingsrecht)**; min. looptijd 5 jr; start niet vóór AOW-leeftijd, uiterlijk 5 jr erna | belastingjaar 2026, GEVERIFIEERD | 2026-06-30 | https://www.belastingdienst.nl/wps/wcm/connect/fisin/fisin2026/uitgaven_voor_inkomensvoorzieningen |
 
 ## DGA / bv (Vpb + box 2 + gebruikelijk loon)
 | Bron-ID | Type | Wet of Instantie | Artikel/Onderwerp | Versie | Opgehaald op | URL |

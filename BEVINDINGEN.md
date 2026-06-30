@@ -166,8 +166,9 @@ erfgenamen. Twee dingen begrenzen dat:
 1. **Je mag niet eindeloos uitstellen.** Een bancaire lijfrente moet uiterlijk ingaan in het
    jaar dat je **5 jaar na je AOW-leeftijd** wordt, en kent een wettelijke looptijd: standaard
    **20 jaar** (start je vóór je AOW → 20 jaar + de jaren tot je AOW; start je ín het AOW-jaar →
-   minimaal 5 jaar, mits onder het maximum jaarbedrag). Je kunt de uitkering dus niet tot bijna
-   nul rekken om de pot eeuwig te laten staan. *(art. 3.126a Wet IB 2001 — PEN-13)*
+   minimaal 5 jaar, mits onder het maximum jaarbedrag van een tijdelijke oudedagslijfrente —
+   **2026: € 27.192 (verzekering) / € 26.781 (banksparen)**). Je kunt de uitkering dus niet tot
+   bijna nul rekken om de pot eeuwig te laten staan. *(art. 3.126a Wet IB 2001 — PEN-13, PEN-15)*
 2. **Bij overlijden haalt de fiscus de uitgestelde belasting terug.** Een banksparen-/
    beleggingslijfrente is vererfbaar; de restpot gaat naar de erfgenamen, die de uitkeringen
    krijgen **belast in box 1** tegen hún tarief — de uitgestelde inkomstenbelasting wordt zo

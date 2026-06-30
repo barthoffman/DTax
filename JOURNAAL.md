@@ -9,6 +9,20 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-06-30 — Fase 24: git-repo, TOL-max geverifieerd, update-kalender
+
+- **BESLISSING — git-repo opgezet** op `git@github.com:barthoffman/DTax.git` (main, initial commit
+  52 bestanden, `.gitignore` voor `__pycache__`/logs/`.claude/settings.local.json`).
+- **BEVINDING — max. tijdelijke oudedagslijfrente 2026 geverifieerd (PEN-15):** € 27.192
+  (verzekering) / € 26.781 (banksparen/beleggingsrecht), 1e jaar; min. looptijd 5 jr. Bron:
+  Belastingdienst fisin2026. In BEVINDINGEN §3 verwerkt; het eerder als "te verifiëren" gemarkeerde
+  bedrag is nu vastgelegd.
+- **BESLISSING — update-kalender** toegevoegd aan `bronregister.md`: per parameter-categorie wanneer
+  de 2027-waarde beschikbaar komt (voorstel Prinsjesdag sep, definitief dec; `fisin2027` dec/jan;
+  voorlopige box 3-forfaits pas begin 2027). Jaarlijkse update-actie beschreven.
+
+---
+
 ## 2026-06-29 — Fase 23: pensioen-bewuste lijfrente-cap + lijfrente bij overlijden
 
 - **BESLISSING — lijfrente-cap (omslagpunt lijfrente↔box 3) gebouwd** (was backlog V0). De
