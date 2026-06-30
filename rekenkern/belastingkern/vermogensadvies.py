@@ -71,6 +71,7 @@ def vermogensadvies(
     jaarruimte: float = 0.0,
     vrij_opneembaar: float = 0.0,
     verwacht_pensioen: float = 0.0,
+    bestaande_lijfrente: float = 0.0,
     is_ondernemer: bool = False,
     partner: bool = False,
     uitkeringsjaren: int = 20,
@@ -114,7 +115,11 @@ def vermogensadvies(
         if s["tot"] is not None and s["tarief"] < marginaal_nu:
             target_box1 = s["tot"]
     uj = max(1, int(uitkeringsjaren))
-    target_uitkering = max(0.0, target_box1 - max(0.0, verwacht_pensioen))
+    # Een al opgebouwde lijfrente groeit vooruit en keert óók box 1 uit → vult je pensioen alvast.
+    bestaande_lijf_pot = bestaande_lijfrente * (1 + rendement) ** jaren
+    bestaande_lijf_uitkering = bestaande_lijf_pot / uj
+    effectief_pensioen = max(0.0, verwacht_pensioen) + bestaande_lijf_uitkering
+    target_uitkering = max(0.0, target_box1 - effectief_pensioen)
     fv_factor = _fv_annuity(1.0, rendement, jaren)  # pot per €1 jaarlijkse inleg
     lijf_cap = (target_uitkering * uj / fv_factor) if fv_factor > 0 else jaarruimte
 
@@ -160,7 +165,7 @@ def vermogensadvies(
     # Projectie: jaarlijkse inleg per container → pot bij pensioen → jaarlijkse uitkering.
     pct3 = min(forfait, rendement)  # tegenbewijs-benadering voor de box 3-drag
     net_box3 = rendement - pct3 * tarief3
-    lijf_pot = _fv_annuity(allocatie["lijfrente"], rendement, jaren)            # belastingvrije groei
+    lijf_pot = _fv_annuity(allocatie["lijfrente"], rendement, jaren) + bestaande_lijf_pot  # incl. al opgebouwde pot
     box3_pot = _fv_annuity(allocatie["box3"], net_box3, jaren)
     bv_pot = _fv_annuity(allocatie["bv"], rendement * (1 - vpb), jaren)
     # Bestaand box 3-vermogen doorgegroeid tot pensioen + de nieuwe box 3-inleg.
@@ -212,6 +217,8 @@ def vermogensadvies(
     lijfrente_optimaal = {
         "cap": round(min(lijf_cap, jaarruimte), 2), "target_box1": round(target_box1, 2),
         "verwacht_pensioen": round(max(0.0, verwacht_pensioen), 2),
+        "bestaande_lijfrente_uitkering": round(bestaande_lijf_uitkering, 2),
+        "effectief_pensioen": round(effectief_pensioen, 2),
         "target_uitkering": round(target_uitkering, 2), "marginaal_nu": marginaal_nu,
         "gecapt": bool(lijf_gecapt),
     }

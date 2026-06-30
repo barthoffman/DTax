@@ -341,6 +341,7 @@ def _vermogensadvies_handler(body: dict) -> dict:
         jaarruimte=float(body.get("jaarruimte", 0)),
         vrij_opneembaar=float(body.get("vrij_opneembaar", 0)),
         verwacht_pensioen=float(body.get("verwacht_pensioen", 0)),
+        bestaande_lijfrente=float(body.get("bestaande_lijfrente", 0)),
         is_ondernemer=bool(body.get("is_ondernemer", False)),
         partner=bool(body.get("partner", False)),
         uitkeringsjaren=int(body.get("uitkeringsjaren", 20)),

@@ -278,6 +278,7 @@
           <label>AOW straks (€/jaar)<input type="number" id="vaAow" placeholder="19650" min="0" step="500"></label>
           <label>2e-pijler pensioen straks (€/jaar)<input type="number" id="vaPensioen2e" placeholder="van je overzicht" min="0" step="1000"></label>
         </div>
+        <label>Bestaande lijfrente-opbouw (€, al opgebouwde pot, buiten box 3)<input type="number" id="vaBestaandeLijfrente" placeholder="0" min="0" step="5000"></label>
         <div id="grpBv" class="hide">
           <p class="muted" style="margin:6px 0 0">Bestaand BV-vermogen (al opgepot in je BV):</p>
           <div class="row">
@@ -1076,6 +1077,7 @@ function vaBody(adv) {
     marginaal_nu: adv.lijfrente ? adv.lijfrente.marginaal_nu : 0.3756, tarief_uit:0.1785,
     jaarruimte: adv.lijfrente ? adv.lijfrente.inleg : 0, vrij_opneembaar:+$("vaVrij").value,
     verwacht_pensioen: (+$("vaAow").value || ((+$("mixPartner").value > 0) ? 13465 : 19650)) + (+$("vaPensioen2e").value),
+    bestaande_lijfrente: +$("vaBestaandeLijfrente").value,
     // BV-container alleen als je een BV hébt (bestaand BV-vermogen) of als een BV wordt aangeraden.
     is_ondernemer: ((+$("mixBvSpaar").value + +$("mixBvBeleg").value) > 0) || !!(adv.rechtsvorm && adv.rechtsvorm.beste === "bv"),
     partner: (+$("mixPartner").value) > 0,
