@@ -75,6 +75,7 @@ def optimalisatie_advies(
     urencriterium: bool = False,
     gebruikelijk_loon: float | None = None,
     partner_inkomen: float = 0.0,
+    heeft_fiscaal_partner: bool = False,
     eigen_woning: EigenWoning | None = None,
     box3: Box3Vermogen | None = None,
     profiel: Huishoudprofiel | None = None,
@@ -88,7 +89,7 @@ def optimalisatie_advies(
     p = laad_params(jaar)
     ew = eigen_woning or EigenWoning()
     b3 = box3 or Box3Vermogen()
-    partner = Persoon(loon=partner_inkomen) if partner_inkomen else None
+    partner = Persoon(loon=partner_inkomen) if (partner_inkomen or heeft_fiscaal_partner) else None
     inkomen = loon + ondernemer_inkomen + partner_inkomen
     zzp_persoon = Persoon(loon=loon, onderneming=_ond(ondernemer_inkomen, urencriterium),
                           eigen_woning=ew, box3=b3)
@@ -193,7 +194,7 @@ def optimalisatie_advies(
                 "art. 3.127 Wet IB 2001"))
         marg = round(tax_saving / jr, 4) if jr else 0.0
         lj = vergelijk_lijfrente(jr, rendement, horizon, jaar, marginaal_nu=marg,
-                                 tarief_uit=0.1785, tegenbewijs=True, partner=bool(partner_inkomen))
+                                 tarief_uit=0.1785, tegenbewijs=True, partner=(partner is not None))
         lijfrente = {
             "inleg": round(jr, 2), "rendement": rendement, "jaren": horizon,
             "marginaal_nu": marg, "tarief_uit": 0.1785,
@@ -230,15 +231,15 @@ def optimalisatie_advies(
     spaargeld = b3.banktegoeden
     if beleggingen + spaargeld > 0:
         box3_nu = box3_last(p, spaargeld=spaargeld, beleggingen=beleggingen,
-                            schulden=b3.schulden, partner=bool(partner_inkomen),
+                            schulden=b3.schulden, partner=(partner is not None),
                             werkelijk_rendement=rendement)
         u = vergelijk_uitstel(beleggingen, rendement, horizon, jaar,
-                              tegenbewijs=True, partner=bool(partner_inkomen)) if beleggingen > 0 else None
+                              tegenbewijs=True, partner=(partner is not None)) if beleggingen > 0 else None
         vermogen = {
             "spaargeld": spaargeld, "beleggingen": beleggingen, "schulden": b3.schulden,
             "totaal": round(spaargeld + beleggingen - b3.schulden, 2), "box3_belasting_nu": round(box3_nu, 2),
             "rendement": rendement, "horizon": horizon,
-            "heffingvrij": p.box3["heffingvrij_vermogen_pp"] * (2 if partner_inkomen else 1),
+            "heffingvrij": p.box3["heffingvrij_vermogen_pp"] * (2 if partner is not None else 1),
             "bv_eindnetto": u.bv_eindnetto if u else None,
             "prive_eindnetto": u.prive_eindnetto if u else None,
             "beste": u.beste if u else None, "omslag_rendement": u.omslag_rendement if u else None,

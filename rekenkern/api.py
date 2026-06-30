@@ -210,6 +210,7 @@ def _advies_handler(body: dict) -> dict:
         urencriterium=bool(body.get("urencriterium", False)),
         gebruikelijk_loon=(float(body["gebruikelijk_loon"]) if body.get("gebruikelijk_loon") else None),
         partner_inkomen=float(body.get("partner_inkomen", 0)),
+        heeft_fiscaal_partner=bool(body.get("heeft_fiscaal_partner", False)),
         eigen_woning=EigenWoning(woz_waarde=float(ew.get("woz_waarde", 0)),
                                  betaalde_hypotheekrente=float(ew.get("betaalde_hypotheekrente", 0))),
         box3=Box3Vermogen(banktegoeden=float(b3.get("banktegoeden", 0)),

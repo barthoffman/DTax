@@ -205,6 +205,12 @@
             <label>Leeftijd partner (in jaren)<input type="number" id="mixPartnerLeeftijd" placeholder="bijv. 43" min="0" max="100"></label>
             <label>Inkomen partner (€)<input type="number" id="mixPartner" placeholder="0" min="0" step="1000"></label>
           </div>
+          <label class="chk"><input type="checkbox" id="mixFiscaalPartner" checked> Fiscaal partner (getrouwd/geregistreerd, of samenwonend dat aan de criteria voldoet)</label>
+          <div class="row">
+            <label>Spaargeld partner box 3 (€)<input type="number" id="mixPartnerBank" placeholder="0" min="0" step="5000"></label>
+            <label>Beleggingen partner box 3 (€)<input type="number" id="mixPartnerBeleg" placeholder="0" min="0" step="5000"></label>
+          </div>
+          <p class="muted" id="poolInfo" style="margin:2px 0 0"></p>
         </div>
         <label class="chk"><input type="checkbox" id="hasWoning"> Woning</label>
         <div id="grpWoning" class="hide">
@@ -634,6 +640,8 @@ function pensRij(type="werkgeverspensioen", bedrag="") {
 $("pensAdd").onclick = () => $("pensLijst").appendChild(pensRij());
 
 function autoAOW() { return $("hasPartner").checked ? 13465 : 19650; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
+function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
+function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
 function pensSom() {  // → {pot: lijfrente-potten, uitk: pensioen-uitkeringen/jaar}
   let pot = 0, uitk = 0;
   document.querySelectorAll("#pensLijst .bron").forEach(b => {
@@ -700,7 +708,15 @@ function _toggle(grp, on, clearIds) {
   $(grp).classList.toggle("hide", !on);
   if (!on && clearIds) clearIds.forEach(id => { $(id).value = ""; });
 }
-$("hasPartner").onchange = () => _toggle("grpPartner", $("hasPartner").checked, ["mixPartner"]);
+function updatePoolInfo() {
+  if (!$("poolInfo")) return;
+  $("poolInfo").innerHTML = fiscaalPartner()
+    ? `Box 3 van fiscale partners mag je samen optimaal verdelen (2× heffingvrij) — dat is een <b>aangiftekeuze</b>, je geld blijft van jou (verdelen ≠ delen).`
+    : ($("hasPartner").checked ? `Geen fiscaal partner → ieder z'n eigen box 3 en heffingvrij vermogen.` : ``);
+}
+$("hasPartner").onchange = () => { _toggle("grpPartner", $("hasPartner").checked, ["mixPartner"]); updatePoolInfo(); };
+$("mixFiscaalPartner").onchange = updatePoolInfo;
+updatePoolInfo();
 $("hasKinderen").onchange = () => {
   _toggle("grpKinderen", $("hasKinderen").checked, ["mixKinderen","mixKovKinderen","mixKovUren","mixKovTarief"]);
   if (!$("hasKinderen").checked) { $("mixKovSoort").value = ""; $("grpKov").classList.add("hide"); }
@@ -844,10 +860,11 @@ async function berekenIndividu() {
         <p class="muted">Via de stappen reken je daarnaast je <b>vermogen</b> (waar laat je het renderen) en <b>straks</b> (je pensioenfase) door. Schatting op basis van de wet (2025/2026), geen aangifte.</p>`;
       return;
     }
+    const pb = partnerBox3();
     const body = {jaar:+$("jaar").value, loon, ondernemer_inkomen:ondernemer, huidige_vorm:huidigeVorm, urencriterium:$("mixUren").checked,
       dividend_box2:s.dividend_bv,
-      partner_inkomen:partner, rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
-      box3:{banktegoeden:+$("mixBank").value, overige_bezittingen:+$("mixBeleg").value, schulden:+$("mixSchulden").value},
+      partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(), rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
+      box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg, schulden:+$("mixSchulden").value},
       eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
       profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
     if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;
@@ -1079,9 +1096,9 @@ function tab1Body() {
     loon: s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden,
     ondernemer_inkomen: s.winst + s.winst_bv, huidige_vorm: s.winst_bv > 0 ? "bv" : "zzp",
     dividend_box2: s.dividend_bv,
-    urencriterium:$("mixUren").checked, partner_inkomen:partner,
+    urencriterium:$("mixUren").checked, partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(),
     rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
-    box3:{banktegoeden:+$("mixBank").value, overige_bezittingen:+$("mixBeleg").value, schulden:0},
+    box3:{banktegoeden:+$("mixBank").value + partnerBox3().bank, overige_bezittingen:+$("mixBeleg").value + partnerBox3().beleg, schulden:+$("mixSchulden").value},
     eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
     profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
   if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;
