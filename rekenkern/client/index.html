@@ -633,7 +633,7 @@ function pensRij(type="werkgeverspensioen", bedrag="") {
 }
 $("pensAdd").onclick = () => $("pensLijst").appendChild(pensRij());
 
-function autoAOW() { return (+$("mixPartner").value > 0) ? 13465 : 19650; }  // SVB 2026, vol opgebouwd
+function autoAOW() { return $("hasPartner").checked ? 13465 : 19650; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
 function pensSom() {  // → {pot: lijfrente-potten, uitk: pensioen-uitkeringen/jaar}
   let pot = 0, uitk = 0;
   document.querySelectorAll("#pensLijst .bron").forEach(b => {
@@ -750,8 +750,10 @@ document.querySelectorAll(".subtab").forEach(t => t.onclick = () => {
   subV = t.dataset.sub;
   document.querySelectorAll(".subtab").forEach(x => x.classList.toggle("active", x===t));
   $("modeVermogensadvies").classList.toggle("hide", subV!=="advies");
-  if (subV === "advies")  // AOW is bekend → automatisch, als info tonen
-    $("aowInfo").textContent = `AOW telt automatisch mee: € ${autoAOW().toLocaleString("nl-NL")}/jaar` + ((+$("mixPartner").value > 0) ? " p.p. (met partner)" : " (alleenstaand)");
+  if (subV === "advies")  // AOW is bekend → automatisch, met uitleg
+    $("aowInfo").innerHTML = $("hasPartner").checked
+      ? `AOW telt automatisch mee: <b>€ 13.465/jaar p.p.</b> — het samenwonend-tarief (per persoon lager dan een alleenstaande, omdat je de woonlasten deelt). Op basis van je <b>partner</b>-vinkje bij Mijn belasting (SVB 2026, volledige opbouw).`
+      : `AOW telt automatisch mee: <b>€ 19.650/jaar</b> — het alleenstaand-tarief. Vink je <b>partner</b> aan bij Mijn belasting, dan wordt het € 13.465 p.p. (SVB 2026, volledige opbouw).`;
   $("modeBeleggen").classList.toggle("hide", subV!=="beleggen");
   $("modeUitstel").classList.toggle("hide", subV!=="uitstel");
   $("modeDividend").classList.toggle("hide", subV!=="dividend");
