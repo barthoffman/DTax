@@ -330,11 +330,8 @@
           <label>Verwacht jaarrendement (%)<input type="number" id="lijRendement" value="6" min="0"></label>
           <label>Jaren tot opname<input type="number" id="lijJaren" value="20" min="1"></label>
         </div>
-        <div class="row">
-          <label>AOW straks (€/jaar)<input type="number" id="lijAow" placeholder="19650" min="0" step="500"></label>
-          <label>2e-pijler pensioen straks (€/jaar)<input type="number" id="lijPensioen2e" placeholder="van je overzicht" min="0" step="1000"></label>
-          <label>Uitkeringsjaren (spreiding)<input type="number" id="lijUitkeringsjaren" value="20" min="1"></label>
-        </div>
+        <label>Uitkeringsjaren (spreiding)<input type="number" id="lijUitkeringsjaren" value="20" min="1"></label>
+        <p class="muted" style="margin:6px 0 0">Je AOW + bestaande aanspraken (uit <b>Advies</b>) bepalen automatisch het opnametarief — vul ze daar in.</p>
         <div class="row">
           <label>Marginaal tarief nu (%)<input type="number" id="lijMarginaal" value="37.56" min="0"></label>
           <label>Opnametarief (%, leeg = uit pensioen berekend)<input type="number" id="lijTariefUit" placeholder="berekend" min="0"></label>
@@ -806,9 +803,7 @@ document.querySelectorAll(".subtab").forEach(t => t.onclick = () => {
     $("lijRendement").value = (J.rendement*100).toFixed(1);
     $("lijJaren").value = J.jaren;
     $("lijMarginaal").value = (J.marginaal_nu*100).toFixed(2);
-    if (!$("lijAow").value)  // AOW voorvullen; opnametarief blijft leeg → berekend uit AOW + 2e pijler
-      $("lijAow").value = (+$("mixPartner").value > 0) ? 13465 : 19650;
-    berekenLijfrente();  // voorgevuld uit Mijn belasting → meteen doorrekenen
+    berekenLijfrente();  // voorgevuld uit Mijn belasting → meteen doorrekenen (AOW + aanspraken uit de bouwer)
   } else {
     $("result").innerHTML = '<span class="muted">Klik op <b>Bereken</b>.</span>';
   }
@@ -1087,14 +1082,16 @@ async function berekenLijfrente() {
   const out = $("result");
   out.innerHTML = '<span class="muted">Bezig…</span>';
   try {
-    const aow = +$("lijAow").value || ((+$("mixPartner").value > 0) ? 13465 : 19650);
+    // Opnametarief uit de gedeelde aanspraken-bouwer: AOW + pensioen-uitkeringen + bestaande lijfrente-pot→uitkering.
+    const ps = pensSom().jij, jaren = +$("lijJaren").value;
+    const potUitk = ps.pot * Math.pow(1 + (+$("lijRendement").value)/100, jaren) / (+$("lijUitkeringsjaren").value || 20);
     const body = {jaar:+$("jaar").value, inleg:+$("lijInleg").value,
-      rendement_pct:(+$("lijRendement").value)/100, jaren:+$("lijJaren").value,
+      rendement_pct:(+$("lijRendement").value)/100, jaren,
       marginaal_nu:(+$("lijMarginaal").value)/100,
       uitkeringsjaren:+$("lijUitkeringsjaren").value || 20,
       tegenbewijs:$("lijTegenbewijs").checked, partner:$("lijPartner").checked};
     if ($("lijTariefUit").value) body.tarief_uit = (+$("lijTariefUit").value)/100;  // handmatige override
-    else body.overig_pensioen = aow + (+$("lijPensioen2e").value);  // realistisch opnametarief uit AOW + 2e pijler
+    else body.overig_pensioen = autoAOW() + ps.uitk + potUitk;  // gedeelde bron
     const r = await post("/lijfrente", body);
     laatste = {kind:"lijfrente", data:r};
     const win = r.voordeel >= 0;
