@@ -38,7 +38,7 @@ optimalisatie-regel.
 |---|---|---|---|
 | ~~V0~~ | ~~**Pensioen-bewuste lijfrente-cap (omslagpunt lijfrente↔box 3)**~~ ✅ **GEBOUWD 2026-06-29** (fase 23) | — | — |
 | V1 | **Leegwaarderatio verhuurwoningen** | box 3-waarde verhuurd huis = WOZ × ratio (<1), niet volle WOZ | klein/middel |
-| V2 | **Straks ↔ lijfrente koppelen** | verwacht pensioen automatisch uit Straks-tab i.p.v. apart invullen | klein |
+| V2 | **Pensioen-inputs unificeren** | verwacht pensioen staat nu op 3 plekken (Advies, Lijfrente, Straks) — AOW is overal hardcoded in de client (€ 19.650/€ 13.465). Verplaats AOW-bedragen naar `params` (sourced PEN-03) en deel één bron over de drie tabs | klein/middel |
 | V3 | **Vastgoed ín de BV** | eigen dynamiek (huur, WOZ, geen box 3-vrijstelling, overdrachtsbelasting) | middel |
 | V4 | **Uitkeringsfase lijfrente jaar-voor-jaar** | nu lump-sum op pensioendatum; doorgroei tijdens uitkeren genegeerd (conservatief) | middel — **laag nut**, beide routes groeien evenredig |
 | V5 | **Heffingvrij gewogen gemiddelde op BV spaar/beleggen-split** | nu volledig op beleggingen i.p.v. gewogen; ~€ 300–500/jr afwijking | klein |
