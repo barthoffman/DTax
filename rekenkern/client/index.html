@@ -1228,17 +1228,29 @@ async function berekenVermogensadvies() {
     const sub = t => `<p class="muted" style="font-weight:700;margin:10px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em">${t}</p>`;
     let proj = "";
     if (r.projectie) {
-      const P = r.projectie;
-      const defl = Math.pow(1 + P.inflatie, P.jaren_opbouw);  // naar euro's van nu
+      const P = r.projectie, jr = P.jaren_opbouw;
+      const defl = Math.pow(1 + P.inflatie, jr);  // naar euro's van nu
+      // Koopkracht-illustratie: wat doet inflatie met € 1.000 nu, netto per spaarvorm?
+      const realK = netNom => Math.round(1000 * Math.pow(1 + netNom, jr) / defl);
+      const pct = v => `${v >= 1000 ? "+" : ""}${Math.round((v / 1000 - 1) * 100)}%`;
+      const belNet = r.rendement - Math.min(0.06, r.rendement) * 0.36;  // box 3 overige na heffing
+      const spaNet = 0.0128 - 0.0128 * 0.36;                            // box 3 banktegoeden na heffing
+      const kb = realK(belNet), ks = realK(spaNet), kc = realK(0);
       proj = `
-        <h2 style="margin-top:14px">Zo groeit het — doorkijk naar je pensioen (over ${P.jaren_opbouw} jaar, ${P.uitkeringsjaren} uitkeringsjaren)</h2>
-        <table><thead><tr><th></th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>Reëel (van nu)</th></tr></thead><tbody>
+        <h2 style="margin-top:14px">Zo groeit het — doorkijk naar je pensioen (over ${jr} jaar, ${P.uitkeringsjaren} uitkeringsjaren)</h2>
+        <table><thead><tr><th></th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>In geld van nu*</th></tr></thead><tbody>
           ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)<div class="muted">${eur(P.lijfrente_uitkering_reeel)} nu</div></td><td class="num">${eur(P.lijfrente_pot/defl)} (pot)</td></tr>`:""}
           ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_pot/defl)} (pot)</td></tr>`:""}
           ${P.box3_straks_totaal>0?`<tr><td>Beleggen (box 3)</td><td class="num">${eur(P.box3_straks_totaal)}</td><td class="num">—</td><td class="num">${eur(P.box3_straks_totaal/defl)} (pot)</td></tr>`:""}
           ${P.spaargeld_straks>0?`<tr><td>Sparen (box 3)</td><td class="num">${eur(P.spaargeld_straks)}</td><td class="num">—</td><td class="num">${eur(P.spaargeld_straks/defl)} (pot)</td></tr>`:""}
         </tbody></table>
-        <p class="muted"><b>Reëel (van nu)</b> = de pot in <b>koopkracht van vandaag</b> (teruggerekend voor ${(P.inflatie*100).toFixed(1)}% inflatie) — lager omdat inflatie de waarde uitholt. <b>Per jaar uitkering</b>: lijfrente keert een vast bedrag uit (box 1); box 3 is een vrij opneembare pot (geen vaste uitkering). Ga naar de tab <b>Straks</b> en klik "Vul in vanuit mijn opbouw" om te zien wat je dan netto overhoudt.</p>`;
+        <h2 style="margin-top:14px">Wat doet inflatie met je geld? — € 1.000 nu, over ${jr} jaar</h2>
+        <table><tbody>
+          <tr class="win"><td>Beleggen (~${(r.rendement*100).toFixed(0)}%)</td><td class="num">€ ${kb.toLocaleString("nl-NL")}</td><td class="muted">${pct(kb)} — je verslaat de inflatie, méér dan je erin stopt</td></tr>
+          <tr><td>Sparen (~1,3%)</td><td class="num">€ ${ks.toLocaleString("nl-NL")}</td><td class="muted">${pct(ks)} — je blijft achter op de inflatie</td></tr>
+          <tr><td>Niets doen (cash)</td><td class="num">€ ${kc.toLocaleString("nl-NL")}</td><td class="muted">${pct(kc)} — inflatie vreet het langzaam op</td></tr>
+        </tbody></table>
+        <p class="muted">*<b>In geld van nu</b> = wat het straks waard is in <b>koopkracht van vandaag</b>. Het is een <b>aanname</b> (bij ${(P.inflatie*100).toFixed(1)}% inflatie — pas de inflatie hierboven aan; bij <b>deflatie</b>, zoals Japan jaren had, wordt geld juist méér waard). De kern: je geld groeit écht alleen als het <b>rendement de inflatie verslaat</b> — beleggen wel, sparen en cash niet. <span style="opacity:.8">(Boven het heffingvrij vermogen; eronder is box 3 onbelast en wint beleggen nog meer.)</span></p>`;
     }
     let best = "";
     if (r.bestaand_box3_last>0) best += `<p class="muted">Bestaand box 3-vermogen kost je nu ± ${eur(r.bestaand_box3_last)}/jaar.</p>`;
