@@ -626,29 +626,37 @@ const pensLabels = {
   werkgeverspensioen: "Werkgeverspensioen straks (€/jaar)",
   ander_pensioen: "Ander pensioen elders straks (€/jaar)",
 };
-function pensRij(type="werkgeverspensioen", bedrag="") {
+function pensRij(type="werkgeverspensioen", bedrag="", wie="jij") {
   const div = document.createElement("div");
   div.className = "bron";
   const opts = Object.entries(pensLabels).map(([v,l]) => `<option value="${v}">${l}</option>`).join("");
   div.innerHTML = `<select class="pensType">${opts}</select>
     <input type="number" class="pensBedrag" value="${bedrag}" min="0" step="1000">
+    <select class="pensWie" style="flex:0.7"><option value="jij">jij</option><option value="partner">partner</option></select>
     <button type="button" class="del">×</button>`;
   div.querySelector(".pensType").value = type;
+  div.querySelector(".pensWie").value = wie;
   div.querySelector(".del").onclick = () => div.remove();
+  togglePensWie();
   return div;
+}
+function togglePensWie() {  // "van wie" alleen tonen met een partner
+  const show = $("hasPartner").checked;
+  document.querySelectorAll("#pensLijst .pensWie").forEach(s => { s.style.display = show ? "" : "none"; if (!show) s.value = "jij"; });
 }
 $("pensAdd").onclick = () => $("pensLijst").appendChild(pensRij());
 
 function autoAOW() { return $("hasPartner").checked ? 13465 : 19650; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
 function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
-function pensSom() {  // → {pot: lijfrente-potten, uitk: pensioen-uitkeringen/jaar}
-  let pot = 0, uitk = 0;
+function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}}
+  const r = {jij:{pot:0, uitk:0}, partner:{pot:0, uitk:0}};
   document.querySelectorAll("#pensLijst .bron").forEach(b => {
     const t = b.querySelector(".pensType").value, v = +b.querySelector(".pensBedrag").value || 0;
-    if (t === "lijfrente_pot") pot += v; else uitk += v;
+    const wie = ($("hasPartner").checked && b.querySelector(".pensWie").value === "partner") ? "partner" : "jij";
+    if (t === "lijfrente_pot") r[wie].pot += v; else r[wie].uitk += v;
   });
-  return {pot, uitk};
+  return r;
 }
 
 document.querySelectorAll(".tab[data-mode]").forEach(t => t.onclick = () => {
@@ -714,7 +722,7 @@ function updatePoolInfo() {
     ? `Box 3 van fiscale partners mag je samen optimaal verdelen (2× heffingvrij) — dat is een <b>aangiftekeuze</b>, je geld blijft van jou (verdelen ≠ delen).`
     : ($("hasPartner").checked ? `Geen fiscaal partner → ieder z'n eigen box 3 en heffingvrij vermogen.` : ``);
 }
-$("hasPartner").onchange = () => { _toggle("grpPartner", $("hasPartner").checked, ["mixPartner"]); updatePoolInfo(); };
+$("hasPartner").onchange = () => { _toggle("grpPartner", $("hasPartner").checked, ["mixPartner"]); updatePoolInfo(); togglePensWie(); };
 $("mixFiscaalPartner").onchange = updatePoolInfo;
 updatePoolInfo();
 $("hasKinderen").onchange = () => {
@@ -1123,8 +1131,8 @@ function vaBody(adv) {
     jaren: leeftijd > 0 ? Math.max(1, 67 - leeftijd) : +$("mixHorizon").value,
     marginaal_nu: adv.lijfrente ? adv.lijfrente.marginaal_nu : 0.3756, tarief_uit:0.1785,
     jaarruimte: adv.lijfrente ? adv.lijfrente.inleg : 0, vrij_opneembaar:+$("vaVrij").value,
-    verwacht_pensioen: autoAOW() + pensSom().uitk,
-    bestaande_lijfrente: pensSom().pot,
+    verwacht_pensioen: autoAOW() + pensSom().jij.uitk,
+    bestaande_lijfrente: pensSom().jij.pot,
     // BV-container alleen als je een BV hébt (bestaand BV-vermogen) of als een BV wordt aangeraden.
     is_ondernemer: ((+$("mixBvSpaar").value + +$("mixBvBeleg").value) > 0) || !!(adv.rechtsvorm && adv.rechtsvorm.beste === "bv"),
     partner: (+$("mixPartner").value) > 0,
