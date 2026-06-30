@@ -17,7 +17,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5   # v5 draait op Node 24 (v4/Node 20 is deprecated)
 
       - name: Detecteer of er een nieuw belastingjaar bijgewerkt moet worden
         id: check

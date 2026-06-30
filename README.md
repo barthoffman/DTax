@@ -34,6 +34,26 @@ interpretatie bij de Belastingdienst worden ingediend; die markeren we expliciet
 - Elk bedrag/percentage en elke regel verwijst naar een bron-ID in
   `bronnen/bronregister.md`.
 
+## Onderhoud — jaarlijkse update naar het nieuwe belastingjaar
+
+De fiscale cijfers veranderen elk jaar. Drie lagen houden het dashboard up-to-date:
+
+1. **Wekker (primair) — attenderingsservice.** Abonneer op
+   [officielebekendmakingen.nl](https://www.officielebekendmakingen.nl/) met de **zoekopdracht**
+   `"Bijstellingsregeling directe belastingen"` (Staatscourant). Dé regeling die bijna alle
+   geïndexeerde bedragen vaststelt verschijnt **eind december**; je krijgt dan automatisch een mail.
+2. **Vangnet — GitHub Action.** `.github/workflows/fiscale-cijfers-check.yml` draait 1e & 15e van
+   nov–feb (+ handmatig via *Run workflow*) en opent een **issue** zodra `rekenkern/params/<jaar>.json`
+   voor het nieuwe jaar nog ontbreekt, mét bronchecklist en -status.
+3. **Handleiding — bronregister.** De **update-kalender** in `bronnen/bronregister.md` zegt per
+   parameter wanneer de nieuwe waarde beschikbaar komt en waar te checken (incl. de notificatie-bronnen
+   `UPD-01..05`).
+
+**Update-actie:** komt de mail/het issue → start een sessie en zeg *"update naar `<jaar>`"*. Dan worden
+de Bijstellingsregeling + `fisin<jaar>` opgehaald, `rekenkern/params/<jaar>.json` + het bronregister
+bijgewerkt, en de tests gedraaid. Let op de **voorlopige box 3-forfaits** (banktegoeden/schulden) — die
+worden pas ná afloop van het jaar definitief.
+
 ## Mappenstructuur
 
 ```
