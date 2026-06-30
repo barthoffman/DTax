@@ -195,7 +195,10 @@
         <legend>Wat verdien je, en hoe?</legend>
         <div id="inkLijst"></div>
         <button type="button" id="inkAdd" style="width:auto;padding:6px 12px;margin-top:4px">+ inkomensbestanddeel</button>
-        <div id="grpUren" class="hide"><label class="chk" style="margin-top:10px"><input type="checkbox" id="mixUren" checked> Onderneming voldoet aan urencriterium (1.225 u)</label></div>
+        <div id="grpUren" class="hide">
+          <label class="chk" style="margin-top:10px"><input type="checkbox" id="mixUren" checked> Onderneming voldoet aan urencriterium (1.225 u)</label>
+          <label class="chk"><input type="checkbox" id="mixStarter"> Starter (eerste 3 jaar als ondernemer — extra startersaftrek)</label>
+        </div>
       </fieldset>
       <fieldset>
         <legend>Jouw situatie</legend>
@@ -243,7 +246,10 @@
         </div>
         <label class="chk"><input type="checkbox" id="hasKinderen"> Kinderen (kindgebonden budget + kinderopvang)</label>
         <div id="grpKinderen" class="hide">
-          <label>Aantal kinderen<input type="number" id="mixKinderen" placeholder="0" min="0" step="1"></label>
+          <div class="row">
+            <label>Aantal kinderen<input type="number" id="mixKinderen" placeholder="0" min="0" step="1"></label>
+            <label>Leeftijd jongste kind (voor IACK, &lt; 12)<input type="number" id="mixJongsteKind" placeholder="bijv. 5" min="0" max="30"></label>
+          </div>
           <div id="grpKov" class="hide">
             <p class="muted" style="margin:8px 0 0">Kinderopvang (optioneel):</p>
             <div class="row">
@@ -935,7 +941,7 @@ async function berekenIndividu() {
     }
     const pb = partnerBox3();
     const body = {jaar:+$("jaar").value, loon, ondernemer_inkomen:ondernemer, huidige_vorm:huidigeVorm, urencriterium:$("mixUren").checked,
-      dividend_box2:s.dividend_bv,
+      dividend_box2:s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value,
       partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(), rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
       box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg, schulden:+$("mixSchulden").value},
       eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
@@ -1170,7 +1176,7 @@ function tab1Body() {
   const body = {jaar:+$("jaar").value,
     loon: s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden,
     ondernemer_inkomen: s.winst + s.winst_bv, huidige_vorm: s.winst_bv > 0 ? "bv" : "zzp",
-    dividend_box2: s.dividend_bv,
+    dividend_box2: s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value,
     urencriterium:$("mixUren").checked, partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(),
     rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
     box3:{banktegoeden:+$("mixBank").value + partnerBox3().bank, overige_bezittingen:+$("mixBeleg").value + partnerBox3().beleg, schulden:+$("mixSchulden").value},

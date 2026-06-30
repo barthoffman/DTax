@@ -220,6 +220,8 @@ def _advies_handler(body: dict) -> dict:
         rendement=float(body.get("rendement", 0.06)),
         horizon=int(body.get("horizon", 15)),
         dividend_box2=float(body.get("dividend_box2", 0)),
+        jongste_kind_leeftijd=(int(body["jongste_kind_leeftijd"]) if body.get("jongste_kind_leeftijd") not in (None, "") else None),
+        starter=bool(body.get("starter", False)),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,

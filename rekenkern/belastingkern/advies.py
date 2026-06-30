@@ -54,13 +54,14 @@ class AdviesResultaat:
         return round(sum(s.besparing for s in self.suggesties), 2)
 
 
-def _ond(winst, uren):
-    return Onderneming(winst=winst, voldoet_urencriterium=uren) if winst else None
+def _ond(winst, uren, starter=False):
+    return Onderneming(winst=winst, voldoet_urencriterium=uren, starter=starter) if winst else None
 
 
-def _huishouden(persoon, partner, profiel, p, inkomen, box2=0.0, extra_heffing=0.0):
-    rp = bereken_persoon(persoon, p, box2_inkomen=box2)
-    rpp = bereken_persoon(partner, p) if partner else None
+def _huishouden(persoon, partner, profiel, p, inkomen, box2=0.0, extra_heffing=0.0,
+                minst=True, partner_minst=True):
+    rp = bereken_persoon(persoon, p, box2_inkomen=box2, is_minstverdienende=minst)
+    rpp = bereken_persoon(partner, p, is_minstverdienende=partner_minst) if partner else None
     vi = rp.verzamelinkomen + (rpp.verzamelinkomen if rpp else 0.0)
     toeslagen = bereken_toeslagen(vi, p, profiel=profiel).totaal if profiel else 0.0
     tax = rp.te_betalen + extra_heffing + (rpp.te_betalen if rpp else 0.0)
@@ -83,16 +84,24 @@ def optimalisatie_advies(
     horizon: int = 15,
     huidige_vorm: str = "zzp",
     dividend_box2: float = 0.0,
+    jongste_kind_leeftijd: int | None = None,
+    starter: bool = False,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
     p = laad_params(jaar)
     ew = eigen_woning or EigenWoning()
     b3 = box3 or Box3Vermogen()
-    partner = Persoon(loon=partner_inkomen) if (partner_inkomen or heeft_fiscaal_partner) else None
+    heeft_fp = bool(partner_inkomen or heeft_fiscaal_partner)
+    pk = dict(jongste_kind_leeftijd=jongste_kind_leeftijd, heeft_fiscale_partner=heeft_fp)  # IACK
+    partner = Persoon(loon=partner_inkomen, **pk) if heeft_fp else None
     inkomen = loon + ondernemer_inkomen + partner_inkomen
-    zzp_persoon = Persoon(loon=loon, onderneming=_ond(ondernemer_inkomen, urencriterium),
-                          eigen_woning=ew, box3=b3)
+    # IACK gaat naar de minstverdienende (of de alleenstaande ouder).
+    user_arbeids = loon + ondernemer_inkomen
+    minst = (not heeft_fp) or (user_arbeids <= partner_inkomen)
+    partner_minst = heeft_fp and (partner_inkomen < user_arbeids)
+    zzp_persoon = Persoon(loon=loon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter),
+                          eigen_woning=ew, box3=b3, **pk)
 
     # Bouw de "operationele" persoon voor een gekozen vorm: (persoon, box2, Vpb+overhead, box1-arbeidsinkomen).
     def _operationeel(naam):
@@ -102,10 +111,10 @@ def optimalisatie_advies(
             vpb = _heffing_over(winst_voor_vpb, p["vpb"]["schijven"])
             ok = p["oprichtingskosten_indicatief"]
             overhead = p["vaste_kosten_indicatief"]["dga"] + ok["dga"] / ok["standaard_horizon_jaren"]
-            return (Persoon(loon=loon + gl, eigen_woning=ew, box3=b3),
+            return (Persoon(loon=loon + gl, eigen_woning=ew, box3=b3, **pk),
                     winst_voor_vpb - vpb, vpb + overhead, loon + gl)
         if naam == "meer_loon":
-            return Persoon(loon=loon + ondernemer_inkomen, eigen_woning=ew, box3=b3), 0.0, 0.0, loon + ondernemer_inkomen
+            return Persoon(loon=loon + ondernemer_inkomen, eigen_woning=ew, box3=b3, **pk), 0.0, 0.0, loon + ondernemer_inkomen
         return (zzp_persoon, 0.0, 0.0, loon + ondernemer_inkomen)
 
     # Huidige situatie = ondernemersinkomen in de opgegeven vorm (ZZP of bestaande BV).
@@ -114,9 +123,9 @@ def optimalisatie_advies(
     # Uitgekeerd dividend uit eerder opgepot BV-vermogen: extra box 2-inkomen dit jaar.
     cur_box2 += dividend_box2
     base_tax, base_toeslagen, base_netto = _huishouden(
-        cur_persoon, partner, profiel, p, inkomen, cur_box2, cur_extra)
-    rp = bereken_persoon(cur_persoon, p, box2_inkomen=cur_box2)
-    rpp = bereken_persoon(partner, p) if partner else None
+        cur_persoon, partner, profiel, p, inkomen, cur_box2, cur_extra, minst, partner_minst)
+    rp = bereken_persoon(cur_persoon, p, box2_inkomen=cur_box2, is_minstverdienende=minst)
+    rpp = bereken_persoon(partner, p, is_minstverdienende=partner_minst) if partner else None
     detail = {
         "persoon": _persoon_detail(rp, loon + ondernemer_inkomen, cur_extra),
         "partner": _persoon_detail(rpp, partner_inkomen, 0.0) if rpp else None,
@@ -174,7 +183,7 @@ def optimalisatie_advies(
     op_persoon, op_box2, op_extra, op_arbeidsinkomen = _operationeel(beste_naam)
     op_box2 += dividend_box2  # zelfde uitgekeerde dividend telt ook op de aanbevolen vorm
     op_tax, op_toeslagen, op_netto = _huishouden(
-        op_persoon, partner, profiel, p, inkomen, op_box2, op_extra)
+        op_persoon, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
     op_label = rechtsvorm["beste_label"] if (rechtsvorm and beste_naam != "zzp") else "je huidige vorm"
 
     # 2. Lijfrente-inleg (jaarruimte op de gekozen route) + meerjarige doorrekening.
@@ -182,7 +191,7 @@ def optimalisatie_advies(
     lijfrente = None
     if jr > 0:
         op_persoon2 = dataclasses.replace(op_persoon, aftrekposten_box1=op_persoon.aftrekposten_box1 + jr)
-        t2, ts2, _ = _huishouden(op_persoon2, partner, profiel, p, inkomen, op_box2, op_extra)
+        t2, ts2, _ = _huishouden(op_persoon2, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
         tax_saving = op_tax - t2
         besp = round(tax_saving + (ts2 - op_toeslagen), 2)
         if besp > 1:
