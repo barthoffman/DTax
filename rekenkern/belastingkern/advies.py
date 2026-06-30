@@ -81,6 +81,7 @@ def optimalisatie_advies(
     rendement: float = 0.06,
     horizon: int = 15,
     huidige_vorm: str = "zzp",
+    dividend_box2: float = 0.0,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
@@ -109,6 +110,8 @@ def optimalisatie_advies(
     # Huidige situatie = ondernemersinkomen in de opgegeven vorm (ZZP of bestaande BV).
     cur_naam = huidige_vorm if (ondernemer_inkomen > 0 and huidige_vorm in ("zzp", "bv")) else "zzp"
     cur_persoon, cur_box2, cur_extra, _cur_arb = _operationeel(cur_naam)
+    # Uitgekeerd dividend uit eerder opgepot BV-vermogen: extra box 2-inkomen dit jaar.
+    cur_box2 += dividend_box2
     base_tax, base_toeslagen, base_netto = _huishouden(
         cur_persoon, partner, profiel, p, inkomen, cur_box2, cur_extra)
     rp = bereken_persoon(cur_persoon, p, box2_inkomen=cur_box2)
@@ -168,6 +171,7 @@ def optimalisatie_advies(
 
     # Operationele situatie = de aanbevolen vorm. De rest wordt HIEROP doorgerekend (consistent).
     op_persoon, op_box2, op_extra, op_arbeidsinkomen = _operationeel(beste_naam)
+    op_box2 += dividend_box2  # zelfde uitgekeerde dividend telt ook op de aanbevolen vorm
     op_tax, op_toeslagen, op_netto = _huishouden(
         op_persoon, partner, profiel, p, inkomen, op_box2, op_extra)
     op_label = rechtsvorm["beste_label"] if (rechtsvorm and beste_naam != "zzp") else "je huidige vorm"

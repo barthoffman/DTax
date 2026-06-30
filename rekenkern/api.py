@@ -218,6 +218,7 @@ def _advies_handler(body: dict) -> dict:
         profiel=_profiel_from_json(body.get("profiel")),
         rendement=float(body.get("rendement", 0.06)),
         horizon=int(body.get("horizon", 15)),
+        dividend_box2=float(body.get("dividend_box2", 0)),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,

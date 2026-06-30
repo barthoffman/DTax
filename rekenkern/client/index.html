@@ -603,6 +603,7 @@ let laatste = null;   // {mode, data} voor het rapport
 let laatsteLijfrente = null;  // jaarruimte/marginaal uit Mijn belasting, voor de Lijfrente-sub-tab
 const bronLabels = {loon:"Loon (dienstverband)", winst:"Winst uit onderneming",
   winst_bv:"Winst via eigen BV (DGA)",
+  dividend_bv:"Uitgekeerd dividend uit BV (box 2)",
   uitkering_pensioen:"Uitkering / pensioen", resultaat_overige_werkzaamheden:"Resultaat overig werk"};
 
 function bronRij(type="loon", bedrag=0) {
@@ -662,12 +663,13 @@ document.querySelectorAll(".topnav .fstep").forEach(f => f.onclick = () => {
 
 // Zakelijke rij alleen tonen als er een BV is (bestaand BV-vermogen ingevuld).
 function heeftBv() {
-  return [...document.querySelectorAll("#inkLijst .bronType")].map(s => s.value).includes("winst_bv");
+  const t = [...document.querySelectorAll("#inkLijst .bronType")].map(s => s.value);
+  return t.includes("winst_bv") || t.includes("dividend_bv");
 }
 function toonZakelijk() {
   const types = [...document.querySelectorAll("#inkLijst .bronType")].map(s => s.value);
-  const bv = types.includes("winst_bv");
-  const ond = bv || types.includes("winst");  // IB-onderneming of BV (voor de ZZP-vergelijking)
+  const bv = types.includes("winst_bv") || types.includes("dividend_bv");
+  const ond = types.includes("winst_bv") || types.includes("winst");  // IB-onderneming of BV (voor de ZZP-vergelijking)
   document.querySelectorAll(".topnav .zak").forEach(e => e.classList.toggle("hide", !bv));
   $("grpBv").classList.toggle("hide", !bv);     // bestaand BV-vermogen alleen met een BV
   $("grpUren").classList.toggle("hide", !ond);  // urencriterium alleen bij ondernemersinkomen
@@ -752,7 +754,7 @@ document.querySelectorAll(".subtab").forEach(t => t.onclick = () => {
 });
 
 function somBronnen(sel) {
-  const s = {loon:0, winst:0, winst_bv:0, uitkering_pensioen:0, resultaat_overige_werkzaamheden:0};
+  const s = {loon:0, winst:0, winst_bv:0, dividend_bv:0, uitkering_pensioen:0, resultaat_overige_werkzaamheden:0};
   document.querySelectorAll(sel + " .bron").forEach(b =>
     s[b.querySelector(".bronType").value] += (+b.querySelector(".bronBedrag").value || 0));
   return s;
@@ -809,7 +811,7 @@ async function berekenIndividu() {
     const partner = +$("mixPartner").value;
 
     // Lege staat: zolang er geen inkomen is ingevuld, een uitlegscherm i.p.v. € 0.
-    const heeftInkomen = (s.loon + s.winst + s.winst_bv + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden) > 0;
+    const heeftInkomen = (s.loon + s.winst + s.winst_bv + s.dividend_bv + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden) > 0;
     if (!heeftInkomen && partner <= 0) {
       out.innerHTML = `
         <h2>Welkom — vul links je gegevens in</h2>
@@ -823,6 +825,7 @@ async function berekenIndividu() {
       return;
     }
     const body = {jaar:+$("jaar").value, loon, ondernemer_inkomen:ondernemer, huidige_vorm:huidigeVorm, urencriterium:$("mixUren").checked,
+      dividend_box2:s.dividend_bv,
       partner_inkomen:partner, rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
       box3:{banktegoeden:+$("mixBank").value, overige_bezittingen:+$("mixBeleg").value, schulden:+$("mixSchulden").value},
       eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
@@ -1044,6 +1047,7 @@ function tab1Body() {
   const body = {jaar:+$("jaar").value,
     loon: s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden,
     ondernemer_inkomen: s.winst + s.winst_bv, huidige_vorm: s.winst_bv > 0 ? "bv" : "zzp",
+    dividend_box2: s.dividend_bv,
     urencriterium:$("mixUren").checked, partner_inkomen:partner,
     rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
     box3:{banktegoeden:+$("mixBank").value, overige_bezittingen:+$("mixBeleg").value, schulden:0},
