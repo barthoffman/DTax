@@ -1,0 +1,225 @@
+{
+  "jaar": 2025,
+  "_toelichting": "Parameters belastingjaar 2025. Bron-ID's verwijzen naar bronnen/bronregister.md. Percentages als fractie (0.3582 = 35,82%).",
+  "aow_leeftijd": "67j0m",
+  "box1": {
+    "_bron": "B1-tarief",
+    "premies_volksverzekeringen_schijf1": {"aow": 0.1790, "anw": 0.0010, "wlz": 0.0965, "_bron": "B1-premies"},
+    "schijven_onder_aow": [
+      {"tot": 38441, "tarief": 0.3582},
+      {"tot": 76817, "tarief": 0.3748},
+      {"tot": null, "tarief": 0.4950}
+    ],
+    "schijven_vanaf_aow": [
+      {"tot": 38441, "tarief": 0.1792},
+      {"tot": 76817, "tarief": 0.3748},
+      {"tot": null, "tarief": 0.4950}
+    ],
+    "schijf1_grens_geboren_voor_1946": 40502,
+    "eigenwoningforfait": {
+      "_bron": "B1-ewf",
+      "percentage": 0.0035,
+      "woz_grens_villa": 1330000,
+      "villa_vast_bedrag": 4655,
+      "villa_percentage": 0.0235
+    },
+    "hra_max_aftrektarief": 0.3748,
+    "_bron_hra": "B1-hra",
+    "hillen_percentage": 0.7667,
+    "_bron_hillen": "B1-hillen"
+  },
+  "onderneming": {
+    "_bron": "OND-BD-zelfst25",
+    "urencriterium_uren": 1225,
+    "zelfstandigenaftrek": 2470,
+    "startersaftrek": 2123,
+    "mkb_winstvrijstelling_pct": 0.127,
+    "stakingsaftrek": 3630,
+    "_bron_mkb": "OND-BD-mkb",
+    "_bron_starters": "OND-WET-3.76"
+  },
+  "heffingskortingen": {
+    "algemene": {
+      "_bron": "HK-02",
+      "grondslag": "verzamelinkomen",
+      "onder_aow": {"max": 3068, "afbouw_start": 28406, "afbouw_pct": 0.06337, "nihil_vanaf": 76817},
+      "vanaf_aow": {"max": 1536, "afbouw_start": 28406, "afbouw_pct": 0.03170, "nihil_vanaf": 76817}
+    },
+    "arbeids": {
+      "_bron": "HK-04",
+      "grondslag": "arbeidsinkomen",
+      "onder_aow": {
+        "max": 5599,
+        "segmenten": [
+          {"ondergrens": 0, "basis": 0, "pct": 0.08053},
+          {"ondergrens": 12169, "basis": 980, "pct": 0.30030},
+          {"ondergrens": 26288, "basis": 5220, "pct": 0.02258},
+          {"ondergrens": 43071, "basis": 5599, "pct": -0.06510},
+          {"ondergrens": 129079, "basis": 0, "pct": 0}
+        ]
+      },
+      "vanaf_aow_max": 2802
+    },
+    "iack": {
+      "_bron": "HK-06",
+      "grondslag": "arbeidsinkomen",
+      "drempel": 6145,
+      "opbouw_pct": 0.1145,
+      "max": 2986,
+      "vanaf_aow_max": 1495,
+      "kind_max_leeftijd": 12
+    },
+    "ouderen": {
+      "_bron": "HK-08",
+      "grondslag": "verzamelinkomen",
+      "max": 2035,
+      "afbouw_start": 45308,
+      "afbouw_pct": 0.15,
+      "nihil_vanaf": 58875
+    },
+    "alleenstaande_ouderen": {"_bron": "HK-08", "bedrag": 531},
+    "jonggehandicapten": {"_bron": "HK-08", "bedrag": 909}
+  },
+  "zvw": {
+    "_bron": "ZVW-BD",
+    "_toelichting": "Zorgverzekeringswet inkomensafhankelijke bijdrage. Werkgeversheffing (werknemer, werkgeverskant) vs. lage bijdrage (ZZP/DGA, zelf). Geen Zvw over box 2-dividend.",
+    "werkgeversheffing_pct": 0.0651,
+    "lage_bijdrage_pct": 0.0526,
+    "max_bijdrage_inkomen": 75864
+  },
+  "werknemersverzekeringen": {
+    "_bron": "WV-07",
+    "_toelichting": "Werkgeverspremies WW/WIA. Default-profiel = kleine werkgever met vast contract (Awf laag + Aof laag + Whk gemiddeld). Whk is indicatief/werkgever-specifiek. DGA (a.b.) en ZZP zijn NIET verzekerd.",
+    "awf_laag": 0.0274,
+    "awf_hoog": 0.0774,
+    "aof_laag": 0.0628,
+    "aof_hoog": 0.0764,
+    "whk_gemiddeld": 0.0133,
+    "_bron_whk": "WV-04",
+    "max_premieloon": 75864
+  },
+  "box2": {
+    "_bron": "DGA-04",
+    "_toelichting": "Aanmerkelijk belang, art. 2.12 Wet IB 2001. Grens per persoon; met fiscale partner ~2x.",
+    "schijven": [
+      {"tot": 67804, "tarief": 0.245},
+      {"tot": null, "tarief": 0.31}
+    ]
+  },
+  "vpb": {
+    "_bron": "DGA-02",
+    "_toelichting": "Vennootschapsbelasting, art. 22 Wet Vpb 1969.",
+    "schijven": [
+      {"tot": 200000, "tarief": 0.19},
+      {"tot": null, "tarief": 0.258}
+    ]
+  },
+  "dga": {
+    "_bron": "DGA-06",
+    "gebruikelijk_loon_normbedrag": 56000,
+    "_bron_gebruikelijk_loon": "DGA-07",
+    "excessief_lenen_drempel": 500000,
+    "_bron_excessief_lenen": "DGA-09"
+  },
+  "vaste_kosten_indicatief": {
+    "_indicatief": true,
+    "_bron": "marktindicatie (boekhoudkosten); NIET wettelijk, instelbaar per gebruiker",
+    "_toelichting": "Jaarlijkse administratie-/boekhoudkosten per rechtsvorm; aftrekbaar (verlagen grondslag). Oprichtingskosten BV (eenmalig) niet inbegrepen.",
+    "werknemer": 0,
+    "zzp": 900,
+    "dga": 2000
+  },
+  "oprichtingskosten_indicatief": {
+    "_indicatief": true,
+    "_bron": "marktindicatie (notaris BV-oprichting + KvK); NIET wettelijk, instelbaar",
+    "_toelichting": "Eenmalig; geamortiseerd over de horizon. Notariskosten BV-oprichting doorgaans NIET aftrekbaar -> als cash-out gemodelleerd. Aanname: men switcht niet terug -> lange horizon -> klein effect.",
+    "werknemer": 0,
+    "zzp": 80,
+    "dga": 600,
+    "standaard_horizon_jaren": 10
+  },
+  "pensioen": {
+    "_bron": "PEN-08",
+    "_toelichting": "Jaarruimte lijfrente (art. 3.127 Wet IB 2001). Factor A is invoer; voor ZZP/DGA zonder werkgeverspensioen = 0.",
+    "opbouwpercentage": 0.30,
+    "aow_franchise": 18475,
+    "max_premiegevend_inkomen": 137800,
+    "max_jaarruimte": 35798,
+    "max_reserveringsruimte": 42108,
+    "factor_aftrek_pensioenaangroei": 6.27
+  },
+  "toeslagen": {
+    "_toelichting": "Toetsingsinkomen = verzamelinkomen aanvrager + toeslagpartner. Zorgtoeslag-afbouw als lineaire benadering tussen drempelinkomen en inkomensgrens (afbouw ~13,73% meerinkomen); drempelinkomen is afgeleid. Vermogenstoets op box 3-grondslag, peildatum 1 jan.",
+    "zorgtoeslag": {
+      "_bron": "TOE-BD-ZT-hoogte",
+      "max_alleenstaande": 1572,
+      "max_partners": 3000,
+      "drempelinkomen": 28300,
+      "inkomensgrens_alleenstaande": 39719,
+      "inkomensgrens_partners": 50206,
+      "vermogensgrens_alleenstaande": 141896,
+      "vermogensgrens_partners": 179429
+    },
+    "huurtoeslag": {
+      "_bron": "TOE-RO-HT2025",
+      "structuur": "benadering_2025",
+      "_toelichting": "LET OP: 2025 gebruikte officieel een kwadratische eigen-bijdrageformule. Hier benaderd met hetzelfde lineaire model als 2026 (ijkpunt/afbouw geschat) — markeren als benadering tot exacte 2025-formuleparameters zijn verwerkt.",
+      "min_eigen_bijdrage_1p": 199.05,
+      "min_eigen_bijdrage_mp": 197.24,
+      "kwaliteitskortingsgrens": 477.20,
+      "aftoppingsgrens_laag": 682.96,
+      "aftoppingsgrens_hoog": 731.93,
+      "max_huurgrens": 900.07,
+      "minimuminkomensijkpunt_1p": 22500,
+      "minimuminkomensijkpunt_mp": 30500,
+      "afbouw_per_euro_1p": 0.27,
+      "afbouw_per_euro_mp": 0.22,
+      "vermogensgrens_alleenstaande": 37395,
+      "vermogensgrens_partners": 74790
+    },
+    "kinderopvangtoeslag": {
+      "_bron": "TOE-RO-KOT2025",
+      "_toelichting": "Vergoedingspercentage lineair benaderd tussen de twee inkomensankers (officieel staffel Bijlage I). Geen vermogenstoets.",
+      "max_uurtarief_dagopvang": 10.71,
+      "max_uurtarief_bso": 9.52,
+      "max_uurtarief_gastouder": 8.10,
+      "urennorm_dagopvang_pct": 1.40,
+      "urennorm_bso_pct": 0.70,
+      "urennorm_gastouder_pct": 1.40,
+      "max_uren_per_kind_per_maand": 230,
+      "vergoeding_max_pct": 0.96,
+      "vergoeding_inkomensgrens_max": 49403,
+      "vergoeding_min_pct_eerste_kind": 0.333,
+      "vergoeding_min_pct_volgende_kind": 0.671,
+      "vergoeding_inkomensgrens_min": 226546
+    },
+    "kindgebonden_budget": {
+      "_bron": "TOE-WKGB",
+      "basisbedrag_per_kind": 2511,
+      "opslag_12_15": 703,
+      "opslag_16_17": 936,
+      "alleenstaande_ouderkop": 3389,
+      "afbouwpunt_alleenstaande": 28406,
+      "afbouwpunt_partners": 37545,
+      "afbouw_pct": 0.0710,
+      "vermogensgrens_alleenstaande": 141896,
+      "vermogensgrens_partners": 179429
+    }
+  },
+  "box3": {
+    "_bron": "B3-02",
+    "tarief": 0.36,
+    "heffingvrij_vermogen_pp": 57684,
+    "schuldendrempel_pp": 3800,
+    "forfait": {
+      "banktegoeden": 0.0137,
+      "overige_bezittingen": 0.0588,
+      "schulden": 0.0270,
+      "banktegoeden_voorlopig": false,
+      "schulden_voorlopig": false,
+      "_bron": "B3-04"
+    },
+    "groene_vrijstelling_pp": 26312,
+    "_bron_groen": "B3-07"
+  }
+}

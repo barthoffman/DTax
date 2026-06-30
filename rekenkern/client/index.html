@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Belasting-optimalisatie — dashboard</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#e2e8f0; --mut:#94a3b8;
+          --accent:#38bdf8; --good:#34d399; --warn:#fbbf24; --input:#0b1220; --btnTxt:#04222e; }
+  body.light { --bg:#f1f5f9; --card:#ffffff; --line:#dbe2ea; --txt:#0f172a; --mut:#64748b;
+          --accent:#0284c7; --good:#059669; --warn:#b45309; --input:#f8fafc; --btnTxt:#ffffff; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+         background:var(--bg); color:var(--txt); transition:background .2s,color .2s; }
+  header { padding:20px 24px; border-bottom:1px solid var(--line);
+           display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  header h1 { margin:0; font-size:20px; }
+  #theme { width:auto; padding:8px 14px; background:transparent; color:var(--accent);
+           border:1px solid var(--accent); border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+  header p { margin:4px 0 0; color:var(--mut); font-size:13px; }
+  .wrap { display:grid; grid-template-columns: 360px 1fr; gap:24px; padding:24px; max-width:1200px; }
+  @media (max-width:820px){ .wrap{ grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; }
+  h2 { font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--mut); margin:0 0 12px; }
+  fieldset { border:none; padding:0; margin:0 0 16px; }
+  legend { font-size:12px; color:var(--accent); margin-bottom:8px; font-weight:600; }
+  label { display:block; margin:8px 0; font-size:13px; color:var(--mut); }
+  input[type=number], select { width:100%; height:38px; box-sizing:border-box; padding:8px 10px;
+         margin-top:3px; border-radius:6px; border:1px solid var(--line); background:var(--input);
+         color:var(--txt); font-size:14px; }
+  .row { display:flex; gap:10px; align-items:stretch; }
+  .row > label { flex:1; display:flex; flex-direction:column; justify-content:flex-end; }
+  .chk { display:flex; align-items:center; gap:8px; color:var(--txt); }
+  .chk input { width:auto; margin:0; }
+  button { width:100%; padding:11px; margin-top:6px; border:none; border-radius:8px;
+           background:var(--accent); color:var(--btnTxt); font-weight:700; font-size:15px; cursor:pointer; }
+  button.sec { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .tab { flex:1; width:auto; margin:0; padding:9px; font-size:13px; font-weight:600;
+         background:transparent; color:var(--mut); border:1px solid var(--line); }
+  .tab.active { background:var(--accent); color:var(--btnTxt); border-color:var(--accent); }
+  .bron { display:flex; gap:8px; margin:8px 0; align-items:center; }
+  .bron select { flex:1.4; } .bron input { flex:1; margin-top:0; }
+  .bron .del { width:auto; margin:0; padding:8px 12px; }
+  .best { font-size:15px; }
+  .best b { color:var(--good); font-size:22px; text-transform:uppercase; }
+  table { width:100%; border-collapse:collapse; margin-top:8px; font-size:14px; }
+  th,td { text-align:right; padding:7px 8px; border-bottom:1px solid var(--line); }
+  th:first-child, td:first-child { text-align:left; }
+  tr.win td { color:var(--good); font-weight:700; }
+  .num { font-variant-numeric: tabular-nums; }
+  ul.tips { margin:10px 0 0; padding-left:18px; color:var(--mut); font-size:13px; }
+  ul.tips li { margin:6px 0; }
+  .muted { color:var(--mut); font-size:13px; }
+  details.uitsplitsing { margin-top:14px; border-top:1px solid var(--line); }
+  details.uitsplitsing > summary { cursor:pointer; font-weight:700; font-size:15px; padding:10px 0; list-style:none; }
+  details.uitsplitsing > summary::-webkit-details-marker { display:none; }
+  details.uitsplitsing > summary::before { content:"\25B8\00A0"; color:var(--mut); }
+  details.uitsplitsing[open] > summary::before { content:"\25BE\00A0"; }
+  #hoofdtabs { display:none; }
+  .topnav { grid-column:1 / -1; display:grid; grid-template-columns:repeat(6, auto);
+            gap:8px; align-items:center; justify-content:start; margin-bottom:4px; }
+  @media (max-width:820px){ .topnav { justify-content:stretch; } }
+  .topnav .fstep { width:100%; }
+  .topnav .fpijl { justify-self:center; }
+  .fstep { width:auto; padding:8px 16px; border:1px solid var(--line); border-radius:8px; background:var(--input); cursor:pointer; font-weight:600; font-size:14px; color:var(--txt); }
+  .fstep:hover { border-color:#6ea8fe; }
+  .fstep.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
+  .fpijl { color:var(--mut); }
+  .fsub { color:var(--mut); font-size:12px; }
+  .tag { font-size:11px; border:1px solid var(--line); border-radius:999px; padding:1px 7px; color:var(--mut); margin-left:6px; }
+  pre { background:var(--input); border:1px solid var(--line); border-radius:8px; padding:14px;
+        overflow:auto; font-size:12px; white-space:pre-wrap; }
+  .hide { display:none; }
+  .err { color:#f87171; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Belasting-optimalisatie</h1>
+    <p>Vul je situatie in en zie de fiscaal gunstigste route (werknemer / ZZP / DGA). Schatting, geen aangifte.</p>
+  </div>
+  <button id="theme" type="button" aria-label="Wissel licht/donker">☀️ Licht</button>
+</header>
+
+<div class="wrap">
+  <nav class="topnav">
+    <button type="button" class="fstep active" data-go="individu" style="grid-column:1;grid-row:1">NU</button>
+    <span class="fpijl" style="grid-column:2;grid-row:1">→</span>
+    <button type="button" class="fstep" data-go="vermogen" data-sub="advies" style="grid-column:3;grid-row:1">Privé vermogen</button>
+    <span class="fpijl" style="grid-column:4;grid-row:1">→</span>
+    <button type="button" class="fstep" data-go="straks" style="grid-column:5;grid-row:1">Privé straks</button>
+    <button type="button" class="fstep zak hide" data-go="vermogen" data-sub="uitstel" style="grid-column:3;grid-row:2">Zakelijk vermogen</button>
+    <span class="fpijl zak hide" style="grid-column:4;grid-row:2">→</span>
+    <button type="button" class="fstep zak hide" data-go="vermogen" data-sub="uitstel" style="grid-column:5;grid-row:2">Bedrijf straks</button>
+    <span class="fsub zak hide" style="grid-column:6;grid-row:2;white-space:nowrap">opnemen → privé (box 2)</span>
+  </nav>
+
+  <form class="card" id="form" onsubmit="return false">
+    <h2>Jouw gegevens</h2>
+
+    <div class="tabs" id="hoofdtabs">
+      <button type="button" class="tab active" data-mode="individu">Mijn belasting</button>
+      <button type="button" class="tab" data-mode="vermogen">Vermogen &amp; BV</button>
+      <button type="button" class="tab" data-mode="straks">Straks (pensioen)</button>
+    </div>
+
+    <div class="row">
+      <label>Belastingjaar
+        <select id="jaar"><option>2026</option><option>2025</option></select>
+      </label>
+      <label>Huidige leeftijd (in jaren)<input type="number" id="mixLeeftijd" placeholder="bijv. 45" min="0" max="100"></label>
+    </div>
+
+
+    <div id="modeVergelijk" class="hide">
+    <fieldset>
+      <legend>Algemeen</legend>
+      <label>Economische waarde per jaar (€)
+        <input type="number" id="economische_waarde" value="120000" min="0" step="1000">
+        <span class="muted">brutoloon / winst / bv-winst vóór belasting</span>
+      </label>
+      <label class="chk"><input type="checkbox" id="urencriterium" checked> Voldoet aan urencriterium (ZZP)</label>
+      <label>Gebruikelijk loon DGA (€, leeg = normbedrag)
+        <input type="number" id="gebruikelijk_loon" placeholder="normbedrag" min="0" step="1000">
+        <span class="muted">zet = economische waarde voor "eigen gebruik"</span>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Huishouden</legend>
+      <label class="chk"><input type="checkbox" id="partner"> Heeft toeslagpartner</label>
+      <label>Inkomen partner (€)
+        <input type="number" id="partner_inkomen" placeholder="0" min="0" step="1000">
+      </label>
+      <div class="row">
+        <label>Aantal kinderen<input type="number" id="aantal_kinderen" placeholder="0" min="0" step="1"></label>
+        <label>Rekenhuur p/mnd (€)<input type="number" id="rekenhuur" placeholder="geen" min="0" step="10"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Vermogen box 3</legend>
+      <div class="row">
+        <label>Spaargeld (€)<input type="number" id="spaargeld" placeholder="0" min="0" step="5000"></label>
+        <label>Beleggingen / aandelen (€)<input type="number" id="prive_vermogen" placeholder="0" min="0" step="5000"></label>
+      </div>
+      <span class="muted">Sparen ~1,3% forfait, beleggingen ~6% — anders belast.</span>
+      <div class="row">
+        <label>Verwacht rendement (%)<input type="number" id="verwacht_rendement" value="6" min="0" step="0.5"></label>
+        <label>Horizon BV (jaar)<input type="number" id="horizon_jaren" value="10" min="1" step="1"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="tegenbewijs_box3" checked> Tegenbewijs box 3 (werkelijk rendement)</label>
+    </fieldset>
+    </div><!-- /modeVergelijk -->
+
+    <div id="modeWerkelijk" class="hide">
+      <fieldset>
+        <legend>Inkomstenbronnen</legend>
+        <div id="bronnen"></div>
+        <button type="button" class="sec" id="addBron" style="width:auto;padding:6px 12px;margin-top:4px">+ bron toevoegen</button>
+        <p class="muted" style="margin-top:8px">Meerdere banen tellen samen in box 1; meerdere ondernemingen samen als winst.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Onderneming &amp; situatie</legend>
+        <label class="chk"><input type="checkbox" id="urencriterium2" checked> Voldoet aan urencriterium</label>
+        <label class="chk"><input type="checkbox" id="aow"> AOW-gerechtigd</label>
+      </fieldset>
+      <fieldset>
+        <legend>Eigen woning (optioneel)</legend>
+        <div class="row">
+          <label>WOZ-waarde (€)<input type="number" id="woz" placeholder="0" min="0" step="10000"></label>
+          <label>Hypotheekrente p/jr (€)<input type="number" id="rente" placeholder="0" min="0" step="500"></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Box 3-vermogen (optioneel)</legend>
+        <label>Banktegoeden / sparen (€)<input type="number" id="bank" placeholder="0" min="0" step="5000"></label>
+        <div class="row">
+          <label>Beleggingen (€)<input type="number" id="overige" placeholder="0" min="0" step="5000"></label>
+          <label>Schulden (€)<input type="number" id="schulden" placeholder="0" min="0" step="5000"></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Partner (optioneel)</legend>
+        <label class="chk"><input type="checkbox" id="metPartner"> Met fiscale partner</label>
+        <div id="partnerBronnen"></div>
+        <button type="button" class="sec" id="addPartnerBron" style="width:auto;padding:6px 12px;margin-top:4px">+ partnerbron</button>
+      </fieldset>
+    </div><!-- /modeWerkelijk -->
+
+    <div id="modeIndividu">
+      <fieldset>
+        <legend>Wat verdien je, en hoe?</legend>
+        <div id="inkLijst"></div>
+        <button type="button" id="inkAdd" style="width:auto;padding:6px 12px;margin-top:4px">+ inkomensbestanddeel</button>
+        <div id="grpUren" class="hide"><label class="chk" style="margin-top:10px"><input type="checkbox" id="mixUren" checked> Onderneming voldoet aan urencriterium (1.225 u)</label></div>
+      </fieldset>
+      <fieldset>
+        <legend>Jouw situatie</legend>
+        <label class="chk"><input type="checkbox" id="hasPartner"> Partner</label>
+        <div id="grpPartner" class="hide">
+          <div class="row">
+            <label>Leeftijd partner (in jaren)<input type="number" id="mixPartnerLeeftijd" placeholder="bijv. 43" min="0" max="100"></label>
+            <label>Inkomen partner (€)<input type="number" id="mixPartner" placeholder="0" min="0" step="1000"></label>
+          </div>
+        </div>
+        <label class="chk"><input type="checkbox" id="hasWoning"> Woning</label>
+        <div id="grpWoning" class="hide">
+          <label>Huur of koop?
+            <select id="wonen"><option value="koop">Koopwoning</option><option value="huur">Huur</option></select></label>
+          <div id="grpKoop">
+            <div class="row">
+              <label>WOZ-waarde (€)<input type="number" id="mixWoz" placeholder="0" min="0" step="10000"></label>
+              <label>Hypotheekrente p/jr (€)<input type="number" id="mixRente" placeholder="0" min="0" step="500"></label>
+            </div>
+          </div>
+          <div id="grpHuur" class="hide">
+            <label>Rekenhuur p/mnd (€, voor huurtoeslag)<input type="number" id="mixHuur" placeholder="0" min="0" step="10"></label>
+          </div>
+        </div>
+        <label class="chk"><input type="checkbox" id="hasVermogen"> Spaargeld / beleggingen</label>
+        <div id="grpVermogen" class="hide">
+          <div class="row">
+            <label>Spaargeld box 3 (€)<input type="number" id="mixBank" placeholder="0" min="0" step="5000"></label>
+            <label>Beleggingen / 2e woning / verhuur (box 3, €)<input type="number" id="mixBeleg" placeholder="0" min="0" step="5000"></label>
+          </div>
+          <label>Schulden box 3 (hypotheek 2e woning, leningen — niet je eigen woning) (€)<input type="number" id="mixSchulden" placeholder="0" min="0" step="5000"></label>
+          <p class="muted" style="margin:2px 0 0">Bestaande schuld bij een box 3-bezit. Lenen puur om box 3-belasting te verlagen loont niet: een schuld bespaart maar ~0,97%/jaar (2,7% forfait × 36%), terwijl je 4–5% echte rente betaalt — en de eerste € 3.800 p.p. telt door de drempel niet mee.</p>
+          <div id="grpRend" class="hide">
+            <div class="row">
+              <label>Verwacht rendement beleggingen (%)<input type="number" id="mixRendement" value="6" min="0"></label>
+              <label>Horizon (jaren)<input type="number" id="mixHorizon" value="15" min="1"></label>
+            </div>
+          </div>
+        </div>
+        <label class="chk"><input type="checkbox" id="hasKinderen"> Kinderen (kindgebonden budget + kinderopvang)</label>
+        <div id="grpKinderen" class="hide">
+          <label>Aantal kinderen<input type="number" id="mixKinderen" placeholder="0" min="0" step="1"></label>
+          <div id="grpKov" class="hide">
+            <p class="muted" style="margin:8px 0 0">Kinderopvang (optioneel):</p>
+            <div class="row">
+              <label>Soort
+                <select id="mixKovSoort"><option value="">geen</option><option value="dagopvang">dagopvang</option><option value="bso">bso</option><option value="gastouder">gastouder</option></select></label>
+              <label>Kinderen in opvang<input type="number" id="mixKovKinderen" placeholder="0" min="0"></label>
+            </div>
+            <div class="row">
+              <label>Uren p/mnd per kind<input type="number" id="mixKovUren" placeholder="0" min="0"></label>
+              <label>Uurtarief (€)<input type="number" id="mixKovTarief" placeholder="0" min="0"></label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div><!-- /modeIndividu -->
+
+    <div id="modeVermogen" class="hide">
+      <div class="tabs" style="margin-bottom:12px">
+        <button type="button" class="subtab tab active subPrive" data-sub="advies">Advies</button>
+        <button type="button" class="subtab tab subPrive" data-sub="beleggen">Beleggingsgroei</button>
+        <button type="button" class="subtab tab subPrive" data-sub="lijfrente">Lijfrente</button>
+        <button type="button" class="subtab tab subZak hide" data-sub="uitstel">BV-uitstel</button>
+        <button type="button" class="subtab tab subZak hide" data-sub="dividend">Dividend</button>
+      </div>
+
+    <div id="modeVermogensadvies">
+      <fieldset>
+        <legend>Waar laat ik mijn vermogen het beste renderen?</legend>
+        <p class="muted">Gebruikt je inkomen, vermogen en besparing uit <b>Mijn belasting</b>.</p>
+        <label>Nieuwe inleg per jaar (€, leeg = besparing uit Mijn belasting)<input type="number" id="vaNieuw" placeholder="besparing" min="0"></label>
+        <div class="row">
+          <label>Vrij/liquide houden (€)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
+          <label>Inflatie (%)<input type="number" id="vaInflatie" value="2" min="0"></label>
+        </div>
+        <div class="row">
+          <label>Uitkeringsjaren (spreiding van de uitkering)<input type="number" id="vaUitkeringsjaren" value="20" min="1"></label>
+          <label>Verwacht pensioen straks (AOW + 2e pijler, €/jaar)<input type="number" id="vaPensioen" placeholder="van je pensioenoverzicht" min="0" step="1000"></label>
+        </div>
+        <div id="grpBv" class="hide">
+          <p class="muted" style="margin:6px 0 0">Bestaand BV-vermogen (al opgepot in je BV):</p>
+          <div class="row">
+            <label>BV-spaargeld (€)<input type="number" id="mixBvSpaar" placeholder="0" min="0" step="5000"></label>
+            <label>BV-beleggingen (€)<input type="number" id="mixBvBeleg" placeholder="0" min="0" step="5000"></label>
+          </div>
+        </div>
+      </fieldset>
+    </div><!-- /modeVermogensadvies -->
+
+    <div id="modeBeleggen" class="hide">
+      <fieldset>
+        <legend>Beleggingsgroei — kwalificatie</legend>
+        <label>Beleggingen (€, forfait ~6%)<input type="number" id="belBeleggingen" value="100000" min="0"></label>
+        <div class="row">
+          <label>Spaargeld (€, ~1,3%)<input type="number" id="belSpaargeld" placeholder="0" min="0"></label>
+          <label>Schulden (€, ~2,7%)<input type="number" id="belSchulden" placeholder="0" min="0"></label>
+        </div>
+        <label>Verwacht rendement op beleggingen (%)<input type="number" id="belRendement" value="10" min="0"></label>
+        <label>Overig box 1-inkomen (€)
+          <input type="number" id="belOverig" placeholder="0" min="0">
+          <span class="muted">bepaalt het marginale tarief voor ROW/winst</span></label>
+        <label class="chk"><input type="checkbox" id="belUren"> Voldoet aan urencriterium (winst)</label>
+        <label class="chk"><input type="checkbox" id="belTegenbewijs" checked> Box 3 met tegenbewijs</label>
+        <label class="chk"><input type="checkbox" id="belPartner"> Fiscale partner (2× heffingvrij box 3)</label>
+      </fieldset>
+    </div><!-- /modeBeleggen -->
+
+    <div id="modeUitstel" class="hide">
+      <fieldset>
+        <legend>Geld in de BV laten of uitkeren?</legend>
+        <label>Kapitaal in de BV na Vpb (€)<input type="number" id="uitKapitaal" value="100000" min="0"></label>
+        <label>Verwacht jaarrendement (%)<input type="number" id="uitRendement" value="8" min="0"></label>
+        <label>Horizon (jaren)<input type="number" id="uitJaren" value="15" min="1"></label>
+        <label class="chk"><input type="checkbox" id="uitTegenbewijs" checked> Box 3 met tegenbewijs</label>
+        <label class="chk"><input type="checkbox" id="uitPartner"> Fiscale partner (2× heffingvrij box 3)</label>
+        <p class="muted">Route A: laat het in de BV groeien (jaarlijks Vpb, box 2 uitgesteld). Route B: keer nu uit (box 2) en beleg privé (box 3).</p>
+      </fieldset>
+    </div><!-- /modeUitstel -->
+
+    <div id="modeDividend" class="hide">
+      <fieldset>
+        <legend>Dividend uit de BV halen — box 2-planning</legend>
+        <label>Bedrag uit de BV halen (€)<input type="number" id="divBedrag" value="200000" min="0" step="5000"></label>
+        <label class="chk"><input type="checkbox" id="divPartner"> Fiscale partner met aanmerkelijk belang (2× de 24,5%-schijf)</label>
+        <p class="muted">Box 2: 24,5% tot € 68.843 p.p., 31% daarboven. Spreiden onder de grens houdt alles op 24,5%.</p>
+      </fieldset>
+    </div><!-- /modeDividend -->
+
+    <div id="modeLijfrente" class="hide">
+      <fieldset>
+        <legend>Lijfrente / banksparen / pensioenbeleggen vs. privé beleggen</legend>
+        <label>Inleg (€, pre-tax, binnen je jaarruimte)<input type="number" id="lijInleg" value="20000" min="0"></label>
+        <div class="row">
+          <label>Verwacht jaarrendement (%)<input type="number" id="lijRendement" value="6" min="0"></label>
+          <label>Jaren tot opname<input type="number" id="lijJaren" value="20" min="1"></label>
+        </div>
+        <div class="row">
+          <label>Verwacht pensioen straks (AOW + 2e pijler, €/jaar)<input type="number" id="lijOverigPensioen" placeholder="van je pensioenoverzicht" min="0" step="1000"></label>
+          <label>Uitkeringsjaren (spreiding)<input type="number" id="lijUitkeringsjaren" value="20" min="1"></label>
+        </div>
+        <div class="row">
+          <label>Marginaal tarief nu (%)<input type="number" id="lijMarginaal" value="37.56" min="0"></label>
+          <label>Opnametarief (%, leeg = uit pensioen berekend)<input type="number" id="lijTariefUit" placeholder="berekend" min="0"></label>
+        </div>
+        <label class="chk"><input type="checkbox" id="lijTegenbewijs" checked> Box 3 met tegenbewijs</label>
+        <label class="chk"><input type="checkbox" id="lijPartner"> Fiscale partner (2× heffingvrij box 3)</label>
+        <p class="muted">Vul je <b>verwachte pensioen</b> in (van mijnpensioenoverzicht.nl) → de tool berekent het realistische opnametarief: de lijfrente-uitkering stapelt daar bovenop. Hoe voller je pensioen, hoe eerder privé beleggen (box 3) wint.</p>
+      </fieldset>
+    </div><!-- /modeLijfrente -->
+    </div><!-- /modeVermogen -->
+
+    <div id="modeStraks" class="hide">
+      <fieldset>
+        <legend>Straks — je situatie vanaf pensioen (AOW-leeftijd 67)</legend>
+        <p class="muted" id="straksLeeftijd">Vul je leeftijd in bij Mijn belasting om te zien over hoeveel jaar.</p>
+        <button type="button" id="strVulIn" style="width:auto;padding:6px 12px;margin-bottom:10px">Vul in vanuit mijn opbouw</button>
+        <div class="row">
+          <label>AOW per jaar (€)<input type="number" id="strAow" value="19650" min="0"></label>
+          <label>Pensioen (2e pijler) per jaar (€)<input type="number" id="strPensioen" placeholder="0" min="0"></label>
+        </div>
+        <div class="row">
+          <label>Lijfrente-uitkering per jaar (€)<input type="number" id="strLijfrente" placeholder="0" min="0"></label>
+          <label>BV-dividend per jaar (€, box 2)<input type="number" id="strDividend" placeholder="0" min="0"></label>
+        </div>
+        <div class="row">
+          <label>Spaargeld box 3 (€)<input type="number" id="strBank" placeholder="0" min="0"></label>
+          <label>Beleggingen box 3 (€)<input type="number" id="strBeleg" placeholder="0" min="0"></label>
+        </div>
+        <label class="chk"><input type="checkbox" id="strPartner"> Partner met eigen AOW/pensioen</label>
+        <div id="strPartnerVelden" class="hide">
+          <div class="row">
+            <label>AOW partner per jaar (€)<input type="number" id="strpAow" value="13465" min="0"></label>
+            <label>Pensioen partner per jaar (€)<input type="number" id="strpPensioen" placeholder="0" min="0"></label>
+          </div>
+          <label>Lijfrente-uitkering partner per jaar (€)<input type="number" id="strpLijfrente" placeholder="0" min="0"></label>
+        </div>
+        <p class="muted">AOW-bedrag = SVB 2026 (alleenstaand € 19.650/jaar, gehuwd € 13.465 p.p.); pas aan naar jouw situatie.</p>
+      </fieldset>
+    </div><!-- /modeStraks -->
+
+    <button id="bereken" type="button">Bereken</button>
+    <button id="rapportBtn" class="sec" type="button">Toon rapport (voor boekhouder)</button>
+  </form>
+
+  <div>
+    <div class="card" id="result"><span class="muted">Vul je gegevens in en klik op <b>Bereken</b>.</span></div>
+    <div class="card hide" id="rapportCard" style="margin-top:24px">
+      <h2>Rapport</h2>
+      <button class="sec" type="button" id="download" style="width:auto;padding:7px 14px">Download .md</button>
+      <pre id="rapport"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const eur = n => "€ " + (n ?? 0).toLocaleString("nl-NL", {maximumFractionDigits:0});
+// Sta elk bedrag toe (geen step-validatie die bv. € 575.000 blokkeert)
+document.querySelectorAll('input[type=number]').forEach(i => i.step = 'any');
+
+// Selecteer de inhoud zodra je in een getalveld klikt — eerste toets vervangt de waarde
+// (zodat je een voorgevulde "0" niet eerst hoeft te wissen). Werkt ook voor later
+// toegevoegde velden (inkomensbestanddelen). setTimeout zorgt dat de selectie blijft staan.
+document.addEventListener('focusin', e => {
+  if (e.target.matches('input[type=number]')) setTimeout(() => { try { e.target.select(); } catch(_) {} }, 0);
+});
+function box3Uitleg(b3) {
+  if (!b3 || b3.belasting <= 0) return "";
+  let s = `box 3: grondslag ${eur(b3.grondslag)} − heffingvrij ${eur(b3.heffingvrij)}, `
+        + `forfaitair ${(b3.effectief_rendementspercentage*100).toFixed(2)}% × 36% = ${eur(b3.belasting)}`;
+  if (b3.tegenbewijs) s += " (tegenbewijs: werkelijk rendement)";
+  return `<p class="muted" style="margin-top:4px">${s}</p>`;
+}
+
+function body() {
+  const b = {
+    jaar: +$("jaar").value,
+    economische_waarde: +$("economische_waarde").value,
+    urencriterium: $("urencriterium").checked,
+    prive_vermogen: +$("prive_vermogen").value,
+    spaargeld: +$("spaargeld").value,
+    verwacht_rendement: (+$("verwacht_rendement").value) / 100,
+    horizon_jaren: +$("horizon_jaren").value,
+    tegenbewijs_box3: $("tegenbewijs_box3").checked,
+    profiel: {
+      heeft_toeslagpartner: $("partner").checked,
+      partner_inkomen: +$("partner_inkomen").value,
+      aantal_kinderen: +$("aantal_kinderen").value,
+    }
+  };
+  if ($("gebruikelijk_loon").value) b.gebruikelijk_loon = +$("gebruikelijk_loon").value;
+  if ($("rekenhuur").value) b.profiel.rekenhuur = +$("rekenhuur").value;
+  return b;
+}
+
+async function post(path, payload) {
+  const r = await fetch(path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+  if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+  return r.json();
+}
+
+const naam = {werknemer:"Werknemer", zzp:"ZZP", dga:"DGA"};
+
+async function bereken() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const a = await post("/optimaliseer", body());
+    laatste = {kind:"vergelijk", data:a};
+    const rows = a.uitkomsten.map(u => `
+      <tr class="${u.naam===a.beste?'win':''}">
+        <td>${naam[u.naam]}</td>
+        <td class="num">${eur(u.inkomen_netto)}</td>
+        <td class="num">${eur(u.vermogen_last)}</td>
+        <td class="num">${eur(u.totaal_netto)}</td>
+      </tr>`).join("");
+    const tips = a.tips.map(t => `<li>${t}</li>`).join("");
+    out.innerHTML = `
+      <h2>Advies — ${a.jaar}</h2>
+      <p class="best">Beste route: <b>${naam[a.beste]}</b> — ${eur(a.besparing_vs_slechtste)} per jaar voordeliger dan de duurste.</p>
+      <table>
+        <thead><tr><th>Route</th><th>Inkomen netto</th><th>Vermogenslast</th><th>Totaal netto</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p class="muted">Jaarruimte lijfrente: ${eur(a.jaarruimte_lijfrente)}${a.break_even_rendement?` · break-even rendement box 3/BV: ${(a.break_even_rendement*100).toFixed(1)}%`:""}</p>
+      <ul class="tips">${tips}</ul>`;
+  } catch (e) {
+    out.innerHTML = `<span class="err">Fout: ${e.message}</span>`;
+  }
+}
+
+let grondslagCache = null;
+async function grondslag() {
+  if (!grondslagCache) grondslagCache = await (await fetch("/grondslag")).json();
+  return grondslagCache;
+}
+function grondslagMd(g) {
+  const rows = g.wettelijke_grondslag.map(x=>`| ${x.onderwerp} | ${x.wetsartikel} | ${x.bron_id} | ${x.versie} |`).join("\n");
+  return `\n## Wettelijke grondslag\n\n| Onderwerp | Wetsartikel | Bron | Versie |\n|---|---|---|---|\n${rows}\n\n## Disclaimer\n\n${g.disclaimer}\n`;
+}
+function mdWerkelijk(r) {
+  const blok = (t,p) => `## ${t}\n- Bruto inkomen: ${eur(p.bruto_inkomen)}\n- Belastbaar box 1: ${eur(p.belastbaar_box1)}\n- Heffing box 1: ${eur(p.heffing_box1)}\n- Heffing box 3: ${eur(p.heffing_box3)}\n- Heffingskortingen (verzilverd): ${eur(p.verzilverd)}\n- Te betalen (IB/PVV): ${eur(p.te_betalen)}\n- Gemiddeld tarief: ${(p.gemiddeld_tarief*100).toFixed(1)}%\n\n`;
+  let m = `# Fiscaal rapport — werkelijk inkomen ${r.jaar}\n\n` + blok(r.partner?"Aanvrager":"Belastingplichtige", r);
+  if (r.partner) m += blok("Partner", r.partner) + `## Huishouden\n- Samen te betalen: ${eur(r.huishouden.te_betalen)}\n- Netto: ${eur(r.huishouden.netto)}\n\n`;
+  return m;
+}
+function mdMix(r) {
+  let m = `# Fiscaal rapport — mix (loon + extra) ${r.jaar}\n\nVast loon ${eur(r.vast_loon)} + extra activiteit ${eur(r.extra_waarde)}.\n\n| Vorm van de extra | Marg. tarief | Totale belasting | Huishouden netto |\n|---|---|---|---|\n`;
+  r.opties.forEach(o => m += `| ${o.label}${o.naam===r.beste?" (beste)":""} | ${(o.marginaal_tarief*100).toFixed(0)}% | ${eur(o.huishouden_belasting)} | ${eur(o.huishouden_netto)} |\n`);
+  m += "\n";
+  (r.waarschuwingen||[]).forEach(w => m += `- ${w}\n`);
+  return m;
+}
+
+function mdBeleggen(r) {
+  let m = `# Fiscaal rapport — beleggingsgroei ${r.jaar}\n\nBeleggingen ${eur(r.beleggingen)}, spaargeld ${eur(r.spaargeld)}, schulden ${eur(r.schulden)}; rendement ${(r.rendement_pct*100).toFixed(1)}% → groei ${eur(r.groei)}.\n\n| Kwalificatie | Belasting op groei | Effectief | Netto groei |\n|---|---|---|---|\n`;
+  r.opties.forEach(o => m += `| ${o.label}${o.naam===r.beste?" (gunstigst)":""} | ${eur(o.belasting)} | ${(o.effectief_tarief*100).toFixed(1)}% | ${eur(o.netto)} |\n`);
+  m += "\n";
+  (r.waarschuwingen||[]).forEach(w => m += `- ${w}\n`);
+  return m;
+}
+function mdUitstel(r) {
+  let m = `# Fiscaal rapport — BV-uitstel vs. privé ${r.jaar}\n\nKapitaal ${eur(r.kapitaal)}, rendement ${(r.rendement_pct*100).toFixed(1)}%, horizon ${r.jaren} jaar.\n\n| Route | Netto groei/jaar | Netto eindvermogen |\n|---|---|---|\n`;
+  m += `| In de BV laten${r.beste==="bv"?" (beste)":""} | ${(r.bv_netto_groei_pct*100).toFixed(2)}% | ${eur(r.bv_eindnetto)} |\n`;
+  m += `| Uitkeren + privé box 3${r.beste==="prive"?" (beste)":""} | ${(r.prive_netto_groei_pct*100).toFixed(2)}% | ${eur(r.prive_eindnetto)} |\n\n`;
+  (r.waarschuwingen||[]).forEach(w => m += `- ${w}\n`);
+  return m;
+}
+function mdAdvies(adv) {
+  let m = `# Fiscaal advies — ${adv.jaar}\n\nHuidige situatie: ${eur(adv.baseline_belasting)} belasting, ${eur(adv.baseline_toeslagen)} toeslagen, netto besteedbaar ${eur(adv.baseline_netto)}.\n\n`;
+  if (adv.rechtsvorm) {
+    m += `## Rechtsvorm ondernemersinkomen (beste: ${adv.rechtsvorm.beste_label})\n\n| Ondernemen als | Huishouden netto | Marginaal |\n|---|---|---|\n`;
+    adv.rechtsvorm.opties.forEach(o => m += `| ${o.label}${o.naam===adv.rechtsvorm.beste?" (beste)":""} | ${eur(o.huishouden_netto)} | ${(o.marginaal_tarief*100).toFixed(0)}% |\n`);
+    m += "\n";
+  }
+  if (adv.vermogen) {
+    const V = adv.vermogen;
+    m += `## Vermogen (box 3 ${eur(V.totaal)}: ${eur(V.spaargeld)} spaar + ${eur(V.beleggingen)} beleggingen)\n\nBox 3 nu: ± ${eur(V.box3_belasting_nu)}/jaar (heffingvrij ${eur(V.heffingvrij)} eraf).${V.beste?` Beleggingen over ${V.horizon} jaar: box 3 ${eur(V.prive_eindnetto)} vs. BV ${eur(V.bv_eindnetto)} → ${V.beste==="bv"?"BV":"box 3"}.`:""}\n\n`;
+  }
+  m += `## Optimalisaties (binnen de wet)\n\n| Optimalisatie | Besparing/jaar | Grondslag |\n|---|---|---|\n`;
+  adv.suggesties.forEach(s => m += `| ${s.titel} | ${eur(s.besparing)} | ${s.wetsartikel} |\n`);
+  m += `\n**Totaal potentieel: ${eur(adv.totaal_potentieel)} per jaar.**\n\n`;
+  adv.suggesties.forEach(s => m += `- ${s.titel}: ${s.toelichting}\n`);
+  return m;
+}
+function mdLijfrente(r) {
+  let m = `# Fiscaal rapport — lijfrente vs. privé ${r.jaar}\n\nInleg ${eur(r.inleg)}, rendement ${(r.rendement_pct*100).toFixed(1)}%, ${r.jaren} jaar; marginaal nu ${(r.marginaal_nu*100).toFixed(1)}%, opname ${(r.tarief_uit*100).toFixed(1)}%.\n\n| Route | Netto na ${r.jaren} jaar |\n|---|---|\n`;
+  m += `| Lijfrente${r.voordeel>=0?" (beste)":""} | ${eur(r.lijfrente_eindnetto)} |\n`;
+  m += `| Privé beleggen${r.voordeel<0?" (beste)":""} | ${eur(r.prive_eindnetto)} |\n\n`;
+  m += `Lijfrente wint zolang het opnametarief onder ± ${(r.breakeven_tarief_uit*100).toFixed(1)}% blijft.\n\n`;
+  (r.waarschuwingen||[]).forEach(w => m += `- ${w}\n`);
+  return m;
+}
+function mdVermogensadvies(r) {
+  const A = r.allocatie;
+  let m = `# Vermogensallocatie ${r.jaar}\n\nNieuwe inleg ${eur(r.nieuwe_inleg)}/jaar, ${r.jaren} jaar à ${(r.rendement*100).toFixed(1)}%.\n\n## Aanbevolen verdeling\n`;
+  if (A.lijfrente>0) m += `- Lijfrente: ${eur(A.lijfrente)}\n`;
+  if (A.box3>0) m += `- Box 3: ${eur(A.box3)}\n`;
+  if (A.bv>0) m += `- In de BV laten: ${eur(A.bv)}\n`;
+  m += `\n## Per container — netto na ${r.jaren} jaar\n| Container | Netto-eind |\n|---|---|\n`;
+  r.containers.forEach(c => m += `| ${c.label} | ${eur(c.netto_eind)} |\n`);
+  if (r.bestaand_bv) m += `\nBestaand BV-vermogen ${eur(r.bestaand_bv.bedrag)}: ${r.bestaand_bv.beste==='bv'?'in de BV laten':'uitkeren naar box 3'}.\n`;
+  m += `\n${r.liquiditeit_advies}\n`;
+  return m;
+}
+function mdStraks(r) {
+  const b = (t,p) => `## ${t}\n\n- Bruto ${eur(p.bruto_inkomen)} (AOW ${eur(p.aow)}${p.pensioen?`, pensioen ${eur(p.pensioen)}`:""}${p.lijfrente?`, lijfrente ${eur(p.lijfrente)}`:""}${p.bv_dividend?`, dividend ${eur(p.bv_dividend)}`:""})\n- Heffing box 1 ${eur(p.heffing_box1)} (AOW-tarief)${p.box2_belasting>0?`, box 2 ${eur(p.box2_belasting)}`:""}, box 3 ${eur(p.heffing_box3)}\n- Te betalen ${eur(p.te_betalen)} → netto ${eur(p.netto)}\n\n`;
+  let m = `# Straks — pensioenfase ${r.jaar}\n\n` + b(r.partner?"Jij":"Belastingplichtige", r.jij);
+  if (r.partner) m += b("Partner", r.partner);
+  m += `Huishouden: ${eur(r.huishouden.te_betalen)} te betalen, netto besteedbaar ${eur(r.huishouden.netto)}.\n`;
+  return m;
+}
+function mdDividend(r) {
+  let m = `# Box 2-dividendplanning ${r.jaar}\n\n${eur(r.bedrag)} uit de BV.\n\n| Route | Box 2-heffing |\n|---|---|\n`;
+  m += `| Alles dit jaar | ${eur(r.heffing_ineens)} |\n| Spreiden (${r.jaren_optimaal} jaar, ≤ ${eur(r.grens_laag)}/jaar @ ${(r.tarief_laag*100).toFixed(1)}%) | ${eur(r.heffing_gespreid)} |\n\n`;
+  m += `Besparing door spreiden: ${eur(r.besparing)} (24,5%-grens ${eur(r.grens_laag)}, daarboven ${(r.tarief_hoog*100).toFixed(0)}%).\n\n`;
+  (r.waarschuwingen||[]).forEach(w => m += `- ${w}\n`);
+  return m;
+}
+const mdBuilders = {individu: mdMix, advies: mdAdvies, beleggen: mdBeleggen, uitstel: mdUitstel, lijfrente: mdLijfrente, vermogensadvies: mdVermogensadvies, straks: mdStraks, dividend: mdDividend};
+
+async function rapport() {
+  const card = $("rapportCard"); card.classList.remove("hide");
+  $("rapport").textContent = "Bezig…";
+  try {
+    let md;
+    if (mode === "vergelijk") {
+      md = (await post("/rapport", {...body(), formaat:"markdown"})).inhoud;
+    } else {
+      if (!laatste || !mdBuilders[laatste.kind]) { $("rapport").textContent = "Klik eerst op Bereken."; return; }
+      const g = await grondslag();
+      md = mdBuilders[laatste.kind](laatste.data) + grondslagMd(g);
+    }
+    $("rapport").textContent = md;
+    $("download").onclick = () => {
+      const blob = new Blob([md], {type:"text/markdown"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "belastingrapport.md"; a.click();
+    };
+  } catch (e) {
+    $("rapport").innerHTML = `<span class="err">Fout: ${e.message}</span>`;
+  }
+}
+
+// Thema (licht/donker), onthouden in localStorage
+function pasThemaToe(thema) {
+  const licht = thema === "light";
+  document.body.classList.toggle("light", licht);
+  $("theme").textContent = licht ? "🌙 Donker" : "☀️ Licht";
+}
+$("theme").onclick = () => {
+  const nieuw = document.body.classList.contains("light") ? "dark" : "light";
+  localStorage.setItem("thema", nieuw);
+  pasThemaToe(nieuw);
+};
+pasThemaToe(localStorage.getItem("thema") || "dark");
+
+// ---- Modus 2: werkelijk inkomen met meerdere bronnen ----
+let mode = "individu";
+let laatste = null;   // {mode, data} voor het rapport
+let laatsteLijfrente = null;  // jaarruimte/marginaal uit Mijn belasting, voor de Lijfrente-sub-tab
+const bronLabels = {loon:"Loon (dienstverband)", winst:"Winst uit onderneming",
+  winst_bv:"Winst via eigen BV (DGA)",
+  uitkering_pensioen:"Uitkering / pensioen", resultaat_overige_werkzaamheden:"Resultaat overig werk"};
+
+function bronRij(type="loon", bedrag=0) {
+  const div = document.createElement("div");
+  div.className = "bron";
+  const opts = Object.entries(bronLabels).map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
+  div.innerHTML = `<select class="bronType">${opts}</select>
+    <input type="number" class="bronBedrag" value="${bedrag}" min="0" step="1000">
+    <button type="button" class="sec del" aria-label="verwijder">×</button>`;
+  div.querySelector(".bronType").value = type;
+  div.querySelector(".del").onclick = () => { div.remove(); if (typeof toonZakelijk === "function") toonZakelijk(); };
+  return div;
+}
+$("addBron").onclick = () => $("bronnen").appendChild(bronRij());
+$("bronnen").appendChild(bronRij("loon", 40000));
+$("bronnen").appendChild(bronRij("winst", 25000));
+$("addPartnerBron").onclick = () => $("partnerBronnen").appendChild(bronRij("loon", 20000));
+
+// Mijn belasting: dynamische inkomenslijst (hergebruikt bronRij)
+$("inkAdd").onclick = () => $("inkLijst").appendChild(bronRij("loon", ""));
+
+document.querySelectorAll(".tab[data-mode]").forEach(t => t.onclick = () => {
+  mode = t.dataset.mode;
+  document.querySelectorAll(".tab[data-mode]").forEach(x => x.classList.toggle("active", x===t));
+  $("modeVergelijk").classList.toggle("hide", mode!=="vergelijk");
+  $("modeIndividu").classList.toggle("hide", mode!=="individu");
+  $("modeVermogen").classList.toggle("hide", mode!=="vermogen");
+  $("modeStraks").classList.toggle("hide", mode!=="straks");
+  if (mode==="straks") {
+    const lf = +$("mixLeeftijd").value;
+    $("straksLeeftijd").textContent = lf>0
+      ? `Over ${Math.max(0, 67-lf)} jaar (AOW-leeftijd 67). Je lijfrente/pensioen komt dan vrij als uitkering.`
+      : "Vul je leeftijd in bij Mijn belasting om te zien over hoeveel jaar je AOW ingaat.";
+  }
+  $("result").innerHTML = '<span class="muted">Klik op <b>Bereken</b>.</span>';
+});
+
+// Flow-stappen zijn de primaire navigatie → ga naar de bijbehorende tab (+ eventueel sub-tab).
+// Privé vs zakelijke sub-tabs: BV-uitstel + Dividend horen bij "Zakelijk vermogen".
+const SUBS_ZAK = ["uitstel", "dividend"];
+function setVermogenContext(ctx) {
+  const zak = ctx === "zak";
+  document.querySelectorAll(".subPrive").forEach(b => b.classList.toggle("hide", zak));
+  document.querySelectorAll(".subZak").forEach(b => b.classList.toggle("hide", !zak || !heeftBv()));
+}
+
+document.querySelectorAll(".topnav .fstep").forEach(f => f.onclick = () => {
+  document.querySelectorAll(".topnav .fstep").forEach(x => x.classList.toggle("active", x===f));
+  const tab = document.querySelector('.tab[data-mode="' + f.dataset.go + '"]');
+  if (tab) tab.click();
+  if (f.dataset.go === "vermogen") setVermogenContext(SUBS_ZAK.includes(f.dataset.sub) ? "zak" : "prive");
+  if (f.dataset.sub) {
+    const sub = document.querySelector('.subtab[data-sub="' + f.dataset.sub + '"]');
+    if (sub) sub.click();
+  }
+});
+
+// Zakelijke rij alleen tonen als er een BV is (bestaand BV-vermogen ingevuld).
+function heeftBv() {
+  return [...document.querySelectorAll("#inkLijst .bronType")].map(s => s.value).includes("winst_bv");
+}
+function toonZakelijk() {
+  const types = [...document.querySelectorAll("#inkLijst .bronType")].map(s => s.value);
+  const bv = types.includes("winst_bv");
+  const ond = bv || types.includes("winst");  // IB-onderneming of BV (voor de ZZP-vergelijking)
+  document.querySelectorAll(".topnav .zak").forEach(e => e.classList.toggle("hide", !bv));
+  $("grpBv").classList.toggle("hide", !bv);     // bestaand BV-vermogen alleen met een BV
+  $("grpUren").classList.toggle("hide", !ond);  // urencriterium alleen bij ondernemersinkomen
+}
+$("inkLijst").addEventListener("change", toonZakelijk);
+toonZakelijk();
+
+// Progressieve onthulling: toon alleen velden die bij je levensfase passen.
+function _toggle(grp, on, clearIds) {
+  $(grp).classList.toggle("hide", !on);
+  if (!on && clearIds) clearIds.forEach(id => { $(id).value = ""; });
+}
+$("hasPartner").onchange = () => _toggle("grpPartner", $("hasPartner").checked, ["mixPartner"]);
+$("hasKinderen").onchange = () => {
+  _toggle("grpKinderen", $("hasKinderen").checked, ["mixKinderen","mixKovKinderen","mixKovUren","mixKovTarief"]);
+  if (!$("hasKinderen").checked) { $("mixKovSoort").value = ""; $("grpKov").classList.add("hide"); }
+};
+$("hasVermogen").onchange = () => {
+  _toggle("grpVermogen", $("hasVermogen").checked, ["mixBank","mixBeleg"]);
+  if (!$("hasVermogen").checked) $("grpRend").classList.add("hide");
+};
+function updateWonen() {
+  const w = $("wonen").value;
+  $("grpKoop").classList.toggle("hide", w !== "koop");
+  $("grpHuur").classList.toggle("hide", w !== "huur");
+  if (w !== "koop") { $("mixWoz").value = ""; $("mixRente").value = ""; }
+  if (w !== "huur") $("mixHuur").value = "";
+}
+$("wonen").onchange = updateWonen;
+$("hasWoning").onchange = () => {
+  const on = $("hasWoning").checked;
+  $("grpWoning").classList.toggle("hide", !on);
+  if (!on) { $("mixWoz").value = ""; $("mixRente").value = ""; $("mixHuur").value = ""; }
+  else updateWonen();
+};
+$("mixKinderen").addEventListener("input", () => $("grpKov").classList.toggle("hide", !(+$("mixKinderen").value > 0)));
+$("mixBeleg").addEventListener("input", () => $("grpRend").classList.toggle("hide", !(+$("mixBeleg").value > 0)));
+
+$("strPartner").onclick = () =>
+  $("strPartnerVelden").classList.toggle("hide", !$("strPartner").checked);
+
+$("strVulIn").onclick = async () => {
+  $("result").innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const adv = await post("/advies", tab1Body());
+    const r = await post("/vermogensadvies", vaBody(adv));
+    const P = r.projectie;
+    if (P) {
+      $("strLijfrente").value = Math.round(P.lijfrente_uitkering);
+      $("strDividend").value = Math.round(P.bv_dividend);
+      $("strBeleg").value = Math.round(P.box3_straks_totaal != null ? P.box3_straks_totaal : P.box3_straks);
+      $("strBank").value = Math.round(P.spaargeld_straks != null ? P.spaargeld_straks : +$("mixBank").value);  // spaargeld doorgegroeid
+    }
+    berekenStraks();
+  } catch(e) { $("result").innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+};
+
+let subV = "advies";
+document.querySelectorAll(".subtab").forEach(t => t.onclick = () => {
+  subV = t.dataset.sub;
+  document.querySelectorAll(".subtab").forEach(x => x.classList.toggle("active", x===t));
+  $("modeVermogensadvies").classList.toggle("hide", subV!=="advies");
+  $("modeBeleggen").classList.toggle("hide", subV!=="beleggen");
+  $("modeUitstel").classList.toggle("hide", subV!=="uitstel");
+  $("modeDividend").classList.toggle("hide", subV!=="dividend");
+  $("modeLijfrente").classList.toggle("hide", subV!=="lijfrente");
+  // Lijfrente-tab voorvullen met je jaarruimte/marginaal uit Mijn belasting (de "leg dit in" → groei).
+  if (subV === "lijfrente" && laatsteLijfrente) {
+    const J = laatsteLijfrente;
+    $("lijInleg").value = Math.round(J.inleg);
+    $("lijRendement").value = (J.rendement*100).toFixed(1);
+    $("lijJaren").value = J.jaren;
+    $("lijMarginaal").value = (J.marginaal_nu*100).toFixed(2);
+    $("lijTariefUit").value = (J.tarief_uit*100).toFixed(2);
+    berekenLijfrente();  // voorgevuld uit Mijn belasting → meteen doorrekenen
+  } else {
+    $("result").innerHTML = '<span class="muted">Klik op <b>Bereken</b>.</span>';
+  }
+});
+
+function somBronnen(sel) {
+  const s = {loon:0, winst:0, winst_bv:0, uitkering_pensioen:0, resultaat_overige_werkzaamheden:0};
+  document.querySelectorAll(sel + " .bron").forEach(b =>
+    s[b.querySelector(".bronType").value] += (+b.querySelector(".bronBedrag").value || 0));
+  return s;
+}
+
+function persoonBlok(r, titel) {
+  const rij = (l,v) => `<tr><td>${l}</td><td class="num">${eur(v)}</td></tr>`;
+  return `<h2>${titel} — ${eur(r.te_betalen)} te betalen (${(r.gemiddeld_tarief*100).toFixed(1)}%)</h2>
+    <table>
+      ${rij("Bruto inkomen", r.bruto_inkomen)}
+      ${rij("Belastbaar box 1", r.belastbaar_box1)}
+      ${rij("Heffing box 1", r.heffing_box1)}
+      ${rij("Heffing box 3", r.heffing_box3)}
+      ${rij("Heffingskortingen (verzilverd)", r.verzilverd)}
+      ${rij("Te betalen (IB/PVV)", r.te_betalen)}
+    </table>
+    ${box3Uitleg(r.box3)}
+    ${r.verdampt>0?`<p class="muted">${eur(r.verdampt)} heffingskorting verdampt.</p>`:""}`;
+}
+
+async function berekenWerkelijk() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const body = {
+      jaar:+$("jaar").value, ...somBronnen("#bronnen"),
+      urencriterium:$("urencriterium2").checked, aow_gerechtigd:$("aow").checked,
+      eigen_woning:{woz_waarde:+$("woz").value, betaalde_hypotheekrente:+$("rente").value},
+      box3:{banktegoeden:+$("bank").value, overige_bezittingen:+$("overige").value, schulden:+$("schulden").value},
+    };
+    if ($("metPartner").checked)
+      body.partner = {...somBronnen("#partnerBronnen"), urencriterium:true};
+    const r = await post("/bereken", body);
+    laatste = {mode:"werkelijk", data:r};
+    let html = persoonBlok(r, r.partner ? "Jij" : "Werkelijke belasting");
+    if (r.partner) {
+      html += persoonBlok(r.partner, "Partner");
+      html += `<p class="best">Huishouden samen: <b>${eur(r.huishouden.te_betalen)}</b> te betalen · netto ${eur(r.huishouden.netto)}</p>`;
+    }
+    html += `<ul class="tips">${(r.waarschuwingen||[]).map(w=>`<li>${w}</li>`).join("")}</ul>`;
+    out.innerHTML = html;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+async function berekenIndividu() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const s = somBronnen("#inkLijst");
+    const loon = s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden;
+    const ondernemer = s.winst + s.winst_bv;
+    const huidigeVorm = s.winst_bv > 0 ? "bv" : "zzp";  // bestaande DGA?
+    const heeftLoon = s.loon > 0;  // "als loon"-optie alleen tonen als er echt loon is
+    const partner = +$("mixPartner").value;
+
+    // Lege staat: zolang er geen inkomen is ingevuld, een uitlegscherm i.p.v. € 0.
+    const heeftInkomen = (s.loon + s.winst + s.winst_bv + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden) > 0;
+    if (!heeftInkomen && partner <= 0) {
+      out.innerHTML = `
+        <h2>Welkom — vul links je gegevens in</h2>
+        <p>Geef bij <b>"Wat verdien je, en hoe?"</b> je inkomen op via <b>+ inkomensbestanddeel</b> (loon, winst als ZZP, of winst via je eigen BV) en vink je <b>situatie</b> aan (partner, kinderen, woning, vermogen). Daarna zie je hier:</p>
+        <ol style="padding-left:18px; line-height:1.8">
+          <li><b>Wat je nu betaalt</b> — je belasting en netto besteedbaar, uitgesplitst per persoon.</li>
+          <li><b>Beste ondernemingsvorm</b> — ZZP, BV of loon: wat is fiscaal het gunstigst (met het omslagpunt voor een BV)?</li>
+          <li><b>Wat is verstandig</b> — lijfrente, box 3 splitsen, partnertoerekening: gekwantificeerd, als één samenhangende route (geen dubbeltelling).</li>
+        </ol>
+        <p class="muted">Via de stappen reken je daarnaast je <b>vermogen</b> (waar laat je het renderen) en <b>straks</b> (je pensioenfase) door. Schatting op basis van de wet (2025/2026), geen aangifte.</p>`;
+      return;
+    }
+    const body = {jaar:+$("jaar").value, loon, ondernemer_inkomen:ondernemer, huidige_vorm:huidigeVorm, urencriterium:$("mixUren").checked,
+      partner_inkomen:partner, rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
+      box3:{banktegoeden:+$("mixBank").value, overige_bezittingen:+$("mixBeleg").value, schulden:+$("mixSchulden").value},
+      eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
+      profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
+    if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;
+    if ($("mixKovSoort").value && +$("mixKovKinderen").value > 0) {
+      body.profiel.kinderopvang_soort = $("mixKovSoort").value;
+      body.profiel.kinderopvang_kinderen = +$("mixKovKinderen").value;
+      body.profiel.kinderopvang_uren_per_maand = +$("mixKovUren").value;
+      body.profiel.kinderopvang_uurtarief = +$("mixKovTarief").value;
+    }
+    const adv = await post("/advies", body);
+    laatste = {kind:"advies", data:adv};
+
+    // Uitsplitsing huidige situatie
+    let det = "";
+    if (adv.detail) {
+      const d = adv.detail, rij = (l,v) => `<tr><td>${l}</td><td class="num">${eur(v)}</td></tr>`;
+      const blk = (t,pp) => {
+        let rs = rij("Bruto inkomen", pp.bruto_inkomen) + rij("Belastbaar box 1", pp.belastbaar_box1)
+          + rij("Heffing box 1", pp.heffing_box1) + rij("Heffing box 3", pp.heffing_box3)
+          + rij("Heffingskortingen (verzilverd)", pp.verzilverd) + rij("Te betalen", pp.te_betalen);
+        return `<details class="uitsplitsing"><summary>${t} — ${eur(pp.te_betalen)} te betalen</summary><table>${rs}</table>${box3Uitleg(pp.box3)}</details>`;
+      };
+      det = blk(d.partner ? "Jij" : "Belastingplichtige", d.persoon) + (d.partner ? blk("Partner", d.partner) : "");
+    }
+    let rv = "";
+    if (adv.rechtsvorm) {
+      const R = adv.rechtsvorm;
+      const rows = R.opties.filter(o => heeftLoon || o.naam !== "meer_loon").map(o => `<tr class="${o.naam===R.beste?'win':''}"><td>${o.label}</td><td class="num">${eur(o.huishouden_netto)}</td><td class="num">${(o.marginaal_tarief*100).toFixed(0)}%</td></tr>`).join("");
+      const zzp = R.opties.find(o=>o.naam==="zzp"), best = R.opties.find(o=>o.naam===R.beste);
+      const bvOptie = R.opties.find(o=>o.naam==="bv");
+      const bvBeter = R.beste==="bv";
+      const bvKost = best.huishouden_netto - bvOptie.huishouden_netto;  // €/jaar minder netto bij BV
+      const omslag = R.bv_omslag
+        ? `Een BV wordt voordeliger vanaf ± ${eur(R.bv_omslag)} ondernemersinkomen (jouw situatie).`
+        : `Tot € 500.000 ondernemersinkomen is een BV in jouw situatie niet voordeliger.`;
+      const byN = {}; R.opties.forEach(o => byN[o.naam] = o.componenten || {});
+      const L = byN.meer_loon, Z = byN.zzp, B = byN.bv;
+      const cel = (x,k) => (x && x[k]!=null) ? eur(x[k]) : "–";
+      const lk = heeftLoon ? `<th>Loon</th>` : "";  // Loon-kolomkop, alleen met loon
+      const lc = (k,bold) => heeftLoon ? `<td class="num">${bold?`<b>${eur(L[k])}</b>`:eur(L[k])}</td>` : "";  // Loon-cel
+      const compTabel = `
+        <details class="uitsplitsing"><summary>Waarom — per vorm uitgesplitst (jouw deel, excl. partner)</summary>
+        <table>
+          <thead><tr><th>Component</th>${lk}<th>ZZP</th><th>BV (DGA)</th></tr></thead>
+          <tbody>
+            <tr><td>Gebruikelijk loon (toegepast)</td>${heeftLoon?`<td class="num">–</td>`:""}<td class="num">–</td><td class="num">${cel(B,"gebruikelijk_loon")}</td></tr>
+            <tr><td>Belastbaar box 1</td>${lc("belastbaar_box1")}<td class="num">${eur(Z.belastbaar_box1)}</td><td class="num">${eur(B.belastbaar_box1)}</td></tr>
+            <tr><td>Heffing box 1</td>${lc("heffing_box1")}<td class="num">${eur(Z.heffing_box1)}</td><td class="num">${eur(B.heffing_box1)}</td></tr>
+            <tr><td>Vpb (19%)</td>${heeftLoon?`<td class="num">–</td>`:""}<td class="num">–</td><td class="num">${cel(B,"vpb")}</td></tr>
+            <tr><td>Dividend → box 2</td>${heeftLoon?`<td class="num">–</td>`:""}<td class="num">–</td><td class="num">${eur(B.box2_belasting)}</td></tr>
+            <tr><td>BV-kosten (jaar + oprichting)</td>${heeftLoon?`<td class="num">–</td>`:""}<td class="num">–</td><td class="num">${cel(B,"bv_kosten")}</td></tr>
+            <tr><td><b>Belasting totaal</b></td>${lc("te_betalen",true)}<td class="num"><b>${eur(Z.te_betalen)}</b></td><td class="num"><b>${eur(B.te_betalen)}</b></td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Gerekend met het normbedrag van het gebruikelijk loon (${eur(R.gebruikelijk_loon_norm)}, 2026), maar nooit meer dan de winst — dat geeft een reëel, veilig beeld. Een <b>lager</b> gebruikelijk loon kan als optimalisatie, maar vereist onderbouwing richting de Belastingdienst (meest vergelijkbare dienstbetrekking, bijv. aantoonbaar deeltijdwerk; de 25%-doelmatigheidsmarge is sinds 2023 vervallen) — bewijslast bij jou. BV-kosten verrekend: ± ${eur(R.bv_kosten_jaar)}/jaar administratie + eenmalig ± ${eur(R.bv_oprichting)} oprichting (geamortiseerd). Indicatief.</p>
+        </details>`;
+      const cur = R.opties.find(o=>o.naam===R.huidige_vorm) || zzp;
+      const alOptimaal = R.beste === R.huidige_vorm;
+      const isDga = R.huidige_vorm === "bv";
+      rv = `
+        <details class="uitsplitsing"><summary>Beste ondernemingsvorm: ${R.beste_label}${alOptimaal?" — je zit al goed":""}</summary>
+        <p class="${alOptimaal?'best':'muted'}">${alOptimaal
+          ? `Je zit al in de fiscaal gunstigste vorm (<b>${R.beste_label}</b>). ${omslag}`
+          : `<b>${R.beste_label}</b> is fiscaal gunstiger dan je huidige vorm (${R.huidige_label}) — ± ${eur(best.huishouden_netto-cur.huishouden_netto)}/jaar netto. ${omslag}`}</p>
+        <table><thead><tr><th>Ondernemen als</th><th>Huishouden netto</th><th>Marg.</th></tr></thead><tbody>${rows}</tbody></table>
+        ${bvBeter ? "" : (isDga
+          ? `<p class="muted">Je BV kost je hier ± <b>${eur(bvKost)}/jaar</b> minder netto dan ${R.beste_label} (BV-administratie al verrekend) — weeg dat tegen de juridische redenen om de BV aan te houden.</p>`
+          : `<p class="muted">Wil je tóch een BV (om juridische/zakelijke redenen)? Reken op ± <b>${eur(bvKost)}/jaar</b> minder netto dan ${R.beste_label} (de ± ${eur(R.bv_kosten_jaar)}/jaar administratie zit hier al in), plus eenmalig ± ${eur(R.bv_oprichting)} oprichting.</p>`)}
+        <p class="muted">Dit is een <b>puur fiscale</b> vergelijking. Niet-fiscale redenen kunnen een BV alsnog rechtvaardigen: beperkte aansprakelijkheid / afscherming privévermogen (in de praktijk beperkt door bankborgstellingen en bestuurdersaansprakelijkheid), winst herinvesteren om te groeien, continuïteit, investeerders of bedrijfsopvolging.</p>
+        ${compTabel}
+        </details>`;
+    }
+    let vm = "";
+    if (adv.vermogen) {
+      const V = adv.vermogen, bvBeter = V.beste==="bv";
+      const uitstelRegel = V.beste ? `
+        <p class="${bvBeter?'best':'muted'}">Je beleggingen (${eur(V.beleggingen)}) over ${V.horizon} jaar accumuleren: <b>${bvBeter?"in een BV laten":"privé in box 3 houden"}</b> levert het meeste op — box 3 ${eur(V.prive_eindnetto)} vs. BV ${eur(V.bv_eindnetto)}.</p>
+        <p class="muted">Omslagrendement ± ${(V.omslag_rendement*100).toFixed(1)}%; eronder wint de BV bij grote bedragen, erboven box 3. Relevant als je ondernemer bent en winst kunt oppotten — privé al-belast vermogen verplaats je niet naar een BV.</p>` : "";
+      vm = `
+        <details class="uitsplitsing"><summary>Je vermogen (${eur(V.totaal)}) — box 3 kost ± ${eur(V.box3_belasting_nu)}/jaar</summary>
+        <p class="muted">Box 3-vermogen ${eur(V.totaal)} netto (${eur(V.spaargeld)} spaar + ${eur(V.beleggingen)} beleggingen/vastgoed${V.schulden>0?` − ${eur(V.schulden)} schulden`:""}), heffingvrij ${eur(V.heffingvrij)} eraf → kost je ± ${eur(V.box3_belasting_nu)} per jaar (36% over het forfait: ~1,3% spaar, 6% overige, schulden −2,7% na drempel € 3.800 p.p.).</p>
+        ${uitstelRegel}
+        </details>`;
+    }
+    if (adv.lijfrente) laatsteLijfrente = adv.lijfrente;  // bewaard voor de Lijfrente-sub-tab bij Vermogen
+    const sugRows = adv.suggesties.map(x => `
+      <tr><td>${x.titel}<div class="muted" style="margin-top:2px">${x.toelichting} <em>(${x.wetsartikel})</em></div></td>
+        <td class="num">${eur(x.besparing)}</td></tr>`).join("");
+    out.innerHTML = `
+      <h2>Mijn belasting — ${adv.jaar}</h2>
+      <p class="best">Je betaalt nu ${eur(adv.baseline_belasting)} belasting${adv.baseline_toeslagen>0?` − ${eur(adv.baseline_toeslagen)} toeslagen`:""} · netto besteedbaar ${eur(adv.baseline_netto)}.</p>
+      ${det}
+      ${rv}
+      ${vm}
+      ${adv.suggesties.length
+        ? `<details class="uitsplitsing" open><summary>Wat is verstandig — potentieel ${eur(adv.totaal_potentieel)}/jaar besparing</summary>
+           <table><thead><tr><th>Optimalisatie</th><th>Besparing/jaar</th></tr></thead><tbody>${sugRows}</tbody></table>
+           <p class="best">Totaal potentieel: <b>${eur(adv.totaal_potentieel)}</b> per jaar — je belastingdruk daalt indicatief van ${eur(adv.baseline_belasting)} naar ± ${eur(adv.baseline_belasting - adv.totaal_potentieel)} (netto besteedbaar ± ${eur(adv.baseline_netto + adv.totaal_potentieel)}).</p>
+           <p class="muted">Berekend als één samenhangende route: eerst de rechtsvorm, dan lijfrente / box 3 / toerekening op díe situatie — dus geen dubbeltelling.</p></details>`
+        : `<p class="muted">Geen aanvullende optimalisaties gevonden voor deze gegevens.</p>`}`;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+async function berekenBeleggen() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const body = {jaar:+$("jaar").value, beleggingen:+$("belBeleggingen").value,
+      spaargeld:+$("belSpaargeld").value, schulden:+$("belSchulden").value,
+      rendement_pct:(+$("belRendement").value)/100, overig_inkomen:+$("belOverig").value,
+      urencriterium:$("belUren").checked, tegenbewijs:$("belTegenbewijs").checked, partner:$("belPartner").checked};
+    const r = await post("/beleggingsgroei", body);
+    laatste = {kind:"beleggen", data:r};
+    const beste = r.opties.find(o=>o.naam===r.beste);
+    const rows = r.opties.map(o => `
+      <tr class="${o.naam===r.beste?'win':''}">
+        <td>${o.label}</td>
+        <td class="num">${eur(o.belasting)}</td>
+        <td class="num">${(o.effectief_tarief*100).toFixed(1)}%</td>
+        <td class="num">${eur(o.netto)}</td>
+      </tr>`).join("");
+    out.innerHTML = `
+      <h2>Beleggingsgroei — kwalificatie (${r.jaar})</h2>
+      <p class="best">Groei ${eur(r.groei)} op ${eur(r.beleggingen)} beleggingen${r.spaargeld>0?` (+ ${eur(r.spaargeld)} spaar)`:""}: fiscaal gunstigst is <b>${beste.label}</b> — ${eur(beste.belasting)} belasting (${(beste.effectief_tarief*100).toFixed(1)}%).</p>
+      <table>
+        <thead><tr><th>Kwalificatie</th><th>Belasting op groei</th><th>Effectief</th><th>Netto groei</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul>`;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+async function berekenUitstel() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const body = {jaar:+$("jaar").value, kapitaal:+$("uitKapitaal").value,
+      rendement_pct:(+$("uitRendement").value)/100, jaren:+$("uitJaren").value,
+      tegenbewijs:$("uitTegenbewijs").checked, partner:$("uitPartner").checked};
+    const r = await post("/uitstel", body);
+    laatste = {kind:"uitstel", data:r};
+    const win = r.beste==="bv";
+    out.innerHTML = `
+      <h2>BV-uitstel vs. uitkeren-en-privé-beleggen (${r.jaar})</h2>
+      <p class="best">Na ${r.jaren} jaar op ${eur(r.kapitaal)} à ${(r.rendement_pct*100).toFixed(1)}%: <b>${win?"in de BV laten":"uitkeren + privé box 3"}</b> levert het meeste op.</p>
+      <table>
+        <thead><tr><th>Route</th><th>Netto groei/jaar</th><th>Netto eindvermogen</th></tr></thead>
+        <tbody>
+          <tr class="${win?'win':''}"><td>A · In de BV laten (Vpb jaarlijks, box 2 aan eind)</td><td class="num">${(r.bv_netto_groei_pct*100).toFixed(2)}%</td><td class="num">${eur(r.bv_eindnetto)}</td></tr>
+          <tr class="${win?'':'win'}"><td>B · Nu uitkeren (box 2) + privé box 3</td><td class="num">${(r.prive_netto_groei_pct*100).toFixed(2)}%</td><td class="num">${eur(r.prive_eindnetto)}</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Omslagrendement: onder ${(r.omslag_rendement*100).toFixed(1)}% wint de BV (lichtere jaarlast Vpb), erboven wint box 3 (forfait ondertaxeert hoog rendement).</p>
+      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul>`;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+async function berekenDividend() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const body = {jaar:+$("jaar").value, bedrag:+$("divBedrag").value, partner:$("divPartner").checked};
+    const r = await post("/dividendplan", body);
+    laatste = {kind:"dividend", data:r};
+    const spreiden = r.besparing > 0;
+    out.innerHTML = `
+      <h2>Dividend uit de BV — box 2-planning (${r.jaar})</h2>
+      <p class="best">${eur(r.bedrag)} uit de BV: ${spreiden
+        ? `<b>spreiden</b> over ${r.jaren_optimaal} jaar (± ${eur(r.jaarlijks_dividend)}/jaar) bespaart <b>${eur(r.besparing)}</b> aan box 2.`
+        : `past in één jaar binnen de 24,5%-schijf — geen 31% nodig.`}</p>
+      <table>
+        <thead><tr><th>Route</th><th>Box 2-heffing</th></tr></thead>
+        <tbody>
+          <tr class="${spreiden?'':'win'}"><td>Alles dit jaar uitkeren</td><td class="num">${eur(r.heffing_ineens)}</td></tr>
+          <tr class="${spreiden?'win':''}"><td>Spreiden — ${r.jaren_optimaal} jaar, ≤ ${eur(r.grens_laag)}/jaar @ ${(r.tarief_laag*100).toFixed(1)}%</td><td class="num">${eur(r.heffing_gespreid)}</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">24,5%-grens: ${eur(r.grens_laag)}${r.grens_laag>68843?' (2× door partner)':''}; daarboven ${(r.tarief_hoog*100).toFixed(0)}%.</p>
+      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul>`;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+async function berekenLijfrente() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const op = $("lijOverigPensioen").value;
+    const body = {jaar:+$("jaar").value, inleg:+$("lijInleg").value,
+      rendement_pct:(+$("lijRendement").value)/100, jaren:+$("lijJaren").value,
+      marginaal_nu:(+$("lijMarginaal").value)/100,
+      uitkeringsjaren:+$("lijUitkeringsjaren").value || 20,
+      tegenbewijs:$("lijTegenbewijs").checked, partner:$("lijPartner").checked};
+    if (op !== "") body.overig_pensioen = +op;             // realistisch opnametarief uit je pensioen
+    else body.tarief_uit = (+$("lijTariefUit").value || 17.85)/100;  // anders je eigen aanname
+    const r = await post("/lijfrente", body);
+    laatste = {kind:"lijfrente", data:r};
+    const win = r.voordeel >= 0;
+    out.innerHTML = `
+      <h2>Lijfrente vs. privé beleggen (${r.jaar})</h2>
+      <p class="best">${eur(r.inleg)} inleg, ${(r.rendement_pct*100).toFixed(1)}% over ${r.jaren} jaar: <b>${win?"lijfrente":"privé beleggen"}</b> levert het meeste op${win?` (${eur(r.voordeel)} meer)`:""}.</p>
+      <table>
+        <thead><tr><th>Route</th><th>Netto na ${r.jaren} jaar</th></tr></thead>
+        <tbody>
+          <tr class="${win?'win':''}"><td>A · Lijfrente (aftrek nu @ ${(r.marginaal_nu*100).toFixed(1)}%, belastingvrije groei, box 1 @ ${(r.tarief_uit*100).toFixed(1)}%${r.tarief_uit_berekend?' berekend':''} bij opname)</td><td class="num">${eur(r.lijfrente_eindnetto)}</td></tr>
+          <tr class="${win?'':'win'}"><td>B · Privé beleggen (ná-belast, jaarlijks box 3)</td><td class="num">${eur(r.prive_eindnetto)}</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Lijfrente wint zolang je opnametarief onder ± ${(r.breakeven_tarief_uit*100).toFixed(1)}% blijft — ${r.tarief_uit_berekend?`berekend op <b>${(r.tarief_uit*100).toFixed(1)}%</b> (uitkering ± ${eur(r.uitkering_per_jaar)}/jaar bovenop ${eur(r.overig_pensioen)} AOW+pensioen)`:`jouw aanname: ${(r.tarief_uit*100).toFixed(1)}%`}.${!win?` <b>Hier wint privé beleggen</b> — je pensioen vult de lage schijf al, dus extra lijfrente valt te hoog belast.`:""}</p>
+      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul>`;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+// Herbruikbaar: het /advies-verzoek vanuit Mijn belasting (tab 1).
+function tab1Body() {
+  const s = somBronnen("#inkLijst");
+  const partner = +$("mixPartner").value;
+  const body = {jaar:+$("jaar").value,
+    loon: s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden,
+    ondernemer_inkomen: s.winst + s.winst_bv, huidige_vorm: s.winst_bv > 0 ? "bv" : "zzp",
+    urencriterium:$("mixUren").checked, partner_inkomen:partner,
+    rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
+    box3:{banktegoeden:+$("mixBank").value, overige_bezittingen:+$("mixBeleg").value, schulden:0},
+    eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
+    profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
+  if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;
+  if ($("mixKovSoort").value && +$("mixKovKinderen").value > 0) {
+    body.profiel.kinderopvang_soort = $("mixKovSoort").value;
+    body.profiel.kinderopvang_kinderen = +$("mixKovKinderen").value;
+    body.profiel.kinderopvang_uren_per_maand = +$("mixKovUren").value;
+    body.profiel.kinderopvang_uurtarief = +$("mixKovTarief").value;
+  }
+  return body;
+}
+
+// Herbruikbaar: het /vermogensadvies-verzoek, op basis van het /advies-resultaat.
+function vaBody(adv) {
+  const s = somBronnen("#inkLijst");
+  const leeftijd = +$("mixLeeftijd").value;
+  return {jaar:+$("jaar").value,
+    nieuwe_inleg: $("vaNieuw").value ? +$("vaNieuw").value : adv.totaal_potentieel,
+    bestaand_box3:+$("mixBeleg").value, bestaand_spaargeld:+$("mixBank").value,
+    bestaand_bv_spaargeld:+$("mixBvSpaar").value, bestaand_bv_beleggingen:+$("mixBvBeleg").value,
+    rendement:(+$("mixRendement").value)/100,
+    jaren: leeftijd > 0 ? Math.max(1, 67 - leeftijd) : +$("mixHorizon").value,
+    marginaal_nu: adv.lijfrente ? adv.lijfrente.marginaal_nu : 0.3756, tarief_uit:0.1785,
+    jaarruimte: adv.lijfrente ? adv.lijfrente.inleg : 0, vrij_opneembaar:+$("vaVrij").value,
+    verwacht_pensioen:+$("vaPensioen").value,
+    // BV-container alleen als je een BV hébt (bestaand BV-vermogen) of als een BV wordt aangeraden.
+    is_ondernemer: ((+$("mixBvSpaar").value + +$("mixBvBeleg").value) > 0) || !!(adv.rechtsvorm && adv.rechtsvorm.beste === "bv"),
+    partner: (+$("mixPartner").value) > 0,
+    uitkeringsjaren: +$("vaUitkeringsjaren").value || 20,
+    inflatie:(+$("vaInflatie").value)/100};
+}
+
+async function berekenVermogensadvies() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const adv = await post("/advies", tab1Body());
+    const r = await post("/vermogensadvies", vaBody(adv));
+    laatste = {kind:"vermogensadvies", data:r};
+    const A = r.allocatie;
+    const crowsFor = list => list.map(c => `<tr><td>${c.label}<div class="muted" style="margin-top:2px">${c.voorwaarde}${c.max_bedrag!=null?` · max ${eur(c.max_bedrag)}`:""}</div></td><td class="num">${eur(c.netto_eind)}</td></tr>`).join("");
+    const priveC = r.containers.filter(c => c.soort !== "zakelijk");
+    const zakC = r.containers.filter(c => c.soort === "zakelijk");
+    const sub = t => `<p class="muted" style="font-weight:700;margin:10px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em">${t}</p>`;
+    let proj = "";
+    if (r.projectie) {
+      const P = r.projectie;
+      proj = `
+        <h2 style="margin-top:14px">Doorkijk naar je pensioen (over ${P.jaren_opbouw} jaar, ${P.uitkeringsjaren} uitkeringsjaren)</h2>
+        <table><thead><tr><th>Container</th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>Reëel/jaar (van nu)</th></tr></thead><tbody>
+          ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)</td><td class="num">${eur(P.lijfrente_uitkering_reeel)}</td></tr>`:""}
+          ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_dividend_reeel)}</td></tr>`:""}
+          ${P.box3_pot>0?`<tr><td>Box 3</td><td class="num">${eur(P.box3_pot)}</td><td class="num">—</td><td class="num">${eur(P.box3_straks_reeel)} (pot)</td></tr>`:""}
+        </tbody></table>
+        <p class="muted">Reële bedragen bij ${(P.inflatie*100).toFixed(1)}% inflatie (euro's van nu). Ga naar de tab <b>Straks</b> en klik "Vul in vanuit mijn opbouw" om te zien wat je dan netto overhoudt.</p>`;
+    }
+    let best = "";
+    if (r.bestaand_box3_last>0) best += `<p class="muted">Bestaand box 3-vermogen kost je nu ± ${eur(r.bestaand_box3_last)}/jaar.</p>`;
+    if (r.bestaand_bv) { const B=r.bestaand_bv; best += `<p class="${B.beste==='bv'?'best':'muted'}">Bestaand BV-vermogen ${eur(B.bedrag)} (${eur(B.spaargeld)} spaar + ${eur(B.beleggingen)} beleggingen): over ${r.jaren} jaar <b>${B.beste==='bv'?'in de BV laten':'uitkeren naar box 3'}</b> (BV ${eur(B.bv_eindnetto)} vs box 3 ${eur(B.prive_eindnetto)}). Spaargeld → box 3 banktegoeden (~1,3%), beleggingen → box 3 overige (6%).</p>`; }
+    out.innerHTML = `
+      <h2>Vermogensallocatie — ${r.jaar}</h2>
+      <p class="best">Te verdelen: ${eur(r.nieuwe_inleg)} nieuwe inleg per jaar, ${r.jaren} jaar à ${(r.rendement*100).toFixed(1)}%.</p>
+      <h2 style="margin-top:14px">Aanbevolen verdeling van de inleg</h2>
+      ${sub("Privé")}
+      <table><tbody>
+        ${A.lijfrente>0?`<tr class="win"><td>Lijfrente (vastzetten tot pensioen)</td><td class="num">${eur(A.lijfrente)}</td></tr>`:""}
+        ${A.box3>0?`<tr><td>Box 3 (flexibel)</td><td class="num">${eur(A.box3)}</td></tr>`:""}
+        ${A.lijfrente<=0&&A.box3<=0?`<tr><td class="muted">—</td><td class="num">—</td></tr>`:""}
+      </tbody></table>
+      ${r.lijfrente_optimaal && r.lijfrente_optimaal.gecapt ? `<p class="muted">Lijfrente begrensd op ± ${eur(A.lijfrente)}: méér zou je pensioenuitkering boven € ${(r.lijfrente_optimaal.target_box1).toLocaleString("nl-NL")} (box 1) duwen, waar het opnametarief je marginale tarief van nu (${(r.lijfrente_optimaal.marginaal_nu*100).toFixed(1)}%) raakt. Daarboven is box 3 gunstiger én flexibel — vandaar de rest in box 3.</p>` : ""}
+      ${A.bv>0?`${sub("Zakelijk (BV)")}<table><tbody><tr><td>In de BV laten groeien</td><td class="num">${eur(A.bv)}</td></tr></tbody></table>`:""}
+      <h2 style="margin-top:14px">Per container — netto na ${r.jaren} jaar (volledige inleg)</h2>
+      ${sub("Privé")}
+      <table><thead><tr><th>Container</th><th>Netto-eind</th></tr></thead><tbody>${crowsFor(priveC)}</tbody></table>
+      ${zakC.length?`${sub("Zakelijk")}<table><thead><tr><th>Container</th><th>Netto-eind</th></tr></thead><tbody>${crowsFor(zakC)}</tbody></table>`:""}
+      ${proj}
+      ${best}
+      <p class="muted">${r.liquiditeit_advies}</p>
+      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul>`;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+async function berekenStraks() {
+  const out = $("result");
+  out.innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const body = {jaar:+$("jaar").value, aow:+$("strAow").value, pensioen:+$("strPensioen").value,
+      lijfrente:+$("strLijfrente").value, bv_dividend:+$("strDividend").value,
+      box3:{banktegoeden:+$("strBank").value, overige_bezittingen:+$("strBeleg").value, schulden:0}};
+    if ($("strPartner").checked)
+      body.partner = {aow:+$("strpAow").value, pensioen:+$("strpPensioen").value, lijfrente:+$("strpLijfrente").value, box3:{}};
+    const r = await post("/straks", body);
+    laatste = {kind:"straks", data:r};
+    const rij = (l,v) => `<tr><td>${l}</td><td class="num">${eur(v)}</td></tr>`;
+    const blk = (t,p) => `<details class="uitsplitsing"><summary>${t} — ${eur(p.te_betalen)} te betalen · netto ${eur(p.netto)}</summary><table>${
+      rij("AOW", p.aow) + (p.pensioen?rij("Pensioen (2e pijler)", p.pensioen):"") + (p.lijfrente?rij("Lijfrente-uitkering", p.lijfrente):"")
+      + rij("Belastbaar box 1", p.belastbaar_box1) + rij("Heffing box 1 (AOW-tarief)", p.heffing_box1)
+      + (p.box2_belasting>0?rij("Heffing box 2 (dividend)", p.box2_belasting):"") + rij("Heffing box 3", p.heffing_box3)
+      + rij("Heffingskortingen (verzilverd)", p.verzilverd) + rij("Te betalen", p.te_betalen)}</table></details>`;
+    let html = `<h2>Straks — je situatie vanaf pensioen (${r.jaar}-tarieven)</h2>` + blk(r.partner?"Jij":"Belastingplichtige", r.jij);
+    if (r.partner) html += blk("Partner", r.partner);
+    html += `<p class="best">Huishouden samen: <b>${eur(r.huishouden.te_betalen)}</b> te betalen · netto besteedbaar ${eur(r.huishouden.netto)}.</p>
+      <p class="muted">Box 1 gaat tegen de AOW-tarieven (schijf 1 zonder AOW-premie ≈ 17,9%) + ouderenkorting — daarom is je druk straks lager dan nu op hetzelfde inkomen. Dat is precies het uitstelvoordeel van lijfrente/pensioen.</p>`;
+    out.innerHTML = html;
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+
+$("bereken").onclick = () => {
+  if (mode === "vergelijk") return bereken();
+  if (mode === "individu") return berekenIndividu();
+  if (mode === "straks") return berekenStraks();
+  if (subV === "advies") return berekenVermogensadvies();
+  if (subV === "beleggen") return berekenBeleggen();
+  if (subV === "uitstel") return berekenUitstel();
+  if (subV === "dividend") return berekenDividend();
+  return berekenLijfrente();
+};
+$("rapportBtn").onclick = rapport;
+berekenIndividu();
+</script>
+</body>
+</html>

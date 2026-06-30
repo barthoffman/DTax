@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Server-/runlogs
+nohup.out
+*.log
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Lokale Claude-instellingen (persoonlijk)
+.claude/settings.local.json
