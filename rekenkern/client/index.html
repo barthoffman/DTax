@@ -758,12 +758,29 @@ $("strVulIn").onclick = async () => {
   try {
     const adv = await post("/advies", tab1Body());
     const r = await post("/vermogensadvies", vaBody(adv));
-    const P = r.projectie;
+    const P = r.projectie, ps = pensSom();
+    // Jij: AOW automatisch, pensioen uit de bouwer, lijfrente/box 3 uit de projectie.
+    $("strAow").value = Math.round(autoAOW());
+    $("strPensioen").value = Math.round(ps.jij.uitk);
     if (P) {
       $("strLijfrente").value = Math.round(P.lijfrente_uitkering);
       $("strDividend").value = Math.round(P.bv_dividend);
       $("strBeleg").value = Math.round(P.box3_straks_totaal != null ? P.box3_straks_totaal : P.box3_straks);
-      $("strBank").value = Math.round(P.spaargeld_straks != null ? P.spaargeld_straks : +$("mixBank").value);  // spaargeld doorgegroeid
+      $("strBank").value = Math.round(P.spaargeld_straks != null ? P.spaargeld_straks : 0);
+    }
+    // Partner: AOW automatisch, pensioen + lijfrente-pot uit de bouwer (pot → uitkering).
+    if ($("hasPartner").checked) {
+      $("strPartner").checked = true;
+      $("strPartnerVelden").classList.remove("hide");
+      const leeftijd = +$("mixLeeftijd").value;
+      const jaren = leeftijd > 0 ? Math.max(1, 67 - leeftijd) : +$("mixHorizon").value;
+      const groei = Math.pow(1 + (+$("mixRendement").value) / 100, jaren) / (+$("vaUitkeringsjaren").value || 20);
+      $("strpAow").value = Math.round(autoAOW());
+      $("strpPensioen").value = Math.round(ps.partner.uitk);
+      $("strpLijfrente").value = Math.round(ps.partner.pot * groei);
+    } else {
+      $("strPartner").checked = false;
+      $("strPartnerVelden").classList.add("hide");
     }
     berekenStraks();
   } catch(e) { $("result").innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
@@ -1125,7 +1142,7 @@ function vaBody(adv) {
   const leeftijd = +$("mixLeeftijd").value;
   return {jaar:+$("jaar").value,
     nieuwe_inleg: $("vaNieuw").value ? +$("vaNieuw").value : adv.totaal_potentieel,
-    bestaand_box3:+$("mixBeleg").value, bestaand_spaargeld:+$("mixBank").value,
+    bestaand_box3:+$("mixBeleg").value + partnerBox3().beleg, bestaand_spaargeld:+$("mixBank").value + partnerBox3().bank,
     bestaand_bv_spaargeld:+$("mixBvSpaar").value, bestaand_bv_beleggingen:+$("mixBvBeleg").value,
     rendement:(+$("mixRendement").value)/100,
     jaren: leeftijd > 0 ? Math.max(1, 67 - leeftijd) : +$("mixHorizon").value,

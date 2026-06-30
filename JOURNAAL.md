@@ -9,6 +9,27 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-06-30 — Fase 26: volwaardig partner-model (box 3, aanspraken, Straks-huishouden)
+
+- **BESLISSING — partner als tweede persoon.** Bestaande aanspraken zijn vermogen (vast tot
+  pensioen) en horen bij Vermogen; AOW is bekend → automatisch (geen veld), op basis van het
+  partner-vinkje (€ 19.650 alleenstaand / € 13.465 p.p.). De "+ aanspraak"-bouwer (lijfrente-pot,
+  werkgeverspensioen, ander pensioen) staat op Vermogen → Advies. "2e pijler" → "werkgeverspensioen".
+- **Stap 1 — partner box 3 + fiscaal-partner-vinkje.** Bij fiscaal partner: box 3 gepoold (2×
+  heffingvrij). `optimalisatie_advies(heeft_fiscaal_partner=…)` → 2× heffingvrij + box3-verdelen
+  werken ook bij een partner zonder inkomen. Uitleg "verdelen ≠ delen" (aangiftekeuze, geen
+  eigendomsoverdracht; huwelijkse voorwaarden ≠ geen fiscaal partner).
+- **Stap 2 — aanspraken per persoon.** Elke aanspraak krijgt "van wie" (jij/partner, alleen met
+  partner). De allocator/cap gebruikt je eigen aanspraken; de partner-aanspraken voeden Straks.
+- **Stap 3 — Straks huishouden.** "Vul in vanuit mijn opbouw" vult nu álles: jij (AOW auto,
+  pensioen uit bouwer, lijfrente/box 3 uit projectie) én partner (AOW auto, pensioen + lijfrente-pot→
+  uitkering). `berekenStraks` toonde al jij + partner + huishoud-netto.
+- **BEVINDING — gratis neveneffecten.** Uitvinken van de partner (scheiding) toont meteen de
+  gewijzigde situatie; en met de complete invoer vergelijk je 2025 ↔ 2026 door alleen het
+  belastingjaar om te zetten, zonder iets opnieuw in te vullen.
+
+---
+
 ## 2026-06-30 — Fase 25: dividend-bron, bestaande lijfrente, Groei-uitleg
 
 - **BESLISSING — C: inkomenstype "Uitgekeerd dividend uit BV (box 2)"** bij NU. Dividend uit eerder
