@@ -257,7 +257,7 @@
     <div id="modeVermogen" class="hide">
       <div class="tabs" style="margin-bottom:12px">
         <button type="button" class="subtab tab active subPrive" data-sub="advies">Advies</button>
-        <button type="button" class="subtab tab subPrive" data-sub="beleggen">Beleggingsgroei</button>
+        <button type="button" class="subtab tab subPrive" data-sub="beleggen">Groei-uitleg</button>
         <button type="button" class="subtab tab subPrive" data-sub="lijfrente">Lijfrente</button>
         <button type="button" class="subtab tab subZak hide" data-sub="uitstel">BV-uitstel</button>
         <button type="button" class="subtab tab subZak hide" data-sub="dividend">Dividend</button>
@@ -291,19 +291,8 @@
 
     <div id="modeBeleggen" class="hide">
       <fieldset>
-        <legend>Beleggingsgroei — kwalificatie</legend>
-        <label>Beleggingen (€, forfait ~6%)<input type="number" id="belBeleggingen" value="100000" min="0"></label>
-        <div class="row">
-          <label>Spaargeld (€, ~1,3%)<input type="number" id="belSpaargeld" placeholder="0" min="0"></label>
-          <label>Schulden (€, ~2,7%)<input type="number" id="belSchulden" placeholder="0" min="0"></label>
-        </div>
-        <label>Verwacht rendement op beleggingen (%)<input type="number" id="belRendement" value="10" min="0"></label>
-        <label>Overig box 1-inkomen (€)
-          <input type="number" id="belOverig" placeholder="0" min="0">
-          <span class="muted">bepaalt het marginale tarief voor ROW/winst</span></label>
-        <label class="chk"><input type="checkbox" id="belUren"> Voldoet aan urencriterium (winst)</label>
-        <label class="chk"><input type="checkbox" id="belTegenbewijs" checked> Box 3 met tegenbewijs</label>
-        <label class="chk"><input type="checkbox" id="belPartner"> Fiscale partner (2× heffingvrij box 3)</label>
+        <legend>Groei-uitleg — zo schatten we je vermogensgroei in</legend>
+        <p class="muted">Geen aparte invoer nodig: dit gebruikt je <b>vermogen, inleg, rendement en horizon</b> uit <b>Mijn belasting</b> en <b>Advies</b>. Klik op <b>Bereken</b> om te zien hóe elk potje groeit en waarom dat fiscaal verschilt.</p>
       </fieldset>
     </div><!-- /modeBeleggen -->
 
@@ -932,32 +921,36 @@ async function berekenIndividu() {
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
 
-async function berekenBeleggen() {
+async function berekenGroeiUitleg() {
   const out = $("result");
   out.innerHTML = '<span class="muted">Bezig…</span>';
   try {
-    const body = {jaar:+$("jaar").value, beleggingen:+$("belBeleggingen").value,
-      spaargeld:+$("belSpaargeld").value, schulden:+$("belSchulden").value,
-      rendement_pct:(+$("belRendement").value)/100, overig_inkomen:+$("belOverig").value,
-      urencriterium:$("belUren").checked, tegenbewijs:$("belTegenbewijs").checked, partner:$("belPartner").checked};
-    const r = await post("/beleggingsgroei", body);
-    laatste = {kind:"beleggen", data:r};
-    const beste = r.opties.find(o=>o.naam===r.beste);
-    const rows = r.opties.map(o => `
-      <tr class="${o.naam===r.beste?'win':''}">
-        <td>${o.label}</td>
-        <td class="num">${eur(o.belasting)}</td>
-        <td class="num">${(o.effectief_tarief*100).toFixed(1)}%</td>
-        <td class="num">${eur(o.netto)}</td>
-      </tr>`).join("");
+    const adv = await post("/advies", tab1Body());
+    const r = await post("/vermogensadvies", vaBody(adv));
+    laatste = {kind:"vermogensadvies", data:r};
+    const P = r.projectie;
+    if (!P) { out.innerHTML = '<p class="muted">Vul eerst vermogen of inleg in bij <b>Mijn belasting</b>.</p>'; return; }
+    const sub = t => `<p class="muted" style="font-weight:700;margin:10px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em">${t}</p>`;
+    const kop = `<thead><tr><th>Potje</th><th>Belasting tijdens de groei</th><th>Pot straks</th></tr></thead>`;
+    const bvOok = heeftBv() && P.bv_pot > 0;
     out.innerHTML = `
-      <h2>Beleggingsgroei — kwalificatie (${r.jaar})</h2>
-      <p class="best">Groei ${eur(r.groei)} op ${eur(r.beleggingen)} beleggingen${r.spaargeld>0?` (+ ${eur(r.spaargeld)} spaar)`:""}: fiscaal gunstigst is <b>${beste.label}</b> — ${eur(beste.belasting)} belasting (${(beste.effectief_tarief*100).toFixed(1)}%).</p>
-      <table>
-        <thead><tr><th>Kwalificatie</th><th>Belasting op groei</th><th>Effectief</th><th>Netto groei</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul>`;
+      <h2>Hoe we je groei inschatten — ${r.jaar}</h2>
+      <p class="muted">Op basis van je ingevulde gegevens: <b>${eur(r.nieuwe_inleg)}/jaar</b> inleg, <b>${(r.rendement*100).toFixed(1)}%</b> rendement over <b>${r.jaren} jaar</b>. Eerst nominaal, daarna reëel (euro's van nu). De groei zelf is hetzelfde — het verschil zit in <b>wanneer</b> je belasting betaalt.</p>
+      <h2 style="margin-top:14px">Waarom elk potje anders groeit</h2>
+      ${sub("Privé")}
+      <table>${kop}<tbody>
+        <tr><td>Lijfrente</td><td class="muted">belastingvrij — geen jaarlijkse heffing; box 1 pas bij opname</td><td class="num">${eur(P.lijfrente_pot)}</td></tr>
+        <tr><td>Box 3</td><td class="muted">jaarlijks forfait × 36% op het vermogen — die "drag" eet aan de groei</td><td class="num">${eur(P.box3_pot)}</td></tr>
+      </tbody></table>
+      ${bvOok ? `${sub("Zakelijk")}<table>${kop}<tbody>
+        <tr><td>BV</td><td class="muted">jaarlijks Vpb (19%) over het rendement; box 2 bij opname</td><td class="num">${eur(P.bv_pot)}</td></tr>
+      </tbody></table>`:""}
+      <p class="muted">Reëel (euro's van nu, ${(P.inflatie*100).toFixed(1)}% inflatie): lijfrente ${eur(P.lijfrente_pot_reeel)}, box 3 ${eur(P.box3_straks_reeel)}. Inflatie deflateert alle potjes ~evenredig, dus ze verandert vooral je koopkracht, nauwelijks de keuze.</p>
+      <ul class="tips">
+        <li>Aanname: ${r.jaren} jaar lang dezelfde inleg én een constant rendement van ${(r.rendement*100).toFixed(1)}% — een schatting, geen garantie.</li>
+        <li>Het heffingvrij vermogen en tegenbewijs verzachten de box 3-drag bij kleinere bedragen.</li>
+        <li>De volledige doorkijk (uitkering per jaar, netto straks) staat bij <b>Advies</b> en <b>Straks</b>.</li>
+      </ul>`;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
 
@@ -1165,7 +1158,7 @@ $("bereken").onclick = () => {
   if (mode === "individu") return berekenIndividu();
   if (mode === "straks") return berekenStraks();
   if (subV === "advies") return berekenVermogensadvies();
-  if (subV === "beleggen") return berekenBeleggen();
+  if (subV === "beleggen") return berekenGroeiUitleg();
   if (subV === "uitstel") return berekenUitstel();
   if (subV === "dividend") return berekenDividend();
   return berekenLijfrente();

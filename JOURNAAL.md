@@ -9,6 +9,25 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-06-30 — Fase 25: dividend-bron, bestaande lijfrente, Groei-uitleg
+
+- **BESLISSING — C: inkomenstype "Uitgekeerd dividend uit BV (box 2)"** bij NU. Dividend uit eerder
+  opgepot BV-vermogen = box 2-inkomen van dit jaar, apart van `winst_bv` (winst van dít jaar).
+  `optimalisatie_advies(dividend_box2=…)` telt het bij box2 in baseline + operationeel. Test 50k
+  dividend → +€ 14.708 (€ 12.250 box 2 + ~€ 2.458 minder AHK via hoger verzamelinkomen — correct).
+- **BESLISSING — B: "Bestaande lijfrente-opbouw"** op Vermogen → Advies. Al opgebouwde pot groeit
+  vooruit (telt op in de Doorkijk-pot) ÉN de toekomstige uitkering stapelt in het effectieve pensioen
+  → knijpt de lijfrente-cap (overschot naar box 3). Test 250k bestaand → nieuw lijfrente van 35.588
+  naar 20.843, rest box 3.
+- **BESLISSING — A′: Beleggingsgroei → "Groei-uitleg".** De misleidende "kies je belastingbox"-
+  vergelijking (box 3 vs ROW vs winst vs BV) is verwijderd — die kwalificatie is een feitelijke toets,
+  geen keuze. In plaats daarvan een transparante uitleg op basis van de ingevulde data: per potje
+  waaróm de groei fiscaal anders uitpakt (lijfrente belastingvrij, box 3 jaarlijkse drag, BV Vpb),
+  privé/zakelijk gesplitst, nominaal + reëel + aannames. Eigen inputs eruit; `/beleggingsgroei`-endpoint
+  blijft (ongebruikt). BEVINDING onderbouwd: box 1 vs box 3 voor beleggen is geen vrije keuze.
+
+---
+
 ## 2026-06-30 — Fase 24: git-repo, TOL-max geverifieerd, update-kalender
 
 - **BESLISSING — git-repo opgezet** op `git@github.com:barthoffman/DTax.git` (main, initial commit
