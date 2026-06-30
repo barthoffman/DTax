@@ -288,6 +288,16 @@
           <select id="pensImportWie" class="hide" style="flex:0;width:auto"><option value="jij">van jou</option><option value="partner">van partner</option></select>
         </div>
         <input type="file" id="pensFile" accept=".json,application/json" style="display:none">
+        <details class="uitsplitsing" style="margin-top:4px"><summary>Hoe kom je aan dit bestand? (mijnpensioenoverzicht.nl)</summary>
+          <ol style="padding-left:18px;line-height:1.7" class="muted">
+            <li>Ga naar <b>mijnpensioenoverzicht.nl</b> en log in met je <b>DigiD</b> (app of sms-code).</li>
+            <li>Ga naar <b>"Download pensioenoverzicht"</b> en haal je gegevens op.</li>
+            <li>Kies de <b>data-export (JSON)</b> als die er is. <b>Let op:</b> de gewone PDF kan de tool niet lezen — je hebt het JSON-databestand nodig.</li>
+            <li><b>Upload</b> het bestand hierboven, of <b>plak</b> de JSON-inhoud hieronder.</li>
+          </ol>
+          <textarea id="pensPlak" placeholder="…of plak hier de JSON-inhoud" style="width:100%;min-height:70px;font-family:monospace;font-size:12px;box-sizing:border-box"></textarea>
+          <button type="button" id="pensPlakBtn" style="width:auto;padding:6px 12px;margin-top:6px">Verwerk geplakte JSON</button>
+        </details>
         <p class="muted" id="pensImportInfo" style="margin:4px 0 0"></p>
         <p class="muted" id="aowInfo" style="margin:6px 0 0"></p>
         <div id="grpBv" class="hide">
@@ -650,43 +660,41 @@ function togglePensWie() {  // "van wie" alleen tonen met een partner
 }
 $("pensAdd").onclick = () => $("pensLijst").appendChild(pensRij());
 
-// Import van mijnpensioenoverzicht.nl (Pensioenregister-JSON), volledig client-side.
+// Import van mijnpensioenoverzicht.nl (Pensioenregister-JSON), volledig client-side — bestand of geplakt.
+function verwerkPensioenJSON(tekst) {
+  let d;
+  try { d = JSON.parse(tekst); }
+  catch (err) { $("pensImportInfo").textContent = "Kon dit niet lezen als mijnpensioenoverzicht-JSON."; return; }
+  const tot = (((d.Totalen || {}).OuderdomsPensioenTotalen || {}).OuderdomsPensioenTotaal) || [];
+  let pensioen = 0, overbrug = 0;
+  tot.forEach(t => {
+    if (t.Pensioen) pensioen = Math.max(pensioen, +t.Pensioen);             // volledig ouderdomspensioen/jaar
+    if (t.IndicatiefPensioen) overbrug = Math.max(overbrug, +t.IndicatiefPensioen);  // overbrugging/indicatief
+  });
+  const wie = $("hasPartner").checked ? $("pensImportWie").value : "jij";
+  const nl = n => Math.round(n).toLocaleString("nl-NL");
+  if (pensioen > 0) {
+    $("pensLijst").appendChild(pensRij("werkgeverspensioen", Math.round(pensioen), wie));
+    if (overbrug > 0) $("pensLijst").appendChild(pensRij("ander_pensioen", Math.round(overbrug), wie));
+    const kap = f => `€ ${nl(pensioen * f / 1000)}k`;  // impliciet kapitaal (factor ~15-20)
+    $("pensImportInfo").innerHTML =
+      `Geïmporteerd (${wie === "partner" ? "partner" : "jij"}): <b>€ ${nl(pensioen)}/jaar</b> werkgeverspensioen`
+      + (overbrug > 0 ? ` + € ${nl(overbrug)}/jaar overbrugging` : "")
+      + `.<br><span class="muted">Impliciet kapitaal achter die belofte: ± ${kap(15)}–${kap(20)} (uitkering × annuïteitsfactor 15–20; indicatief). Controleer evt. met de opbouwformule: ~1,875% × salaris × dienstjaren.</span>`;
+  } else {
+    $("pensImportInfo").textContent = "Geen ouderdomspensioen gevonden in dit bestand.";
+  }
+}
 $("pensImport").onclick = () => $("pensFile").click();
 $("pensFile").onchange = (e) => {
   const f = e.target.files[0];
   if (!f) return;
   const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const d = JSON.parse(reader.result);
-      const tot = (((d.Totalen || {}).OuderdomsPensioenTotalen || {}).OuderdomsPensioenTotaal) || [];
-      let pensioen = 0, overbrug = 0, aowAlleen = 0;
-      tot.forEach(t => {
-        if (t.Pensioen) pensioen = Math.max(pensioen, +t.Pensioen);             // volledig ouderdomspensioen/jaar
-        if (t.IndicatiefPensioen) overbrug = Math.max(overbrug, +t.IndicatiefPensioen);  // overbrugging/indicatief
-        if (t.AOWAlleenstaand) aowAlleen = +t.AOWAlleenstaand;
-      });
-      const wie = $("hasPartner").checked ? $("pensImportWie").value : "jij";
-      const nl = n => Math.round(n).toLocaleString("nl-NL");
-      if (pensioen > 0) {
-        $("pensLijst").appendChild(pensRij("werkgeverspensioen", Math.round(pensioen), wie));
-        if (overbrug > 0) $("pensLijst").appendChild(pensRij("ander_pensioen", Math.round(overbrug), wie));
-        // Impliciet kapitaal achter de belofte (actuariële schatting, factor ~15-20).
-        const kap = (f) => `€ ${nl(pensioen * f / 1000)}k`;
-        $("pensImportInfo").innerHTML =
-          `Geïmporteerd (${wie === "partner" ? "partner" : "jij"}): <b>€ ${nl(pensioen)}/jaar</b> werkgeverspensioen`
-          + (overbrug > 0 ? ` + € ${nl(overbrug)}/jaar overbrugging` : "")
-          + `.<br><span class="muted">Impliciet kapitaal achter die belofte: ± ${kap(15)}–${kap(20)} (uitkering × annuïteitsfactor 15–20; indicatief, hangt af van rente/indexatie). Controleer evt. met de opbouwformule: ~1,875% × salaris × dienstjaren.</span>`;
-      } else {
-        $("pensImportInfo").textContent = "Geen ouderdomspensioen gevonden in dit bestand.";
-      }
-    } catch (err) {
-      $("pensImportInfo").textContent = "Kon dit niet lezen als mijnpensioenoverzicht-JSON.";
-    }
-  };
+  reader.onload = () => verwerkPensioenJSON(reader.result);
   reader.readAsText(f);
   e.target.value = "";  // reset zodat hetzelfde bestand opnieuw kan
 };
+$("pensPlakBtn").onclick = () => { if ($("pensPlak").value.trim()) verwerkPensioenJSON($("pensPlak").value); };
 
 function autoAOW() { return $("hasPartner").checked ? 14379 : 20929; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
