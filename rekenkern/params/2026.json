@@ -36,8 +36,15 @@
     "startersaftrek": 2123,
     "mkb_winstvrijstelling_pct": 0.127,
     "stakingsaftrek": 3630,
+    "meewerkaftrek_schijven": [
+      {"vanaf_uren": 525, "pct": 0.0125},
+      {"vanaf_uren": 875, "pct": 0.02},
+      {"vanaf_uren": 1225, "pct": 0.03},
+      {"vanaf_uren": 1750, "pct": 0.04}
+    ],
     "_bron_mkb": "OND-BD-mkb",
-    "_bron_starters": "OND-WET-3.76"
+    "_bron_starters": "OND-WET-3.76",
+    "_bron_meewerk": "OND-meewerk"
   },
   "heffingskortingen": {
     "algemene": {

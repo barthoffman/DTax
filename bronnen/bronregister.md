@@ -173,6 +173,7 @@ en de voorlopige box 3-forfaits begin het jaar erna nalopen.
 |---|---|---|---|---|---|---|
 | OND-WET-3.2 | wet | Wet IB 2001 | afd. 3.2 / art. 3.2–3.6 (winst, urencriterium) | toestand 2026-02-21 | 2026-06-28 | https://wetten.overheid.nl/BWBR0011353 |
 | OND-WET-3.76 | wet | Wet IB 2001 | art. 3.76 zelfstandigen-/startersaftrek | toestand 2026-02-21 | 2026-06-28 | https://wetten.overheid.nl/BWBR0011353 |
+| OND-meewerk | wet + vakmedia | Wet IB 2001 art. 3.78 / Informer | meewerkaftrek-schijven 2026: 525–875 u 1,25%, 875–1.225 u 2%, 1.225–1.750 u 3%, ≥1.750 u 4% (ongewijzigd 2026; −75% per 2027, afgeschaft 2030 — Voorjaarsnota 2025) | 2026 | 2026-07-01 | https://www.informer.nl/belastingen/aftrekposten/meewerkaftrek |
 | OND-WET-3.79a | wet | Wet IB 2001 | art. 3.79a MKB-winstvrijstelling (12,7%) | toestand 2026-02-21 | 2026-06-28 | https://wetten.overheid.nl/BWBR0011353 |
 | OND-IV-3.79a | wet (comm.) | InView (Wolters Kluwer) | art. 3.79a — 12,7% geldig vanaf 2025-01-01 | 2025-01-01 | 2026-06-28 | https://www.inview.nl/ (art. 3.79a) |
 | OND-OP-zelfst | toel. | Ondernemersplein | zelfstandigenaftrek afbouw 2026 → ~€ 900 | wetswijz. 2026 | 2026-06-28 | https://ondernemersplein.overheid.nl/wetswijzigingen/zelfstandigenaftrek-verder-omlaag-0/ |

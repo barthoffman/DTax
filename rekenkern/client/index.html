@@ -198,6 +198,7 @@
         <div id="grpUren" class="hide">
           <label class="chk" style="margin-top:10px"><input type="checkbox" id="mixUren" checked> Onderneming voldoet aan urencriterium (1.225 u)</label>
           <label class="chk"><input type="checkbox" id="mixStarter"> Starter (eerste 3 jaar als ondernemer — extra startersaftrek)</label>
+          <label>Meewerk-uren partner in je zaak (voor meewerkaftrek, vanaf 525 u)<input type="number" id="mixMeewerk" placeholder="0" min="0" step="25"></label>
         </div>
       </fieldset>
       <fieldset>
@@ -235,6 +236,7 @@
             <label>Spaargeld box 3 (€)<input type="number" id="mixBank" placeholder="0" min="0" step="5000"></label>
             <label>Beleggingen / 2e woning / verhuur (box 3, €)<input type="number" id="mixBeleg" placeholder="0" min="0" step="5000"></label>
           </div>
+          <label>Waarvan groene beleggingen (box 3, €) — vrijstelling € 26.715 p.p.<input type="number" id="mixGroen" placeholder="0" min="0" step="5000"></label>
           <label>Schulden box 3 (hypotheek 2e woning, leningen — niet je eigen woning) (€)<input type="number" id="mixSchulden" placeholder="0" min="0" step="5000"></label>
           <p class="muted" style="margin:2px 0 0">Bestaande schuld bij een box 3-bezit. Lenen puur om box 3-belasting te verlagen loont niet: een schuld bespaart maar ~0,97%/jaar (2,7% forfait × 36%), terwijl je 4–5% echte rente betaalt — en de eerste € 3.800 p.p. telt door de drempel niet mee.</p>
           <div id="grpRend" class="hide">
@@ -941,9 +943,9 @@ async function berekenIndividu() {
     }
     const pb = partnerBox3();
     const body = {jaar:+$("jaar").value, loon, ondernemer_inkomen:ondernemer, huidige_vorm:huidigeVorm, urencriterium:$("mixUren").checked,
-      dividend_box2:s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value,
+      dividend_box2:s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value, meewerk_uren:+$("mixMeewerk").value,
       partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(), rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
-      box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg, schulden:+$("mixSchulden").value},
+      box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg, schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
       eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
       profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
     if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;
@@ -1176,10 +1178,10 @@ function tab1Body() {
   const body = {jaar:+$("jaar").value,
     loon: s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden,
     ondernemer_inkomen: s.winst + s.winst_bv, huidige_vorm: s.winst_bv > 0 ? "bv" : "zzp",
-    dividend_box2: s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value,
+    dividend_box2: s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value, meewerk_uren:+$("mixMeewerk").value,
     urencriterium:$("mixUren").checked, partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(),
     rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
-    box3:{banktegoeden:+$("mixBank").value + partnerBox3().bank, overige_bezittingen:+$("mixBeleg").value + partnerBox3().beleg, schulden:+$("mixSchulden").value},
+    box3:{banktegoeden:+$("mixBank").value + partnerBox3().bank, overige_bezittingen:+$("mixBeleg").value + partnerBox3().beleg, schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
     eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
     profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
   if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;

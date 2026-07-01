@@ -54,8 +54,20 @@ class AdviesResultaat:
         return round(sum(s.besparing for s in self.suggesties), 2)
 
 
-def _ond(winst, uren, starter=False):
-    return Onderneming(winst=winst, voldoet_urencriterium=uren, starter=starter) if winst else None
+def _ond(winst, uren, starter=False, overige=0.0):
+    return Onderneming(winst=winst, voldoet_urencriterium=uren, starter=starter,
+                       overige_ondernemersaftrek=overige) if winst else None
+
+
+def _meewerkaftrek(uren, winst, p):
+    """Meewerkaftrek (art. 3.78): % van de winst o.b.v. de meewerk-uren van de partner."""
+    if uren < 525 or winst <= 0:
+        return 0.0
+    pct = 0.0
+    for s in p["onderneming"]["meewerkaftrek_schijven"]:
+        if uren >= s["vanaf_uren"]:
+            pct = s["pct"]
+    return round(pct * winst, 2)
 
 
 def _huishouden(persoon, partner, profiel, p, inkomen, box2=0.0, extra_heffing=0.0,
@@ -86,6 +98,7 @@ def optimalisatie_advies(
     dividend_box2: float = 0.0,
     jongste_kind_leeftijd: int | None = None,
     starter: bool = False,
+    meewerk_uren: int = 0,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
@@ -100,7 +113,8 @@ def optimalisatie_advies(
     user_arbeids = loon + ondernemer_inkomen
     minst = (not heeft_fp) or (user_arbeids <= partner_inkomen)
     partner_minst = heeft_fp and (partner_inkomen < user_arbeids)
-    zzp_persoon = Persoon(loon=loon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter),
+    meewerk = _meewerkaftrek(meewerk_uren, ondernemer_inkomen, p)  # partner werkt mee in de zaak
+    zzp_persoon = Persoon(loon=loon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter, meewerk),
                           eigen_woning=ew, box3=b3, **pk)
 
     # Bouw de "operationele" persoon voor een gekozen vorm: (persoon, box2, Vpb+overhead, box1-arbeidsinkomen).

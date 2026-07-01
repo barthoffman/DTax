@@ -215,13 +215,15 @@ def _advies_handler(body: dict) -> dict:
                                  betaalde_hypotheekrente=float(ew.get("betaalde_hypotheekrente", 0))),
         box3=Box3Vermogen(banktegoeden=float(b3.get("banktegoeden", 0)),
                           overige_bezittingen=float(b3.get("overige_bezittingen", 0)),
-                          schulden=float(b3.get("schulden", 0))),
+                          schulden=float(b3.get("schulden", 0)),
+                          groene_beleggingen=float(b3.get("groene_beleggingen", 0))),
         profiel=_profiel_from_json(body.get("profiel")),
         rendement=float(body.get("rendement", 0.06)),
         horizon=int(body.get("horizon", 15)),
         dividend_box2=float(body.get("dividend_box2", 0)),
         jongste_kind_leeftijd=(int(body["jongste_kind_leeftijd"]) if body.get("jongste_kind_leeftijd") not in (None, "") else None),
         starter=bool(body.get("starter", False)),
+        meewerk_uren=int(body.get("meewerk_uren", 0) or 0),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,
