@@ -144,6 +144,26 @@ Geen leakage dus: aftrek nu (echt), opname later (lager tarief), teruggave licht
 vast tot pensioen. **Praktische tip:** laat de teruggave niet op een spaarrekening niksen — herbeleg
 'm (box 3) of gebruik 'm om volgend jaar weer lijfrente te vullen, dan werkt élke euro.
 
+### Boven de cap: doorvullen of flexibel houden? (rendement vs liquiditeit)
+
+De pensioen-bewuste cap stopt waar het **tariefvoordeel** op is (de uitkering raakt de schijfgrens
+onder je huidige tarief; opname = aftrek → arbitrage nul). Maar dat is níet waar het voordeel van
+lijfrente helemaal ophoudt — een subtiel maar belangrijk punt:
+
+- **Lijfrente betaalt geen jaarlijkse box 3-heffing.** Dus óók boven de cap groeit lijfrente
+  belastingvrij, terwijl box 3 ~2,16%/jaar forfait kost. Bij **dezelfde belegging** wint lijfrente
+  daarom **op rendement**, ook doorvullend:  `lijfrente/box 3 = ((1+r)/(1+r−drag))^jaren > 1`.
+- **Box 3 wint pas óók op rendement** als je er een **hoger brutorendement** haalt — en wel **meer
+  dan het forfait (~2,16%/jaar)**:  `r_box3 > r_lijfrente + ~2,16%`. Dat lukt alleen met eigen
+  beheer / andere beleggingen dan in de lijfrente.
+- **Negatieve arbitrage** treedt pas op als je zó ver doorvult dat de uitkering in een schíjf boven
+  je huidige tarief belandt (opname > aftrek). Voor een topschijver (49,5%) bestaat die schijf niet.
+
+**Dus boven de cap is het een echte keuze, geen automatisme:** doorstorten (lijfrente — meer
+rendement bij gelijke belegging, maar vast tot pensioen) óf flexibel houden (box 3 — liquide, maar
+forfaitheffing). De allocator kiest **conservatief** voor box 3 boven de cap: hij ruilt wat
+rendementsvoordeel in voor flexibiliteit. Dat is een verdedigbare default, geen wet.
+
 ### Hoe hoog is je opnametarief écht? (geen wishful thinking)
 
 De winst van een lijfrente leunt op het tariefverschil: je trekt nú af tegen je marginale

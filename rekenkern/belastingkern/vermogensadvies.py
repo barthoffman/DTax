@@ -315,8 +315,10 @@ def vermogensadvies(
     if lijf_gecapt:
         waarschuwingen.insert(0,
             f"Lijfrente begrensd op ± € {lijf_deel:,.0f}/jaar (huishouden): meer zou de pensioenuitkering "
-            "boven de schijfgrens duwen, waar het opnametarief het marginale tarief van nu raakt — daarboven "
-            "is box 3 gunstiger (en flexibel). Het overschot gaat daarom naar box 3.".replace(",", "."))
+            "boven de schijfgrens duwen, waar het opnametarief het tarief van nu raakt → het tariefvoordeel "
+            "is dan weg. Doorvullen groeit nog wel belastingvrij (op rendement wint het), maar zit vast tot "
+            "pensioen; de rest naar box 3 is een flexibiliteitskeuze. Box 3 wint pas óók op rendement als je "
+            "daar meer dan ~2,16%/jaar méér haalt dan in de lijfrente.".replace(",", "."))
     return VermogensadviesResultaat(
         jaar=jaar, nieuwe_inleg=round(inleg, 2), jaren=jaren, rendement=rendement,
         containers=containers, allocatie=allocatie,
