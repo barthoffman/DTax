@@ -301,7 +301,7 @@
         </div>
         <input type="file" id="pensFile" accept=".json,application/json" style="display:none">
         <p class="muted" id="pensImportInfo" style="margin:4px 0 0"></p>
-        <label style="margin-top:8px">Pensioenaangroei dit jaar — factor A (€) — van je UPO; leeg = geen werkgeverspensioen. Verlaagt je jaarruimte.<input type="number" id="mixFactorA" placeholder="0" min="0" step="500"></label>
+        <label style="margin-top:8px">Pensioenaangroei dit jaar — factor A (€). <b>Werkgeverspensioen?</b> Vul factor A van je UPO in (verlaagt je jaarruimte). <b>ZZP / geen werkgeverspensioen?</b> Laat leeg → volledige jaarruimte.<input type="number" id="mixFactorA" placeholder="0 = geen werkgeverspensioen" min="0" step="500"></label>
         <div id="grpAanspraakPartner" class="hide">
           <p class="muted" style="font-weight:700;margin:14px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em">Aanspraken partner</p>
           <div id="pensLijstPartner"></div>
@@ -311,7 +311,7 @@
           </div>
           <input type="file" id="pensFilePartner" accept=".json,application/json" style="display:none">
           <p class="muted" id="pensImportInfoPartner" style="margin:4px 0 0"></p>
-          <label style="margin-top:8px">Pensioenaangroei partner dit jaar — factor A (€) — van de UPO van je partner<input type="number" id="mixFactorAPartner" placeholder="0" min="0" step="500"></label>
+          <label style="margin-top:8px">Pensioenaangroei partner dit jaar — factor A (€). Werkgeverspensioen partner? Vul factor A van de UPO in. Anders leeg → volledige jaarruimte.<input type="number" id="mixFactorAPartner" placeholder="0 = geen werkgeverspensioen" min="0" step="500"></label>
         </div>
         <details class="uitsplitsing" style="margin-top:8px"><summary>Hoe kom je aan dit bestand? (mijnpensioenoverzicht.nl)</summary>
           <ol style="padding-left:18px;line-height:1.7" class="muted">
