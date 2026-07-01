@@ -293,10 +293,10 @@
         <p class="muted" style="margin:8px 0 0">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, 2e pijler komt van je pensioenoverzicht:</p>
         <p class="muted" style="margin:8px 0 2px"><b>Bestaande aanspraken</b> — vermogen dat al vaststaat, maar vast tot je pensioen (van je pensioenoverzicht). Bepaalt mee hoeveel nieuwe lijfrente nog loont:</p>
         <div id="pensLijst"></div>
-        <div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-end">
-          <button type="button" id="pensAdd" style="width:auto;padding:6px 12px;margin-top:4px">+ aanspraak</button>
-          <button type="button" id="pensImport" style="width:auto;padding:6px 12px;margin-top:4px;flex:0">Importeer pensioenoverzicht (JSON)</button>
-          <select id="pensImportWie" class="hide" style="flex:0;width:auto"><option value="jij">van jou</option><option value="partner">van partner</option></select>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:8px">
+          <button type="button" id="pensAdd" style="width:auto;padding:6px 14px">+ aanspraak</button>
+          <button type="button" id="pensImport" style="width:auto;padding:6px 14px">Importeer pensioenoverzicht (JSON)</button>
+          <select id="pensImportWie" class="hide" style="width:auto"><option value="jij">van jou</option><option value="partner">van partner</option></select>
         </div>
         <input type="file" id="pensFile" accept=".json,application/json" style="display:none">
         <details class="uitsplitsing" style="margin-top:4px"><summary>Hoe kom je aan dit bestand? (mijnpensioenoverzicht.nl)</summary>
@@ -660,7 +660,7 @@ function pensRij(type="werkgeverspensioen", bedrag="", wie="jij") {
   const opts = Object.entries(pensLabels).map(([v,l]) => `<option value="${v}">${l}</option>`).join("");
   div.innerHTML = `<select class="pensType">${opts}</select>
     <input type="number" class="pensBedrag" value="${bedrag}" min="0" step="1000">
-    <select class="pensWie" style="flex:0.7"><option value="jij">jij</option><option value="partner">partner</option></select>
+    <select class="pensWie" style="flex:1;min-width:96px"><option value="jij">jij</option><option value="partner">partner</option></select>
     <button type="button" class="del">×</button>`;
   div.querySelector(".pensType").value = type;
   div.querySelector(".pensWie").value = wie;
