@@ -17,6 +17,19 @@ from .model import Onderneming
 from .params import Params
 
 
+def kia_aftrek(investering: float, p) -> float:
+    """Kleinschaligheidsinvesteringsaftrek (art. 3.41): aftrek o.b.v. het totale
+    investeringsbedrag in bedrijfsmiddelen. Onder de drempel of boven de bovengrens: 0."""
+    k = p["onderneming"].get("kia")
+    if not k or investering <= k["drempel"] or investering > k["boven"]:
+        return 0.0
+    if investering <= k["eerste_tot"]:
+        return round(k["eerste_pct"] * investering, 2)
+    if investering <= k["vast_tot"]:
+        return float(k["vast_bedrag"])
+    return round(max(0.0, k["vast_bedrag"] - k["afbouw_pct"] * (investering - k["vast_tot"])), 2)
+
+
 @dataclass
 class OndernemingResultaat:
     bruto_winst: float

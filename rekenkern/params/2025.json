@@ -41,9 +41,19 @@
       {"vanaf_uren": 1225, "pct": 0.03},
       {"vanaf_uren": 1750, "pct": 0.04}
     ],
+    "kia": {
+      "drempel": 2900,
+      "eerste_pct": 0.28,
+      "eerste_tot": 70602,
+      "vast_bedrag": 19769,
+      "vast_tot": 130744,
+      "afbouw_pct": 0.0756,
+      "boven": 392230
+    },
     "_bron_mkb": "OND-BD-mkb",
     "_bron_starters": "OND-WET-3.76",
-    "_bron_meewerk": "OND-meewerk"
+    "_bron_meewerk": "OND-meewerk",
+    "_bron_kia": "OND-KIA-2025"
   },
   "heffingskortingen": {
     "algemene": {

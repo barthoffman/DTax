@@ -224,6 +224,7 @@ def _advies_handler(body: dict) -> dict:
         jongste_kind_leeftijd=(int(body["jongste_kind_leeftijd"]) if body.get("jongste_kind_leeftijd") not in (None, "") else None),
         starter=bool(body.get("starter", False)),
         meewerk_uren=int(body.get("meewerk_uren", 0) or 0),
+        investering=float(body.get("investering", 0) or 0),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,

@@ -20,6 +20,7 @@ from .dga import bepaal_gebruikelijk_loon
 from .engine import bereken_persoon
 from .mix import bereken_mix, _persoon_detail
 from .model import Box3Vermogen, EigenWoning, Onderneming, Persoon
+from .onderneming import kia_aftrek
 from .optimalisatiemotor import box3_last
 from .params import laad_params
 from .pensioen import jaarruimte
@@ -99,6 +100,7 @@ def optimalisatie_advies(
     jongste_kind_leeftijd: int | None = None,
     starter: bool = False,
     meewerk_uren: int = 0,
+    investering: float = 0.0,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
@@ -114,7 +116,8 @@ def optimalisatie_advies(
     minst = (not heeft_fp) or (user_arbeids <= partner_inkomen)
     partner_minst = heeft_fp and (partner_inkomen < user_arbeids)
     meewerk = _meewerkaftrek(meewerk_uren, ondernemer_inkomen, p)  # partner werkt mee in de zaak
-    zzp_persoon = Persoon(loon=loon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter, meewerk),
+    kia = kia_aftrek(investering, p) if ondernemer_inkomen > 0 else 0.0  # investeringsaftrek
+    zzp_persoon = Persoon(loon=loon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter, meewerk + kia),
                           eigen_woning=ew, box3=b3, **pk)
 
     # Bouw de "operationele" persoon voor een gekozen vorm: (persoon, box2, Vpb+overhead, box1-arbeidsinkomen).
@@ -199,6 +202,31 @@ def optimalisatie_advies(
     op_tax, op_toeslagen, op_netto = _huishouden(
         op_persoon, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
     op_label = rechtsvorm["beste_label"] if (rechtsvorm and beste_naam != "zzp") else "je huidige vorm"
+
+    # 1b. KIA — kwantificeer het investeringsaftrek-voordeel (of tip om tot boven de drempel te bundelen).
+    if investering > 0 and huidige_vorm != "bv":
+        kcfg = p["onderneming"].get("kia", {})
+        if kia > 0:
+            persoon_zk = dataclasses.replace(
+                zzp_persoon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter, meewerk))
+            t_zk, _, _ = _huishouden(persoon_zk, partner, profiel, p, inkomen, cur_box2, cur_extra, minst, partner_minst)
+            besp_kia = round(t_zk - base_tax, 2)
+            if besp_kia > 1:
+                in_afbouw = investering > kcfg.get("vast_tot", 1e12)
+                sugg.append(Suggestie(
+                    f"Investeringsaftrek (KIA) — € {kia:,.0f} extra aftrek".replace(",", "."), besp_kia,
+                    f"Over € {investering:,.0f} zakelijke investeringen: € {kia:,.0f} extra aftrek op je winst".replace(",", ".")
+                    + (" — je zit in de afbouwzone; investeringen over twee jaar spreiden kan meer opleveren."
+                       if in_afbouw else "."),
+                    "art. 3.41 Wet IB 2001"))
+        elif kcfg and investering <= kcfg["drempel"]:
+            drem = kcfg["drempel"]
+            sugg.append(Suggestie(
+                "Investeringen bundelen tot boven de KIA-drempel",
+                round(0.28 * (drem + 1) * 0.33, 2),  # grove schatting: 28% aftrek × ~marginaal na MKB
+                f"Je investeert € {investering:,.0f}; onder € {drem + 1:,.0f} krijg je géén KIA. Bundel je net "
+                f"boven de drempel, dan is 28% aftrekbaar (± € {round(0.28 * (drem + 1)):,.0f} aftrek).".replace(",", "."),
+                "art. 3.41 Wet IB 2001"))
 
     # 2. Lijfrente-inleg (jaarruimte op de gekozen route) + meerjarige doorrekening.
     jr = jaarruimte(op_arbeidsinkomen, p)
