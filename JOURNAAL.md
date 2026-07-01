@@ -27,6 +27,17 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
   contrast met het vaste, extern beheerde pensioen (impliciet-kapitaal-blok).
 - **BEVINDING**: "reëel" is een **aanname** (inflatie), geen voorspelling — bij deflatie (Japan)
   wordt geld juist méér waard. Label → "in geld van nu (bij 2% inflatie)", eerlijk gemarkeerd.
+- **BESLISSING**: partner-optimalisaties toegevoegd. (a) **Arbeidsbeloning/meewerkaftrek**: advies
+  rekent de optimale route uit (we kennen het partnerinkomen) — bij een partner met lege lage
+  schijven een arbeidsbeloning (inkomen verschuiven), anders meewerkaftrek. Met de eerlijke caveat:
+  het optimum is geen vrijbrief, de beloning moet reëel/zakelijk zijn. (b) **Allocator
+  huishoud-optimaal**: `vermogensadvies` verdeelt lijfrente over beide partners (elk een eigen
+  pensioen-bewuste cap via `_lijf_cap_persoon`), gevuld op volgorde van marginaal tarief. API
+  berekent partner-jaarruimte + marginaal uit `partner_inkomen`.
+- **BEVINDING**: **groene beleggingen** zijn een optimalisatie mét rendementsafweging — de
+  vrijstelling is ~2,16%/jaar belastingvrij waard; groen wint zolang het rendement niet meer dan
+  ~2,16% onder je gewone belegging ligt. Model past de vrijstelling toe; rendementskeuze is aan
+  de gebruiker.
 
 ## 2026-06-30 — Fase 26: volwaardig partner-model (box 3, aanspraken, Straks-huishouden)
 

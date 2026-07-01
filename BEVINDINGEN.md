@@ -340,6 +340,22 @@ De juiste volgorde: **eerst** de belasting op je inkomen minimaliseren (verschui
 (liquide, nu)** en **lijfrente (vast, belastingvrije groei)**, en die stapelen: je partner kan
 haar nieuwe inkomen weer in háár eigen jaarruimte (lijfrente) of box 3 stoppen.
 
+### Lijfrente huishoud-breed: vul waar het tarief het hoogst is
+
+Heb je een fiscaal partner, dan kijkt de allocator naar **beide** jaarruimtes. Lijfrente-aftrek is
+het meest waard bij het **hoogste marginale tarief nu** (grootste gat met het lage opnametarief
+later). De allocator vult de lijfrente daarom **op volgorde van marginaal tarief**: eerst de
+persoon met het hoogste tarief (tot diens pensioen-bewuste cap), dan de ander, en pas daarna box 3.
+Zowel de nieuwe jaarinleg als het herverdeelde bestaande spaargeld gaat zo naar de plek met het
+grootste uitstelvoordeel. Dit sluit aan op het partner-verhaal hierboven:
+
+- Partner met **weinig eigen inkomen** → **arbeidsbeloning** (vul de lege lage schijven).
+- Partner met **veel inkomen / hoog tarief** → vul juist **de lijfrente van de partner** met
+  box 3-geld: aftrek tegen dat hoge tarief nu, laag belast bij pensioen.
+
+Zo worden **beide** jaarruimtes benut in plaats van alleen die van jou — de allocator is
+huishoud-optimaal zodra er een partner is.
+
 ### Groene beleggingen — een optimalisatie mét een rendementsafweging
 
 De box 3-**vrijstelling** voor groene beleggingen (€ 26.715 p.p.) haalt dat deel uit je
