@@ -225,6 +225,8 @@ def _advies_handler(body: dict) -> dict:
         starter=bool(body.get("starter", False)),
         meewerk_uren=int(body.get("meewerk_uren", 0) or 0),
         investering=float(body.get("investering", 0) or 0),
+        pensioenaangroei=float(body.get("pensioenaangroei", 0) or 0),
+        partner_pensioenaangroei=float(body.get("partner_pensioenaangroei", 0) or 0),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,
@@ -343,7 +345,7 @@ def _vermogensadvies_handler(body: dict) -> dict:
         from belastingkern.model import Persoon
         from belastingkern.params import laad_params
         pp = laad_params(jaar)
-        partner_jr = _jaarruimte(partner_inkomen, pp)
+        partner_jr = _jaarruimte(partner_inkomen, pp, factor_a=float(body.get("partner_pensioenaangroei", 0) or 0))
         if partner_jr > 0:  # marginaal = belastingbesparing van een lijfrente-aftrek t.o.v. de jaarruimte
             t0 = bereken_persoon(Persoon(loon=partner_inkomen), pp).te_betalen
             t1 = bereken_persoon(Persoon(loon=partner_inkomen, aftrekposten_box1=partner_jr), pp).te_betalen

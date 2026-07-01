@@ -101,6 +101,8 @@ def optimalisatie_advies(
     starter: bool = False,
     meewerk_uren: int = 0,
     investering: float = 0.0,
+    pensioenaangroei: float = 0.0,
+    partner_pensioenaangroei: float = 0.0,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
@@ -229,7 +231,7 @@ def optimalisatie_advies(
                 "art. 3.41 Wet IB 2001"))
 
     # 2. Lijfrente-inleg (jaarruimte op de gekozen route) + meerjarige doorrekening.
-    jr = jaarruimte(op_arbeidsinkomen, p)
+    jr = jaarruimte(op_arbeidsinkomen, p, factor_a=pensioenaangroei)  # werkgeverspensioen verlaagt de ruimte
     lijfrente = None
     if jr > 0:
         op_persoon2 = dataclasses.replace(op_persoon, aftrekposten_box1=op_persoon.aftrekposten_box1 + jr)
@@ -255,7 +257,7 @@ def optimalisatie_advies(
 
     # 2b. Lijfrente-inleg van de PARTNER (eigen, vaak nog onbenutte jaarruimte) — extra optimalisatie.
     if partner and partner_inkomen > 0:
-        partner_jr = jaarruimte(partner_inkomen, p)
+        partner_jr = jaarruimte(partner_inkomen, p, factor_a=partner_pensioenaangroei)
         if partner_jr > 0:
             partner2 = dataclasses.replace(partner, aftrekposten_box1=partner.aftrekposten_box1 + partner_jr)
             t3, ts3, _ = _huishouden(op_persoon, partner2, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
