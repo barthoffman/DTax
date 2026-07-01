@@ -9,6 +9,24 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-01 — Fase 28: huishoud-optimale allocator + per-persoon overal
+
+- **BESLISSING**: **allocator huishoud-optimaal** — `vermogensadvies` verdeelt lijfrente over beide
+  partners (elk een eigen pensioen-bewuste cap via `_lijf_cap_persoon`), gevuld op volgorde van
+  marginaal tarief (hoogste eerst). API berekent partner-jaarruimte + marginaal uit `partner_inkomen`.
+  Nieuwe inleg (huishoud-bedrag) én herverdeeld spaargeld verdelen over beide.
+- **BESLISSING**: **partner-jaarruimte als eigen optimalisatie** in Mijn belasting (aparte
+  lijfrente-suggestie voor de partner; telt mee in `totaal_potentieel`).
+- **BESLISSING**: **Straks per persoon** — lijfrente gesplitst (jij/partner, apart in box 1),
+  box 3 visueel gesplitst (heffing blijft gepoold), impliciet kapitaal per persoon. Horizon vult
+  automatisch = 67 − leeftijd (aanpasbaar), zodat allocator + Straks op hetzelfde eindpunt uitkomen.
+- **BESLISSING**: **aanspraken-bouwer → twee secties** (jouw/partner, eigen +aanspraak + JSON-import
+  per sectie); per-regel "wie"-dropdown weg. Nieuwe **"Je huidige beleggingen (box 3)"**-sectie
+  (per persoon) naast het bestaande spaargeld-overzicht.
+- **BEVINDING**: **"op wiens naam" is een aparte afweging** naast de fiscale winst — lijfrente/box 3
+  op naam; bij scheiding volgt de verdeling het huwelijksregime (gemeenschap → verdeeld; voorwaarden
+  → eigen), 2e pijler via Wet verevening. Vastgelegd in BEVINDINGEN sectie 5.
+
 ## 2026-07-01 — Fase 27: NU-afmakers + Straks/allocator-verfijningen
 
 - **BESLISSING**: IACK, startersaftrek, groene beleggingen en meewerkaftrek gekoppeld in
