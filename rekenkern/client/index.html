@@ -1296,17 +1296,19 @@ async function berekenVermogensadvies() {
         </tbody></table>
         <p class="muted">*<b>In geld van nu</b> = wat het straks waard is in <b>koopkracht van vandaag</b>. Het is een <b>aanname</b> (bij ${(P.inflatie*100).toFixed(1)}% inflatie — pas de inflatie hierboven aan; bij <b>deflatie</b>, zoals Japan jaren had, wordt geld juist méér waard). De kern: je geld groeit écht alleen als het <b>rendement de inflatie verslaat</b> — beleggen wel, sparen en cash niet. <span style="opacity:.8">(Boven het heffingvrij vermogen; eronder is box 3 onbelast en wint beleggen nog meer.)</span></p></details>`;
     }
-    let best = "";
+    // "Je huidige beleggingen" — apart, komt tussen bestaand spaargeld en de Doorkijk.
+    let huidigeBeleggingen = "";
     const belJij = +$("mixBeleg").value, belPartner = partnerBox3().beleg, belTot = belJij + belPartner;
     if (belTot > 0) {
       const toonBelP = belPartner > 0;
-      best += `<h2 style="margin-top:14px">Je huidige beleggingen (box 3, ${eur(belTot)})</h2>
+      huidigeBeleggingen = `<h2 style="margin-top:14px">Je huidige beleggingen (box 3, ${eur(belTot)})</h2>
         <table><tbody>
           ${toonBelP?`<tr><td>Jij</td><td class="num">${eur(belJij)}</td></tr><tr><td>Partner</td><td class="num">${eur(belPartner)}</td></tr>`:""}
           ${r.bestaand_box3_last>0?`<tr><td class="muted">Box 3-heffing nu</td><td class="num muted">± ${eur(r.bestaand_box3_last)}/jaar</td></tr>`:""}
         </tbody></table>
         <p class="muted">Deze staan <b>al goed</b> — box 3 is voor beleggingen de juiste plek (hoger rendement dan sparen, flexibel). Ze blijven waar ze zijn; geen actie nodig. Wil je verder fiscaal optimaliseren, dan kun je (tot je jaarruimte) een deel omzetten naar <b>lijfrente</b> voor de aftrek — maar dat betekent verkopen en vastzetten tot pensioen.</p>`;
     }
+    let best = "";
     if (r.bestaand_bv) { const B=r.bestaand_bv; best += `<p class="${B.beste==='bv'?'best':'muted'}">Bestaand BV-vermogen ${eur(B.bedrag)} (${eur(B.spaargeld)} spaar + ${eur(B.beleggingen)} beleggingen): over ${r.jaren} jaar <b>${B.beste==='bv'?'in de BV laten':'uitkeren naar box 3'}</b> (BV ${eur(B.bv_eindnetto)} vs box 3 ${eur(B.prive_eindnetto)}). Spaargeld → box 3 banktegoeden (~1,3%), beleggingen → box 3 overige (6%).</p>`; }
     out.innerHTML = `
       <h2>Vermogensallocatie — ${r.jaar}</h2>
@@ -1331,6 +1333,7 @@ async function berekenVermogensadvies() {
         ${r.herverdeling.naar_box3>0?`<tr><td>Naar box 3-beleggen <span class="muted">— rendementswinst (hoger rendement dan sparen; géén belastingvoordeel — je betaalt zelfs meer box 3)</span></td><td class="num">${eur(r.herverdeling.naar_box3)}</td></tr>`:""}
       </tbody></table>
       ${r.herverdeling.gefaseerd?`<p class="muted">Het box 3-deel kun je de komende jaren alsnog <b>gefaseerd</b> in je lijfrente leggen (telkens tot je jaarruimte) voor de belastingvrije groei — maar <b>alleen zolang je pensioenuitkering onder de schijfgrens (± ${r.lijfrente_optimaal?eur(r.lijfrente_optimaal.target_box1):"de eerste schijf"}) blijft</b>. Daarboven raakt je opnametarief je tarief van nu en is box 3 net zo goed.</p>`:""}` : ""}
+      ${huidigeBeleggingen}
       ${proj}
       <details class="uitsplitsing"><summary>Waarom deze volgorde — per € 1.000 inleg (${r.jaren} jaar)</summary>
       <p class="muted">Een <b>verhouding</b> (geen totaal): per € 1.000 over ${r.jaren} jaar. Lijfrente belegt het volle pre-tax bedrag belastingvrij, box 3 het ná-belaste bedrag mét jaarlijkse heffing, sparen tegen een lage rente. Dáárom: <b>lijfrente eerst</b> (tot je jaarruimte), dan box 3, sparen het laatst.</p>
