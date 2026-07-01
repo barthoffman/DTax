@@ -370,6 +370,7 @@ def _vermogensadvies_handler(body: dict) -> dict:
         partner_jaarruimte=partner_jr,
         partner_verwacht_pensioen=float(body.get("partner_verwacht_pensioen", 0)),
         partner_bestaande_lijfrente=float(body.get("partner_bestaande_lijfrente", 0)),
+        partner_bestaand_box3=float(body.get("partner_bestaand_box3", 0)),
     )
     return {
         "jaar": r.jaar, "nieuwe_inleg": r.nieuwe_inleg, "jaren": r.jaren, "rendement": r.rendement,

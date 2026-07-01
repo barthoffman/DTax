@@ -394,6 +394,10 @@
             <label>Pensioen partner per jaar (€)<input type="number" id="strpPensioen" placeholder="0" min="0"></label>
           </div>
           <label>Lijfrente-uitkering partner per jaar (€)<input type="number" id="strpLijfrente" placeholder="0" min="0"></label>
+          <div class="row">
+            <label>Spaargeld partner box 3 (€)<input type="number" id="strpBank" placeholder="0" min="0"></label>
+            <label>Beleggingen partner box 3 (€)<input type="number" id="strpBeleg" placeholder="0" min="0"></label>
+          </div>
         </div>
         <p class="muted">AOW-bedrag = SVB 2026 (alleenstaand € 20.929/jaar, gehuwd € 14.379 p.p., incl. vakantiegeld); pas aan naar jouw situatie.</p>
       </fieldset>
@@ -834,7 +838,8 @@ $("strVulIn").onclick = async () => {
     if (P) {
       $("strLijfrente").value = Math.round(P.lijfrente_uitkering_jij != null ? P.lijfrente_uitkering_jij : P.lijfrente_uitkering);
       $("strDividend").value = Math.round(P.bv_dividend);
-      $("strBeleg").value = Math.round(P.box3_straks_totaal != null ? P.box3_straks_totaal : P.box3_straks);
+      const b3tot = P.box3_straks_totaal != null ? P.box3_straks_totaal : P.box3_straks;
+      $("strBeleg").value = Math.round(b3tot - (P.box3_straks_partner || 0));  // jij = huishouden − partner
       $("strBank").value = Math.round(P.spaargeld_straks != null ? P.spaargeld_straks : 0);
     }
     // Partner: AOW automatisch, pensioen + lijfrente-pot uit de bouwer (pot → uitkering).
@@ -847,6 +852,8 @@ $("strVulIn").onclick = async () => {
       $("strpAow").value = Math.round(autoAOW());
       $("strpPensioen").value = Math.round(ps.partner.uitk);
       $("strpLijfrente").value = Math.round(P && P.lijfrente_uitkering_partner != null ? P.lijfrente_uitkering_partner : ps.partner.pot * groei);
+      $("strpBeleg").value = Math.round(P ? (P.box3_straks_partner || 0) : 0);  // eigen box 3-beleggingen partner
+      $("strpBank").value = 0;  // partner-spaargeld is herverdeeld naar de gezamenlijke pool
     } else {
       $("strPartner").checked = false;
       $("strPartnerVelden").classList.add("hide");
@@ -1224,6 +1231,7 @@ function vaBody(adv) {
     partner_inkomen: +$("mixPartner").value,
     partner_verwacht_pensioen: autoAOW() + pensSom().partner.uitk,
     partner_bestaande_lijfrente: pensSom().partner.pot,
+    partner_bestaand_box3: partnerBox3().beleg,
     // BV-container alleen als je een BV hébt (bestaand BV-vermogen) of als een BV wordt aangeraden.
     is_ondernemer: ((+$("mixBvSpaar").value + +$("mixBvBeleg").value) > 0) || !!(adv.rechtsvorm && adv.rechtsvorm.beste === "bv"),
     partner: (+$("mixPartner").value) > 0,
@@ -1316,9 +1324,11 @@ async function berekenStraks() {
   const out = $("result");
   out.innerHTML = '<span class="muted">Bezig…</span>';
   try {
+    // Box 3 poolen voor de heffing (fiscale partners = één grondslag); de split is puur weergave.
+    const p3b = $("strPartner").checked ? +$("strpBeleg").value : 0, p3s = $("strPartner").checked ? +$("strpBank").value : 0;
     const body = {jaar:+$("jaar").value, aow:+$("strAow").value, pensioen:+$("strPensioen").value,
       lijfrente:+$("strLijfrente").value, bv_dividend:+$("strDividend").value,
-      box3:{banktegoeden:+$("strBank").value, overige_bezittingen:+$("strBeleg").value, schulden:0}};
+      box3:{banktegoeden:+$("strBank").value + p3s, overige_bezittingen:+$("strBeleg").value + p3b, schulden:0}};
     if ($("strPartner").checked)
       body.partner = {aow:+$("strpAow").value, pensioen:+$("strpPensioen").value, lijfrente:+$("strpLijfrente").value, box3:{}};
     const r = await post("/straks", body);
@@ -1333,16 +1343,24 @@ async function berekenStraks() {
     if (r.partner) html += blk("Partner", r.partner);
     html += `<p class="best">Huishouden samen: <b>${eur(r.huishouden.te_betalen)}</b> te betalen · netto besteedbaar ${eur(r.huishouden.netto)}.</p>`;
     // Zelf te beheren: het box 3-deel (vrij opneembaar) — contrast met het vaste pensioen.
-    const b3s = +$("strBank").value, b3b = +$("strBeleg").value, b3t = b3s + b3b;
+    const b3s = +$("strBank").value, b3b = +$("strBeleg").value;
+    const heeftP = $("strPartner").checked;
+    const b3ps = heeftP ? +$("strpBank").value : 0, b3pb = heeftP ? +$("strpBeleg").value : 0;
+    const b3jij = b3s + b3b, b3partner = b3ps + b3pb, b3t = b3jij + b3partner;
     if (b3t > 0) {
-      const b3wie = $("strPartner").checked ? "jullie" : "je";
+      const b3wie = heeftP ? "jullie" : "je";
+      const toonPartner = heeftP && b3partner > 0;
       html += `<details class="uitsplitsing" style="margin-top:14px"><summary>Zelf te beheren — ${b3wie} box 3-vermogen (${eur(b3t)} vrij opneembaar)</summary>
         <table><tbody>
+          ${toonPartner?`<tr><td colspan="2" class="muted" style="font-weight:700">Jij</td></tr>`:""}
           ${b3b>0?`<tr><td>Beleggingen (box 3)</td><td class="num">${eur(b3b)}</td></tr>`:""}
           ${b3s>0?`<tr><td>Spaargeld (box 3)</td><td class="num">${eur(b3s)}</td></tr>`:""}
+          ${toonPartner?`<tr><td colspan="2" class="muted" style="font-weight:700">Partner</td></tr>
+          ${b3pb>0?`<tr><td>Beleggingen (box 3)</td><td class="num">${eur(b3pb)}</td></tr>`:""}
+          ${b3ps>0?`<tr><td>Spaargeld (box 3)</td><td class="num">${eur(b3ps)}</td></tr>`:""}`:""}
           <tr class="win"><td><b>Samen vrij opneembaar</b></td><td class="num"><b>${eur(b3t)}</b></td></tr>
         </tbody></table>
-        <p class="muted">Dit deel is <b>van ${b3wie} en vrij opneembaar</b> — geen vaste uitkering, ${b3wie==="jullie"?"jullie bepalen":"jij bepaalt"} zelf wanneer en hoeveel er opgenomen wordt. Anders dan AOW, pensioen en lijfrente (die vast in box 1 uitkeren en tot pensioen vastzitten), beheer je dit volledig zelf.${b3wie==="jullie"?" Als fiscale partners is box 3 <b>samengevoegd</b> — je verdeelt het optimaal (2× heffingvrij), maar het blijft van elkaar gescheiden vermogen." : ""} Het telt wél jaarlijks mee voor de box 3-heffing.</p></details>`;
+        <p class="muted">Dit deel is <b>van ${b3wie} en vrij opneembaar</b> — geen vaste uitkering, ${b3wie==="jullie"?"jullie bepalen":"jij bepaalt"} zelf wanneer en hoeveel er opgenomen wordt. Anders dan AOW, pensioen en lijfrente (die vast in box 1 uitkeren en tot pensioen vastzitten), beheer je dit volledig zelf.${heeftP?" Als fiscale partners is box 3 voor de héffing <b>samengevoegd</b> (2× heffingvrij), maar hierboven zie je van wie wat is — handig als je het gescheiden wilt houden (huwelijkse voorwaarden)." : ""} Het telt wél jaarlijks mee voor de box 3-heffing.</p></details>`;
     }
     // Impliciet kapitaal achter de pensioenbelofte (de "black box" 2e pijler).
     const wp = (+$("strPensioen").value) + ($("strPartner").checked ? +$("strpPensioen").value : 0);

@@ -356,6 +356,18 @@ grootste uitstelvoordeel. Dit sluit aan op het partner-verhaal hierboven:
 Zo worden **beide** jaarruimtes benut in plaats van alleen die van jou — de allocator is
 huishoud-optimaal zodra er een partner is.
 
+> ⚠️ **"Op wiens naam" is een aparte afweging naast de fiscale winst.** Lijfrente is
+> **individueel** (eigen contract, op één naam). Vul je de lijfrente van je hoger-belaste partner
+> met huishoudgeld, dan verschuift dat vermogen naar **zijn/haar** naam. Wat er bij een **scheiding**
+> mee gebeurt hangt af van je regime: onder **gemeenschap van goederen** wordt het tóch verdeeld;
+> onder **huwelijkse voorwaarden** houdt de partner het (dan ben jij dat kwijt). Ter vergelijking:
+> **2e-pijler pensioen** valt onder de Wet verevening pensioenrechten (ex heeft recht op de helft
+> van wat tíjdens het huwelijk is opgebouwd); **lijfrente (3e pijler)** valt daar níet onder maar
+> kan wél in de huwelijksgemeenschap vallen. De fiscale winst van "vul de hoogste-tarief-partner"
+> is echt — maar weeg de "op wiens naam"-vraag apart mee. Zo ook bij **box 3**: fiscale partners
+> poolen het (2× heffingvrij), maar het blijft juridisch gescheiden vermogen — de Straks-doorkijk
+> laat daarom per persoon zien wat van wie is.
+
 ### Groene beleggingen — een optimalisatie mét een rendementsafweging
 
 De box 3-**vrijstelling** voor groene beleggingen (€ 26.715 p.p.) haalt dat deel uit je

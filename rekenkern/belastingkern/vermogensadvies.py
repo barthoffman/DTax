@@ -106,6 +106,7 @@ def vermogensadvies(
     partner_jaarruimte: float = 0.0,
     partner_verwacht_pensioen: float = 0.0,
     partner_bestaande_lijfrente: float = 0.0,
+    partner_bestaand_box3: float = 0.0,
 ) -> VermogensadviesResultaat:
     p = laad_params(jaar)
     vpb = p["vpb"]["schijven"][0]["tarief"]
@@ -245,6 +246,8 @@ def vermogensadvies(
     # Bestaand box 3-vermogen doorgegroeid tot pensioen + de nieuwe box 3-inleg.
     bestaand_box3_straks = bestaand_box3 * (1 + net_box3) ** jaren
     box3_straks_totaal = box3_pot + bestaand_box3_straks
+    # Beleggingen van de partner groeien mee (worden niet herverdeeld) → aandeel voor de Straks-split.
+    box3_straks_partner = partner_bestaand_box3 * (1 + net_box3) ** jaren
     # Alleen de liquide buffer blijft sparen (de rest is herverdeeld).
     spaarrente = p.box3["forfait"]["banktegoeden"]
     spaargeld_straks = liquide * (1 + spaarrente) ** jaren
@@ -261,6 +264,7 @@ def vermogensadvies(
         "lijfrente_uitkering_partner": round(lijf_pot_partner / uj, 2),
         "box3_straks": round(box3_pot, 2),
         "box3_straks_totaal": round(box3_straks_totaal, 2),  # incl. bestaand box 3 doorgegroeid
+        "box3_straks_partner": round(box3_straks_partner, 2),  # aandeel partner (voor Straks-split)
         "spaargeld_straks": round(spaargeld_straks, 2),
         # Reëel (in euro's van nu) — inflatie deflateert alle containers ~evenredig, dus
         # dit verandert de keuze nauwelijks maar laat de echte koopkracht zien.
