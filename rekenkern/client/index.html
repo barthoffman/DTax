@@ -1362,12 +1362,20 @@ async function berekenStraks() {
         </tbody></table>
         <p class="muted">Dit deel is <b>van ${b3wie} en vrij opneembaar</b> — geen vaste uitkering, ${b3wie==="jullie"?"jullie bepalen":"jij bepaalt"} zelf wanneer en hoeveel er opgenomen wordt. Anders dan AOW, pensioen en lijfrente (die vast in box 1 uitkeren en tot pensioen vastzitten), beheer je dit volledig zelf.${heeftP?" Als fiscale partners is box 3 voor de héffing <b>samengevoegd</b> (2× heffingvrij), maar hierboven zie je van wie wat is — handig als je het gescheiden wilt houden (huwelijkse voorwaarden)." : ""} Het telt wél jaarlijks mee voor de box 3-heffing.</p></details>`;
     }
-    // Impliciet kapitaal achter de pensioenbelofte (de "black box" 2e pijler).
-    const wp = (+$("strPensioen").value) + ($("strPartner").checked ? +$("strpPensioen").value : 0);
-    if (wp > 0) {
-      html += `<details class="uitsplitsing"><summary>Impliciet kapitaal achter je pensioenbelofte — ± ${eur(wp*15)} – ${eur(wp*20)}</summary>
-        <p class="muted">Je ${$("strPartner").checked?"huishoudelijke ":""}werkgeverspensioen van <b>${eur(wp)}/jaar</b> wordt <b>buiten jou om</b> beheerd (collectief fonds/verzekeraar). Het kapitaal dat zo'n levenslange uitkering kost, is grofweg <b>${eur(wp*15)} tot ${eur(wp*20)}</b> (uitkering × annuïteitsfactor 15–20; indicatief — hangt af van rente, indexatie en partnerpensioen).</p>
-        <p class="muted">Plausibiliteitscheck: een DB-pensioen ≈ ~1,875% × pensioengevend salaris × dienstjaren. Wijkt het sterk af, vraag je uitvoerder om uitleg. Je <b>lijfrente / box 3</b> hierboven zijn je eigen, transparante deel — dáár stuur je zelf (de 3e pijler).</p>
+    // Impliciet kapitaal achter de pensioenbelofte (de "black box" 2e pijler) — per persoon.
+    const wpJij = +$("strPensioen").value, wpPartner = $("strPartner").checked ? +$("strpPensioen").value : 0;
+    const wpTot = wpJij + wpPartner;
+    if (wpTot > 0) {
+      const heeftP2 = wpPartner > 0;
+      const kapRij = (label, wp) => wp > 0 ? `<tr><td>${label}</td><td class="num">${eur(wp)}/jaar</td><td class="num">± ${eur(wp*15)} – ${eur(wp*20)}</td></tr>` : "";
+      html += `<details class="uitsplitsing"><summary>Impliciet kapitaal achter ${heeftP2?"jullie":"je"} pensioenbelofte — ± ${eur(wpTot*15)} – ${eur(wpTot*20)}</summary>
+        <p class="muted">${heeftP2?"Deze":"Je"} werkgeverspensioen${heeftP2?"en worden":" wordt"} <b>buiten ${heeftP2?"jullie":"jou"} om</b> beheerd (collectief fonds/verzekeraar). Het kapitaal dat zo'n levenslange uitkering kost, is grofweg <b>uitkering × 15–20</b> (annuïteitsfactor; indicatief — hangt af van rente, indexatie en partnerpensioen):</p>
+        <table><thead><tr><th></th><th>Werkgeverspensioen</th><th>Impliciet kapitaal</th></tr></thead><tbody>
+          ${kapRij(heeftP2?"Jij":"Werkgeverspensioen", wpJij)}
+          ${kapRij("Partner", wpPartner)}
+          ${heeftP2?`<tr class="win"><td><b>Samen</b></td><td class="num"><b>${eur(wpTot)}/jaar</b></td><td class="num"><b>± ${eur(wpTot*15)} – ${eur(wpTot*20)}</b></td></tr>`:""}
+        </tbody></table>
+        <p class="muted">Plausibiliteitscheck (per persoon): een DB-pensioen ≈ ~1,875% × pensioengevend salaris × dienstjaren. Wijkt het sterk af, vraag je uitvoerder om uitleg. ${heeftP2?"Jullie":"Je"} <b>lijfrente / box 3</b> hierboven ${heeftP2?"zijn jullie":"zijn je"} eigen, transparante deel — dáár stuur je zelf (de 3e pijler).</p>
       </details>`;
     }
     html += `<p class="muted">Box 1 gaat tegen de AOW-tarieven (schijf 1 zonder AOW-premie ≈ 17,9%) + ouderenkorting — daarom is je druk straks lager dan nu op hetzelfde inkomen. Dat is precies het uitstelvoordeel van lijfrente/pensioen.</p>`;
