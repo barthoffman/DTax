@@ -161,7 +161,9 @@ def vermogensadvies(
     totale_cap = sum(s["cap"] for s in slots)
     totale_jaarruimte = jaarruimte + (partner_jaarruimte if partner_cap else 0.0)
     lijf_gecapt = totale_cap < min(totale_jaarruimte, inleg) - 1 if totale_jaarruimte > 0 else False
-    bestaande_lijf_pot_tot = jij_cap["bestaande_lijf_pot"] + (partner_cap["bestaande_lijf_pot"] if partner_cap else 0.0)
+    # Bestaande lijfrente-pot van de partner telt óók mee zónder jaarruimte (bestaand vermogen).
+    partner_bestaande_lijf_pot = (partner_bestaande_lijfrente * (1 + rendement) ** jaren) if partner else 0.0
+    bestaande_lijf_pot_tot = jij_cap["bestaande_lijf_pot"] + partner_bestaande_lijf_pot
 
     # Watervalallocatie van de JAARLIJKSE inleg: lijfrente-slots (hoogste marginaal eerst), rest → box 3/BV.
     resterend = inleg
@@ -231,9 +233,13 @@ def vermogensadvies(
     # Projectie: jaarlijkse inleg per container → pot bij pensioen → jaarlijkse uitkering.
     pct3 = min(forfait, rendement)  # tegenbewijs-benadering voor de box 3-drag
     net_box3 = rendement - pct3 * tarief3
-    # Jaarlijkse inleg (annuïteit, jij + partner) + bestaande lijfrente-potten + herverdeeld spaargeld (lump).
-    lijf_pot = (_fv_annuity(allocatie["lijfrente"] + allocatie["lijfrente_partner"], rendement, jaren)
-                + bestaande_lijf_pot_tot + herv_lijfrente * (1 + rendement) ** jaren)
+    # Jaarlijkse inleg (annuïteit) + bestaande lijfrente-pot + herverdeeld spaargeld (lump), PER PERSOON.
+    groei_lump = (1 + rendement) ** jaren
+    lijf_pot_jij = (_fv_annuity(allocatie["lijfrente"], rendement, jaren)
+                    + jij_cap["bestaande_lijf_pot"] + herv["jij"] * groei_lump)
+    lijf_pot_partner = (_fv_annuity(allocatie["lijfrente_partner"], rendement, jaren)
+                        + partner_bestaande_lijf_pot + herv["partner"] * groei_lump)
+    lijf_pot = lijf_pot_jij + lijf_pot_partner
     box3_pot = _fv_annuity(allocatie["box3"], net_box3, jaren) + herv_box3 * (1 + net_box3) ** jaren
     bv_pot = _fv_annuity(allocatie["bv"], rendement * (1 - vpb), jaren)
     # Bestaand box 3-vermogen doorgegroeid tot pensioen + de nieuwe box 3-inleg.
@@ -249,6 +255,10 @@ def vermogensadvies(
         "lijfrente_pot": round(lijf_pot, 2), "box3_pot": round(box3_pot, 2),
         "bv_pot": round(bv_pot, 2),
         "lijfrente_uitkering": round(lijf_pot / uj, 2), "bv_dividend": round(bv_pot / uj, 2),
+        # Lijfrente per persoon (voor Straks: jij en partner worden apart belast in box 1).
+        "lijfrente_pot_jij": round(lijf_pot_jij, 2), "lijfrente_pot_partner": round(lijf_pot_partner, 2),
+        "lijfrente_uitkering_jij": round(lijf_pot_jij / uj, 2),
+        "lijfrente_uitkering_partner": round(lijf_pot_partner / uj, 2),
         "box3_straks": round(box3_pot, 2),
         "box3_straks_totaal": round(box3_straks_totaal, 2),  # incl. bestaand box 3 doorgegroeid
         "spaargeld_straks": round(spaargeld_straks, 2),

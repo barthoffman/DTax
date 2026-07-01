@@ -826,7 +826,7 @@ $("strVulIn").onclick = async () => {
     $("strAow").value = Math.round(autoAOW());
     $("strPensioen").value = Math.round(ps.jij.uitk);
     if (P) {
-      $("strLijfrente").value = Math.round(P.lijfrente_uitkering);
+      $("strLijfrente").value = Math.round(P.lijfrente_uitkering_jij != null ? P.lijfrente_uitkering_jij : P.lijfrente_uitkering);
       $("strDividend").value = Math.round(P.bv_dividend);
       $("strBeleg").value = Math.round(P.box3_straks_totaal != null ? P.box3_straks_totaal : P.box3_straks);
       $("strBank").value = Math.round(P.spaargeld_straks != null ? P.spaargeld_straks : 0);
@@ -840,7 +840,7 @@ $("strVulIn").onclick = async () => {
       const groei = Math.pow(1 + (+$("mixRendement").value) / 100, jaren) / (+$("vaUitkeringsjaren").value || 20);
       $("strpAow").value = Math.round(autoAOW());
       $("strpPensioen").value = Math.round(ps.partner.uitk);
-      $("strpLijfrente").value = Math.round(ps.partner.pot * groei);
+      $("strpLijfrente").value = Math.round(P && P.lijfrente_uitkering_partner != null ? P.lijfrente_uitkering_partner : ps.partner.pot * groei);
     } else {
       $("strPartner").checked = false;
       $("strPartnerVelden").classList.add("hide");
@@ -1252,7 +1252,8 @@ async function berekenVermogensadvies() {
         <details class="uitsplitsing" style="margin-top:14px"><summary>Zo groeit het — doorkijk naar je pensioen + wat inflatie met je geld doet</summary>
         <p class="muted" style="margin:2px 0">Over ${jr} jaar, ${P.uitkeringsjaren} uitkeringsjaren.</p>
         <table><thead><tr><th></th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>In geld van nu*</th></tr></thead><tbody>
-          ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)<div class="muted">${eur(P.lijfrente_uitkering_reeel)} nu</div></td><td class="num">${eur(P.lijfrente_pot/defl)} (pot)</td></tr>`:""}
+          ${P.lijfrente_pot_jij>0?`<tr><td>Lijfrente${P.lijfrente_pot_partner>0?" — jij":""}</td><td class="num">${eur(P.lijfrente_pot_jij)}</td><td class="num">${eur(P.lijfrente_uitkering_jij)} (box 1)</td><td class="num">${eur(P.lijfrente_pot_jij/defl)} (pot)</td></tr>`:""}
+          ${P.lijfrente_pot_partner>0?`<tr><td>Lijfrente — partner</td><td class="num">${eur(P.lijfrente_pot_partner)}</td><td class="num">${eur(P.lijfrente_uitkering_partner)} (box 1)</td><td class="num">${eur(P.lijfrente_pot_partner/defl)} (pot)</td></tr>`:""}
           ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_pot/defl)} (pot)</td></tr>`:""}
           ${P.box3_straks_totaal>0?`<tr><td>Beleggen (box 3)</td><td class="num">${eur(P.box3_straks_totaal)}</td><td class="num">—</td><td class="num">${eur(P.box3_straks_totaal/defl)} (pot)</td></tr>`:""}
           ${P.spaargeld_straks>0?`<tr><td>Sparen (box 3)</td><td class="num">${eur(P.spaargeld_straks)}</td><td class="num">—</td><td class="num">${eur(P.spaargeld_straks/defl)} (pot)</td></tr>`:""}
