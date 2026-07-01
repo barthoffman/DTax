@@ -324,6 +324,22 @@ invulde — vergelijkbaar met de lijfrente-suggestie.
 **Let op:** de meewerkaftrek wordt vanaf 2027 met 75% gekort en in 2030 afgeschaft (Voorjaarsnota
 2025, bron OND-meewerk); de arbeidsbeloning-route blijft.
 
+**Verschuiven is een belastingverlaging, geen investering — en het stapelt.** Een terechte
+tegenwerping: als je winst als salaris naar je partner schuift, is dat "huidig inkomen" — levert
+**beleggen in box 3** dan niet méér op? Nee, want het zijn geen alternatieven:
+
+- **Inkomen verschuiven = een belastingverlaging** op inkomen dat je tóch realiseert. Je verliest
+  het bedrag niet (het blijft binnen het huishouden) én je betaalt minder belasting — het
+  huishouden houdt elk jaar méér over.
+- **Box 3 beleggen = een groeimiddel** voor geld dat je al hebt; het verlaagt geen belasting (het
+  kóst juist ~2,16%/jaar box 3-heffing).
+
+De juiste volgorde: **eerst** de belasting op je inkomen minimaliseren (verschuiven + lijfrente),
+**daarna** het netto bedrag beleggen. De bespaarde belasting kun je zélf weer beleggen →
+*verschuiven + beleggen > alleen beleggen*. De échte afweging staat tussen **arbeidsbeloning
+(liquide, nu)** en **lijfrente (vast, belastingvrije groei)**, en die stapelen: je partner kan
+haar nieuwe inkomen weer in háár eigen jaarruimte (lijfrente) of box 3 stoppen.
+
 ### Groene beleggingen — een optimalisatie mét een rendementsafweging
 
 De box 3-**vrijstelling** voor groene beleggingen (€ 26.715 p.p.) haalt dat deel uit je
