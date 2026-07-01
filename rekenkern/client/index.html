@@ -1335,13 +1335,14 @@ async function berekenStraks() {
     // Zelf te beheren: het box 3-deel (vrij opneembaar) — contrast met het vaste pensioen.
     const b3s = +$("strBank").value, b3b = +$("strBeleg").value, b3t = b3s + b3b;
     if (b3t > 0) {
-      html += `<details class="uitsplitsing" style="margin-top:14px"><summary>Zelf te beheren — je box 3-vermogen (${eur(b3t)} vrij opneembaar)</summary>
+      const b3wie = $("strPartner").checked ? "jullie" : "je";
+      html += `<details class="uitsplitsing" style="margin-top:14px"><summary>Zelf te beheren — ${b3wie} box 3-vermogen (${eur(b3t)} vrij opneembaar)</summary>
         <table><tbody>
           ${b3b>0?`<tr><td>Beleggingen (box 3)</td><td class="num">${eur(b3b)}</td></tr>`:""}
           ${b3s>0?`<tr><td>Spaargeld (box 3)</td><td class="num">${eur(b3s)}</td></tr>`:""}
           <tr class="win"><td><b>Samen vrij opneembaar</b></td><td class="num"><b>${eur(b3t)}</b></td></tr>
         </tbody></table>
-        <p class="muted">Dit deel is <b>van jou en vrij opneembaar</b> — geen vaste uitkering, jij bepaalt zelf wanneer en hoeveel je opneemt. Anders dan je AOW, pensioen en lijfrente (die vast in box 1 uitkeren en tot je pensioen vastzitten), beheer je dit volledig zelf. Het telt wél jaarlijks mee voor je box 3-heffing.</p></details>`;
+        <p class="muted">Dit deel is <b>van ${b3wie} en vrij opneembaar</b> — geen vaste uitkering, ${b3wie==="jullie"?"jullie bepalen":"jij bepaalt"} zelf wanneer en hoeveel er opgenomen wordt. Anders dan AOW, pensioen en lijfrente (die vast in box 1 uitkeren en tot pensioen vastzitten), beheer je dit volledig zelf.${b3wie==="jullie"?" Als fiscale partners is box 3 <b>samengevoegd</b> — je verdeelt het optimaal (2× heffingvrij), maar het blijft van elkaar gescheiden vermogen." : ""} Het telt wél jaarlijks mee voor de box 3-heffing.</p></details>`;
     }
     // Impliciet kapitaal achter de pensioenbelofte (de "black box" 2e pijler).
     const wp = (+$("strPensioen").value) + ($("strPartner").checked ? +$("strpPensioen").value : 0);
