@@ -122,6 +122,28 @@ vaste termijn (minimaal ~5 jaar), een verzekeraar zelfs levenslang (met langleve
 maar kan bij overlijden aan de verzekeraar vervallen). In het dashboard stel je dit in met
 "Uitkeringsjaren".
 
+### Kost de aftrek je liquiditeit? De teruggave is wisselgeld, geen verlies
+
+Een terechte vervolgvraag: *"ik leg € 35.588 in, krijg € 17.616 belasting terug — maar die € 17.616
+telt daarna toch weer mee voor box 3, en de belasting moet ik toch nog betalen?"* De mechaniek,
+zonder ruis:
+
+- **De aftrek is echt, geen schuld.** Je box 1-inkomen van dat jaar daalt genuïne → je betaalt dat
+  jaar minder belasting. Wat je later betaalt is de **opname-belasting** op de (gegroeide) uitkering,
+  tegen het **lagere** opnametarief. Dus **uitstel**, niet dezelfde belasting twee keer.
+- **De teruggave (€ 17.616) is jouw geld.** Laat je het staan, dan telt het mee in box 3 en betaal
+  je er het forfait over (~2,16%/jaar). Maar dat geld was je **anders volledig kwijt** geweest aan de
+  fiscus — € 17.616 hóuden en er licht over betalen ≫ € 17.616 kwijt zijn.
+- **Schone kijk: je ruilt box 3 in voor lijfrente.** Financier je de inleg uit box 3, dan is het
+  netto-effect: box 3 −€ 35.588 + € 17.616 teruggave = **−€ 17.972**, en lijfrente **+€ 35.588**
+  (pre-tax, belastingvrij groeiend). Je zet dus **€ 17.972 box 3-geld om in € 35.588 lijfrente** — de
+  2×-hefboom van pre-tax beleggen. De teruggave is het **wisselgeld** van die ruil, geen dubbeltelling.
+
+Geen leakage dus: aftrek nu (echt), opname later (lager tarief), teruggave licht belast in box 3
+(maar het is geld dat je anders kwijt was). De enige echte prijs is **liquiditeit** — de inleg zit
+vast tot pensioen. **Praktische tip:** laat de teruggave niet op een spaarrekening niksen — herbeleg
+'m (box 3) of gebruik 'm om volgend jaar weer lijfrente te vullen, dan werkt élke euro.
+
 ### Hoe hoog is je opnametarief écht? (geen wishful thinking)
 
 De winst van een lijfrente leunt op het tariefverschil: je trekt nú af tegen je marginale
