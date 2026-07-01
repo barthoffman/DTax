@@ -1310,6 +1310,17 @@ async function berekenStraks() {
     let html = `<h2>Straks — je situatie vanaf pensioen (${r.jaar}-tarieven)</h2>` + blk(r.partner?"Jij":"Belastingplichtige", r.jij);
     if (r.partner) html += blk("Partner", r.partner);
     html += `<p class="best">Huishouden samen: <b>${eur(r.huishouden.te_betalen)}</b> te betalen · netto besteedbaar ${eur(r.huishouden.netto)}.</p>`;
+    // Zelf te beheren: het box 3-deel (vrij opneembaar) — contrast met het vaste pensioen.
+    const b3s = +$("strBank").value, b3b = +$("strBeleg").value, b3t = b3s + b3b;
+    if (b3t > 0) {
+      html += `<h2 style="margin-top:14px">Zelf te beheren — je box 3-vermogen</h2>
+        <table><tbody>
+          ${b3b>0?`<tr><td>Beleggingen (box 3)</td><td class="num">${eur(b3b)}</td></tr>`:""}
+          ${b3s>0?`<tr><td>Spaargeld (box 3)</td><td class="num">${eur(b3s)}</td></tr>`:""}
+          <tr class="win"><td><b>Samen vrij opneembaar</b></td><td class="num"><b>${eur(b3t)}</b></td></tr>
+        </tbody></table>
+        <p class="muted">Dit deel is <b>van jou en vrij opneembaar</b> — geen vaste uitkering, jij bepaalt zelf wanneer en hoeveel je opneemt. Anders dan je AOW, pensioen en lijfrente (die vast in box 1 uitkeren en tot je pensioen vastzitten), beheer je dit volledig zelf. Het telt wél jaarlijks mee voor je box 3-heffing.</p>`;
+    }
     // Impliciet kapitaal achter de pensioenbelofte (de "black box" 2e pijler).
     const wp = (+$("strPensioen").value) + ($("strPartner").checked ? +$("strpPensioen").value : 0);
     if (wp > 0) {
