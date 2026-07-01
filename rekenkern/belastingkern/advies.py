@@ -225,6 +225,21 @@ def optimalisatie_advies(
             "voordeel": lj.voordeel, "breakeven_tarief_uit": lj.breakeven_tarief_uit,
         }
 
+    # 2b. Lijfrente-inleg van de PARTNER (eigen, vaak nog onbenutte jaarruimte) — extra optimalisatie.
+    if partner and partner_inkomen > 0:
+        partner_jr = jaarruimte(partner_inkomen, p)
+        if partner_jr > 0:
+            partner2 = dataclasses.replace(partner, aftrekposten_box1=partner.aftrekposten_box1 + partner_jr)
+            t3, ts3, _ = _huishouden(op_persoon, partner2, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
+            besp_p = round((op_tax - t3) + (ts3 - op_toeslagen), 2)
+            if besp_p > 1:
+                sugg.append(Suggestie(
+                    f"Lijfrente-inleg partner tot € {partner_jr:,.0f}".replace(",", "."), besp_p,
+                    "Je partner heeft eigen, nog onbenutte jaarruimte: aftrekbaar tegen het marginale "
+                    "tarief van je partner, kapitaal buiten box 3. Zo benut je huishouden béíde "
+                    "jaarruimtes. Wél op naam van je partner (weeg de 'op wiens naam'-vraag mee bij scheiding).",
+                    "art. 3.127 Wet IB 2001"))
+
     # 3. Partnertoerekening eigen woning (op het box 1-inkomen van de gekozen route).
     if partner and (ew.woz_waarde or ew.betaalde_hypotheekrente):
         r = optimale_eigenwoning_verdeling(
