@@ -248,22 +248,39 @@ def optimalisatie_advies(
                 f"{p.box3['heffingvrij_vermogen_pp']:,.0f} p.p.).".replace(",", "."),
                 "art. 2.17 / 5.5 Wet IB 2001"))
 
-    # 4b. Meewerkaftrek: partner laten meewerken in de IB-zaak (als nog niet benut).
-    if partner and ondernemer_inkomen > 0 and huidige_vorm != "bv" and meewerk_uren < 525:
-        mw2 = round(0.02 * ondernemer_inkomen, 2)  # ~part-time (875–1.225 u = 2%)
-        persoon_mw = dataclasses.replace(
-            zzp_persoon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter, meewerk + mw2))
-        t_mw, _, _ = _huishouden(persoon_mw, partner, profiel, p, inkomen, 0.0, 0.0, minst, partner_minst)
-        besp_mw = round(base_tax - t_mw, 2)
-        if besp_mw > 1:
-            sugg.append(Suggestie(
-                "Partner laten meewerken in je zaak (meewerkaftrek)",
-                besp_mw,
-                "Werkt je fiscale partner ≥ 525 u/jaar mee (zonder loon ≥ € 5.000)? Dan is 1,25–4% van je "
-                f"winst aftrekbaar — bij ~part-time (2%) ≈ € {besp_mw:,.0f}. Vul de meewerk-uren in voor je eigen "
-                "situatie. Werkt de partner véél mee én heeft die weinig eigen inkomen, dan is een écht loon "
-                "≥ € 5.000 vaak voordeliger (inkomen verschuiven naar de lege schijven van je partner).".replace(",", "."),
-                "art. 3.78 Wet IB 2001"))
+    # 4b. Partner meewerken in de IB-zaak: meewerkaftrek vs. reële arbeidsbeloning (inkomen verschuiven).
+    #     We kennen het partnerinkomen, dus we rekenen de optimale route uit.
+    if partner and ondernemer_inkomen > 5000 and huidige_vorm != "bv" and meewerk_uren < 525:
+        # Route 1 — meewerkaftrek ~2% (part-time): een aftrek voor jou, geen betaling.
+        p_mw = dataclasses.replace(
+            zzp_persoon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter, meewerk + round(0.02 * ondernemer_inkomen, 2)))
+        besp_mw = round(base_tax - _huishouden(p_mw, partner, profiel, p, inkomen, 0.0, 0.0, minst, partner_minst)[0], 2)
+        # Route 2 — reële arbeidsbeloning: zoek het bedrag X (winst − X bij jou, +X box 1 bij partner) dat het meest bespaart.
+        best_x, besp_ab = 0, 0.0
+        for x in range(5000, min(int(ondernemer_inkomen), 40000) + 1, 2500):
+            p_ond = dataclasses.replace(zzp_persoon, onderneming=_ond(ondernemer_inkomen - x, urencriterium, starter, meewerk))
+            p_par = dataclasses.replace(partner, loon=partner_inkomen + x)
+            s = base_tax - _huishouden(p_ond, p_par, profiel, p, inkomen, 0.0, 0.0, minst, partner_minst)[0]
+            if s > besp_ab:
+                besp_ab, best_x = s, x
+        if max(besp_mw, besp_ab) > 1:
+            if besp_ab >= besp_mw:
+                sugg.append(Suggestie(
+                    f"Partner een arbeidsbeloning geven (± € {best_x:,.0f})".replace(",", "."),
+                    round(besp_ab, 2),
+                    f"Je partner verdient nu € {partner_inkomen:,.0f}. Een reële arbeidsbeloning van ± € {best_x:,.0f} "
+                    f"verschuift inkomen van jouw toptarief naar de lagere schijven van je partner → ≈ € {besp_ab:,.0f} "
+                    "besparing. Voorwaarde: je partner werkt daadwerkelijk voor dat bedrag mee (≥ € 5.000, reëel — anders "
+                    f"niet aftrekbaar). Simpeler alternatief zonder betaling: meewerkaftrek (≈ € {besp_mw:,.0f}).".replace(",", "."),
+                    "art. 3.16 Wet IB 2001"))
+            else:
+                sugg.append(Suggestie(
+                    "Partner laten meewerken in je zaak (meewerkaftrek)",
+                    besp_mw,
+                    "Werkt je fiscale partner ≥ 525 u/jaar mee (zonder loon ≥ € 5.000)? Dan is 1,25–4% van je "
+                    f"winst aftrekbaar — bij ~part-time (2%) ≈ € {besp_mw:,.0f}. Vul de meewerk-uren in voor je eigen "
+                    "situatie. Een reële arbeidsbeloning levert hier minder op (je partner heeft al inkomen).".replace(",", "."),
+                    "art. 3.78 Wet IB 2001"))
 
     # 5. Vermogen: box 3-last nu (op het TOTALE box 3-vermogen) + BV-uitstel voor de beleggingen.
     vermogen = None

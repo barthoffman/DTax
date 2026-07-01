@@ -246,6 +246,27 @@ rente** betaalt; en de eerste € 3.800 p.p. telt door de drempel niet eens mee.
 alleen als je het geld **productief** inzet (hefboom op een bezit dat méér rendeert dan de rente
 kost) — niet als belastingtruc.
 
+### Inflatie: waarom beleggen "logisch" is en sparen stilletjes verliest
+
+De echte vraag is niet "hoeveel euro's heb ik straks" maar "hoeveel **koopkracht**". Geld groeit
+alleen écht als het **rendement de inflatie verslaat**. Wat € 1.000 nu over 20 jaar waard is in
+koopkracht van vandaag (bij 2% inflatie):
+
+| Route | Koopkracht na 20 jaar | |
+|---|---|---|
+| **Beleggen** (~6%, na box 3-heffing) | ± € 1.430 | **+43%** — je wint |
+| **Sparen** (~1,3%) | ± € 792 | **−21%** — je blijft achter |
+| **Niets doen** (cash) | ± € 673 | **−33%** — inflatie vreet het op |
+
+Sparen op een lage rente is dus geen "veilig stilstaan" maar een **langzaam verlies** aan
+koopkracht. Dat is de reden dat de allocator vrij vermogen (boven je noodbuffer) naar beleggen/
+lijfrente stuurt in plaats van het te laten sparen.
+
+**Eerlijk over de aanname:** "in geld van nu" is een *projectie*, geen voorspelling — het hangt
+af van de inflatie-aanname. Loopt de inflatie op, dan verlies je méér koopkracht; bij **deflatie**
+(zoals Japan jaren had) wordt geld juist méér waard. De inflatie is daarom een instelbare knop,
+niet een verstopte zekerheid.
+
 ---
 
 ## 5. De andere optimalisaties (vaak groter dan de BV)
@@ -259,9 +280,59 @@ belangrijker en breder bruikbaar:
 | **Partnertoerekening** | eigen woning + box 3 optimaal verdelen | art. 2.17 |
 | **Box 3 splitsen** | 2× heffingvrij vermogen benutten | art. 2.17 / 5.5 |
 | **Toetsingsinkomen onder een toeslaggrens** | zorgtoeslag/KGB-afbouw vermijden | Awir |
+| **IACK** (inkomensafhankelijke combinatiekorting) | werkende ouder, jongste kind < 12; gaat naar de minstverdienende / alleenstaande ouder | art. 8.14a |
+| **Zelfstandigen-/startersaftrek** | IB-ondernemer die aan het urencriterium (1.225 u) voldoet; starter 3× extra | art. 3.76 |
+| **Groene beleggingen** | box 3-vrijstelling € 26.715 p.p. (haalt dat deel uit de grondslag) | art. 5.13 |
+| **Meewerkaftrek** | partner werkt mee in je IB-zaak → 1,25–4% van de winst aftrekbaar | art. 3.78 |
 
 De module rekent per knop de **jaarlijkse besparing** uit en laat zien hoeveel je
 belastingdruk daalt.
+
+### Partner laten meewerken — twee routes
+
+Werkt je fiscale partner mee in je **IB-onderneming** (geen BV — daar geef je salaris), dan
+kun je kiezen, en dat is een echte optimalisatie:
+
+1. **Meewerkaftrek** (art. 3.78) — een **% van je winst** als extra ondernemersaftrek
+   (525–875 u: 1,25% · 875–1.225 u: 2% · 1.225–1.750 u: 3% · ≥ 1.750 u: 4%). Je partner
+   betaalt er **geen belasting** over; het is puur een aftrek voor jou. "Gratis", want er
+   gaat geen geld heen. **Voorwaarden:** je voldoet aan het urencriterium (1.225 u), je
+   partner werkt ≥ 525 u/jaar mee, en krijgt géén loon ≥ € 5.000.
+2. **Reële arbeidsbeloning** (≥ € 5.000) — je betaalt je partner een écht loon: aftrekbaar
+   voor jou (bespaart je toptarief 37–49,5%), belast bij je partner (vaak ~0% als die weinig
+   eigen inkomen heeft, door de heffingskortingen). Dit is de **grotere** winst: je schuift
+   toptarief-euro's naar de lege schijven van je partner. Onder € 5.000 is een loon niet
+   aftrekbaar → dan is de meewerkaftrek de aangewezen route.
+
+Omdat de module **het partnerinkomen kent**, rekent hij de **optimale route** uit: hij zoekt
+het arbeidsbeloning-bedrag dat de huishoud-belasting het meest verlaagt, en vergelijkt dat met
+de meewerkaftrek. Voorbeeld (winst € 60k): partner met **€ 0** eigen inkomen → arbeidsbeloning
+**± € 27.500 → ≈ € 8.823** besparing (je vult de lege schijven van je partner). Partner met
+**€ 45k** → verschuiven loont niet meer, dan is de **meewerkaftrek (≈ € 529)** de betere. De
+suggestie verschijnt zodra je een IB-onderneming + fiscaal partner hebt en nog geen meewerk-uren
+invulde — vergelijkbaar met de lijfrente-suggestie.
+
+**Voorwaarde blijft realiteit:** de arbeidsbeloning moet een *reële* vergoeding zijn voor werk
+dat je partner echt verricht — je kunt niet zomaar € 27.500 "op papier" verschuiven. **Let op:**
+de meewerkaftrek wordt vanaf 2027 met 75% gekort en in 2030 afgeschaft (Voorjaarsnota 2025, bron
+OND-meewerk); de arbeidsbeloning-route blijft.
+
+### Groene beleggingen — een optimalisatie mét een rendementsafweging
+
+De box 3-**vrijstelling** voor groene beleggingen (€ 26.715 p.p.) haalt dat deel uit je
+grondslag: je bespaart de box 3-heffing erop, grofweg **forfait 6% × 36% ≈ 2,16%/jaar** (op
+€ 26.715 ≈ € 577/jaar). Dat is een echte optimalisatie — **maar** je opmerking klopt: het hangt
+van het **rendement** af. Groene fondsen renderen vaak iets **lager** dan een brede index. De
+juiste vergelijking is netto:
+
+- **Gewoon beleggen:** rendement R, mét box 3-heffing → netto ≈ R − 2,16%.
+- **Groen beleggen (binnen de vrijstelling):** rendement R_groen, **onbelast** → netto ≈ R_groen.
+
+Groen wint dus zolang het **rendementsverschil kleiner is dan ~2,16%/jaar**. Rendeert je groene
+fonds meer dan ~2,16% ónder je gewone belegging, dan eet dat gat de belastingwinst op. De module
+past nu de **vrijstelling** toe (de belastingkant); de rendementskeuze tussen groen en gewoon
+maak je zelf met deze vuistregel. *(De vroegere extra heffingskorting van 0,1% is vrijwel
+uitgefaseerd en niet meegenomen.)*
 
 ### De route is een combinatie, geen optelsom
 
