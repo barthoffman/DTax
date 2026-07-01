@@ -23,7 +23,7 @@ from .model import Box3Vermogen, EigenWoning, Onderneming, Persoon
 from .onderneming import kia_aftrek
 from .optimalisatiemotor import box3_last
 from .params import laad_params
-from .pensioen import jaarruimte
+from .pensioen import jaarruimte, reserveringsruimte
 from .toerekening import optimale_eigenwoning_verdeling
 from .toeslagen import Huishoudprofiel, bereken_toeslagen
 from .uitstel import vergelijk_uitstel
@@ -103,6 +103,7 @@ def optimalisatie_advies(
     investering: float = 0.0,
     pensioenaangroei: float = 0.0,
     partner_pensioenaangroei: float = 0.0,
+    reserveringsruimte_beschikbaar: float = 0.0,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
@@ -269,6 +270,25 @@ def optimalisatie_advies(
                     "tarief van je partner, kapitaal buiten box 3. Zo benut je huishouden béíde "
                     "jaarruimtes. Wél op naam van je partner (weeg de 'op wiens naam'-vraag mee bij scheiding).",
                     "art. 3.127 Wet IB 2001"))
+
+    # 2c. Reserveringsruimte — EENMALIGE inhaal van niet-benutte jaarruimte (afgelopen 10 jaar; vervalt).
+    if reserveringsruimte_beschikbaar > 0:
+        rr = reserveringsruimte(reserveringsruimte_beschikbaar, p)
+        if rr > 0:  # rr stapelt bovenop de jaarruimte-aftrek van dit jaar
+            p_jr = dataclasses.replace(op_persoon, aftrekposten_box1=op_persoon.aftrekposten_box1 + jr)
+            p_jr_rr = dataclasses.replace(op_persoon, aftrekposten_box1=op_persoon.aftrekposten_box1 + jr + rr)
+            t_a, ts_a, _ = _huishouden(p_jr, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
+            t_b, ts_b, _ = _huishouden(p_jr_rr, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
+            besp_rr = round((t_a - t_b) + (ts_b - ts_a), 2)
+            if besp_rr > 1:
+                maxrr = p["pensioen"]["max_reserveringsruimte"]
+                sugg.append(Suggestie(
+                    f"Reserveringsruimte inhalen — eenmalig tot € {rr:,.0f}".replace(",", "."), besp_rr,
+                    f"Niet-benutte jaarruimte van de afgelopen 10 jaar (€ {rr:,.0f}) mag je nu alsnog aftrekken, "
+                    "bóvenop je jaarruimte van dit jaar. Let op: de oudste ruimte vervalt elk jaar — benut het "
+                    f"vóór het verloopt. Eenmalige inhaal (max € {maxrr:,.0f}/jaar), geen jaarlijks terugkerende "
+                    "ruimte.".replace(",", "."),
+                    "art. 3.127 lid 2-3 Wet IB 2001"))
 
     # 3. Partnertoerekening eigen woning (op het box 1-inkomen van de gekozen route).
     if partner and (ew.woz_waarde or ew.betaalde_hypotheekrente):

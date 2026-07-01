@@ -302,6 +302,7 @@
         <input type="file" id="pensFile" accept=".json,application/json" style="display:none">
         <p class="muted" id="pensImportInfo" style="margin:4px 0 0"></p>
         <label style="margin-top:8px">Pensioenaangroei dit jaar — factor A (€). <b>Werkgeverspensioen?</b> Vul factor A van je UPO in (verlaagt je jaarruimte). <b>ZZP / geen werkgeverspensioen?</b> Laat leeg → volledige jaarruimte.<input type="number" id="mixFactorA" placeholder="0 = geen werkgeverspensioen" min="0" step="500"></label>
+        <label style="margin-top:8px">Niet-benutte jaarruimte afgelopen 10 jaar — reserveringsruimte (€). Deed je eerder weinig aan lijfrente? Dan kun je dit eenmalig inhalen (verloopt na 10 jaar).<input type="number" id="mixReservering" placeholder="0" min="0" step="1000"></label>
         <div id="grpAanspraakPartner" class="hide">
           <p class="muted" style="font-weight:700;margin:14px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em">Aanspraken partner</p>
           <div id="pensLijstPartner"></div>
@@ -981,7 +982,7 @@ async function berekenIndividu() {
     const pb = partnerBox3();
     const body = {jaar:+$("jaar").value, loon, ondernemer_inkomen:ondernemer, huidige_vorm:huidigeVorm, urencriterium:$("mixUren").checked,
       dividend_box2:s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value, meewerk_uren:+$("mixMeewerk").value, investering:+$("mixInvestering").value,
-      pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value,
+      pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value, reserveringsruimte_beschikbaar:+$("mixReservering").value,
       partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(), rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
       box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg, schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
       eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
@@ -1217,7 +1218,7 @@ function tab1Body() {
     loon: s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden,
     ondernemer_inkomen: s.winst + s.winst_bv, huidige_vorm: s.winst_bv > 0 ? "bv" : "zzp",
     dividend_box2: s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value, meewerk_uren:+$("mixMeewerk").value, investering:+$("mixInvestering").value,
-    pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value,
+    pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value, reserveringsruimte_beschikbaar:+$("mixReservering").value,
     urencriterium:$("mixUren").checked, partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(),
     rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
     box3:{banktegoeden:+$("mixBank").value + partnerBox3().bank, overige_bezittingen:+$("mixBeleg").value + partnerBox3().beleg, schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},

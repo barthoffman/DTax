@@ -227,6 +227,7 @@ def _advies_handler(body: dict) -> dict:
         investering=float(body.get("investering", 0) or 0),
         pensioenaangroei=float(body.get("pensioenaangroei", 0) or 0),
         partner_pensioenaangroei=float(body.get("partner_pensioenaangroei", 0) or 0),
+        reserveringsruimte_beschikbaar=float(body.get("reserveringsruimte_beschikbaar", 0) or 0),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,
