@@ -87,9 +87,12 @@ Inleg in een **lijfrente / banksparen / pensioenbeleggen** (de "derde pijler") i
 3. Bij **opname** belast in box 1, bij AOW tegen een lager tarief (schijf 1 = 17,85% in 2026,
    want geen AOW-premie meer).
 
-Het is dus géén "gratis geld" (het is uitstel + een tariefverschil), maar het is een **schoner
-en goedkoper uitstelvehikel dan een BV**, en het is voor **iedereen** met arbeidsinkomen +
-jaarruimte toegankelijk (niet alleen ondernemers).
+Het is dus géén "gratis geld". Twee losse voordelen: (1) een **tariefverschil** (aftrek nu hoog,
+opname later lager) — dít is het grootste, maar het loopt af naar nul zodra je uitkering de
+schijfgrens raakt (de "cap"); en (2) **belastingvrije groei** (geen box 3-forfait, ~2,16%/jaar) —
+dit blijft óók gelden als het tariefverschil weg is. Samen maken ze het een **schoner en goedkoper
+uitstelvehikel dan een BV**, toegankelijk voor **iedereen** met arbeidsinkomen + jaarruimte (niet
+alleen ondernemers). De precieze werking van die twee voordelen staat in de subsecties hieronder.
 
 **De drie producten zijn fiscaal identiek**, ze verschillen in vorm:
 
@@ -136,8 +139,11 @@ zonder ruis:
   fiscus — € 17.616 hóuden en er licht over betalen ≫ € 17.616 kwijt zijn.
 - **Schone kijk: je ruilt box 3 in voor lijfrente.** Financier je de inleg uit box 3, dan is het
   netto-effect: box 3 −€ 35.588 + € 17.616 teruggave = **−€ 17.972**, en lijfrente **+€ 35.588**
-  (pre-tax, belastingvrij groeiend). Je zet dus **€ 17.972 box 3-geld om in € 35.588 lijfrente** — de
-  2×-hefboom van pre-tax beleggen. De teruggave is het **wisselgeld** van die ruil, geen dubbeltelling.
+  (pre-tax, belastingvrij groeiend). Je zet dus **€ 17.972 box 3-geld om in € 35.588 lijfrente**. De
+  teruggave is het **wisselgeld** van die ruil, geen dubbeltelling. *(Let op: die "2× zoveel inleggen"
+  is niet op zichzelf de winst — bij opname wordt de hefboom weer belast en valt hij weg tegen de
+  opname-heffing. De winst zit in de **tariefarbitrage** (lager opnametarief) + de **belastingvrije
+  groei**; zie "Is 'nu belastingvrij inleggen' zelf een voordeel?" hieronder.)*
 
 Geen leakage dus: aftrek nu (echt), opname later (lager tarief), teruggave licht belast in box 3
 (maar het is geld dat je anders kwijt was). De enige echte prijs is **liquiditeit** — de inleg zit
@@ -163,6 +169,34 @@ lijfrente helemaal ophoudt — een subtiel maar belangrijk punt:
 rendement bij gelijke belegging, maar vast tot pensioen) óf flexibel houden (box 3 — liquide, maar
 forfaitheffing). De allocator kiest **conservatief** voor box 3 boven de cap: hij ruilt wat
 rendementsvoordeel in voor flexibiliteit. Dat is een verdedigbare default, geen wet.
+
+### Is "nu belastingvrij inleggen" zelf een voordeel? Alleen bij een lager opnametarief
+
+Een logische tegenwerping: *"maar ik beleg nú het volle pre-tax bedrag — dát is toch een voordeel?"*
+Ja én nee. Reken het uit (tarief t = 49,5%, rendement 6%, 15 jaar):
+
+| | Nu | Straks (opname) |
+|---|---|---|
+| **Lijfrente** | leg € 100 in (0% belasting nu) | € 100 × 1,06¹⁵ = € 239,7 → −49,5% = **€ 121,0** |
+| **Box 3** | € 100 → −49,5% = € 50,5 inleggen | € 50,5 × 1,0384¹⁵ = **€ 88,8** |
+
+Je legt bij lijfrente **2× zoveel** in (€ 100 vs € 50,5) — dat is het "nu belastingvrij"-voordeel. Maar
+aan het eind haalt de opname-heffing exact die factor 2 er weer af: € 100 × 0,505 = € 50,5 = precies de
+box 3-inleg. **De hefboom en de opname-heffing heffen elkaar op** (bij gelijk tarief). Algebraïsch:
+
+`box 3 / lijfrente = (1−t)(1+r−drag)ⁿ / [(1+r)ⁿ(1−t)] = ((1+r−drag)/(1+r))ⁿ` — de (1−t) valt weg.
+
+Wat overblijft (€ 121 vs € 88,8) is **puur de belastingvrije groei** (de ~2,16% forfait die box 3 wél
+betaalt). Dus:
+
+- **Bij een lager opnametarief (ónder de cap):** het "nu belastingvrij" levert wél netto op — aftrek
+  tegen 49,5%, terugbetalen tegen ~20–37%. Dát verschil (de tariefarbitrage) komt bovenop de groei.
+- **Bij gelijk tarief (bóven de cap):** het "nu belastingvrij" is een uitgestelde lening die je 1-op-1
+  terugbetaalt → netto nul. Alleen de belastingvrije groei blijft over.
+
+**Conclusie:** "nu belastingvrij inleggen" is het *mechanisme*, geen zelfstandig voordeel — het levert
+pas op als je later **minder** belasting betaalt. Daarom is de "+ ~2,16%"-regel compleet zónder extra
+belastingterm: die term cancelt tegen de opname-heffing.
 
 ### Hoe hoog is je opnametarief écht? (geen wishful thinking)
 
