@@ -292,24 +292,37 @@
         <label>Uitkeringsjaren (spreiding van de uitkering)<input type="number" id="vaUitkeringsjaren" value="20" min="1"></label>
         <p class="muted" style="margin:8px 0 0">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, 2e pijler komt van je pensioenoverzicht:</p>
         <p class="muted" style="margin:8px 0 2px"><b>Bestaande aanspraken</b> — vermogen dat al vaststaat, maar vast tot je pensioen (van je pensioenoverzicht). Bepaalt mee hoeveel nieuwe lijfrente nog loont:</p>
+        <p class="muted" id="hdrAanspraakJij" style="font-weight:700;margin:8px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em;display:none">Jouw aanspraken</p>
         <div id="pensLijst"></div>
         <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:8px">
           <button type="button" id="pensAdd" style="width:auto;padding:6px 14px">+ aanspraak</button>
           <button type="button" id="pensImport" style="width:auto;padding:6px 14px">Importeer pensioenoverzicht (JSON)</button>
-          <select id="pensImportWie" class="hide" style="width:auto"><option value="jij">van jou</option><option value="partner">van partner</option></select>
         </div>
         <input type="file" id="pensFile" accept=".json,application/json" style="display:none">
-        <details class="uitsplitsing" style="margin-top:4px"><summary>Hoe kom je aan dit bestand? (mijnpensioenoverzicht.nl)</summary>
+        <p class="muted" id="pensImportInfo" style="margin:4px 0 0"></p>
+        <div id="grpAanspraakPartner" class="hide">
+          <p class="muted" style="font-weight:700;margin:14px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em">Aanspraken partner</p>
+          <div id="pensLijstPartner"></div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:8px">
+            <button type="button" id="pensAddPartner" style="width:auto;padding:6px 14px">+ aanspraak</button>
+            <button type="button" id="pensImportPartner" style="width:auto;padding:6px 14px">Importeer pensioenoverzicht partner (JSON)</button>
+          </div>
+          <input type="file" id="pensFilePartner" accept=".json,application/json" style="display:none">
+          <p class="muted" id="pensImportInfoPartner" style="margin:4px 0 0"></p>
+        </div>
+        <details class="uitsplitsing" style="margin-top:8px"><summary>Hoe kom je aan dit bestand? (mijnpensioenoverzicht.nl)</summary>
           <ol style="padding-left:18px;line-height:1.7" class="muted">
             <li>Ga naar <b>mijnpensioenoverzicht.nl</b> en log in met je <b>DigiD</b> (app of sms-code).</li>
             <li>Ga naar <b>"Download pensioenoverzicht"</b> en haal je gegevens op.</li>
             <li>Kies de <b>data-export (JSON)</b> als die er is. <b>Let op:</b> de gewone PDF kan de tool niet lezen — je hebt het JSON-databestand nodig.</li>
-            <li><b>Upload</b> het bestand hierboven, of <b>plak</b> de JSON-inhoud hieronder.</li>
+            <li><b>Upload</b> het bestand bij de juiste sectie hierboven, of <b>plak</b> de JSON-inhoud hieronder.</li>
           </ol>
           <textarea id="pensPlak" placeholder="…of plak hier de JSON-inhoud" style="width:100%;min-height:70px;font-family:monospace;font-size:12px;box-sizing:border-box"></textarea>
-          <button type="button" id="pensPlakBtn" style="width:auto;padding:6px 12px;margin-top:6px">Verwerk geplakte JSON</button>
+          <div class="row" style="gap:8px;align-items:center;margin-top:6px">
+            <button type="button" id="pensPlakBtn" style="width:auto;padding:6px 12px">Verwerk geplakte JSON</button>
+            <select id="pensPlakWie" style="width:auto"><option value="jij">van jou</option><option value="partner">van partner</option></select>
+          </div>
         </details>
-        <p class="muted" id="pensImportInfo" style="margin:4px 0 0"></p>
         <p class="muted" id="aowInfo" style="margin:6px 0 0"></p>
         <div id="grpBv" class="hide">
           <p class="muted" style="margin:6px 0 0">Bestaand BV-vermogen (al opgepot in je BV):</p>
@@ -654,73 +667,76 @@ const pensLabels = {
   werkgeverspensioen: "Werkgeverspensioen straks (€/jaar)",
   ander_pensioen: "Ander pensioen elders straks (€/jaar)",
 };
-function pensRij(type="werkgeverspensioen", bedrag="", wie="jij") {
+function pensRij(type="werkgeverspensioen", bedrag="") {
   const div = document.createElement("div");
   div.className = "bron";
   const opts = Object.entries(pensLabels).map(([v,l]) => `<option value="${v}">${l}</option>`).join("");
   div.innerHTML = `<select class="pensType">${opts}</select>
     <input type="number" class="pensBedrag" value="${bedrag}" min="0" step="1000">
-    <select class="pensWie" style="flex:1;min-width:96px"><option value="jij">jij</option><option value="partner">partner</option></select>
     <button type="button" class="del">×</button>`;
   div.querySelector(".pensType").value = type;
-  div.querySelector(".pensWie").value = wie;
   div.querySelector(".del").onclick = () => div.remove();
-  togglePensWie();
   return div;
 }
-function togglePensWie() {  // "van wie" alleen tonen met een partner
+function togglePensWie() {  // partner-aanspraken-sectie + "jouw"-kop alleen tonen met een partner
   const show = $("hasPartner").checked;
-  document.querySelectorAll("#pensLijst .pensWie").forEach(s => { s.style.display = show ? "" : "none"; if (!show) s.value = "jij"; });
-  $("pensImportWie").classList.toggle("hide", !show);  // import-doel ook
+  $("grpAanspraakPartner").classList.toggle("hide", !show);
+  $("hdrAanspraakJij").style.display = show ? "" : "none";
 }
+const pensDoel = wie => wie === "partner" ? "pensLijstPartner" : "pensLijst";  // doel-lijst per persoon
 $("pensAdd").onclick = () => $("pensLijst").appendChild(pensRij());
+$("pensAddPartner").onclick = () => $("pensLijstPartner").appendChild(pensRij());
 
-// Import van mijnpensioenoverzicht.nl (Pensioenregister-JSON), volledig client-side — bestand of geplakt.
-function verwerkPensioenJSON(tekst) {
+// Import van mijnpensioenoverzicht.nl (Pensioenregister-JSON), volledig client-side — per persoon.
+function verwerkPensioenJSON(tekst, wie) {
+  const infoId = wie === "partner" ? "pensImportInfoPartner" : "pensImportInfo";
   let d;
   try { d = JSON.parse(tekst); }
-  catch (err) { $("pensImportInfo").textContent = "Kon dit niet lezen als mijnpensioenoverzicht-JSON."; return; }
+  catch (err) { $(infoId).textContent = "Kon dit niet lezen als mijnpensioenoverzicht-JSON."; return; }
   const tot = (((d.Totalen || {}).OuderdomsPensioenTotalen || {}).OuderdomsPensioenTotaal) || [];
   let pensioen = 0, overbrug = 0;
   tot.forEach(t => {
     if (t.Pensioen) pensioen = Math.max(pensioen, +t.Pensioen);             // volledig ouderdomspensioen/jaar
     if (t.IndicatiefPensioen) overbrug = Math.max(overbrug, +t.IndicatiefPensioen);  // overbrugging/indicatief
   });
-  const wie = $("hasPartner").checked ? $("pensImportWie").value : "jij";
   const nl = n => Math.round(n).toLocaleString("nl-NL");
   if (pensioen > 0) {
-    $("pensLijst").appendChild(pensRij("werkgeverspensioen", Math.round(pensioen), wie));
-    if (overbrug > 0) $("pensLijst").appendChild(pensRij("ander_pensioen", Math.round(overbrug), wie));
+    $(pensDoel(wie)).appendChild(pensRij("werkgeverspensioen", Math.round(pensioen)));
+    if (overbrug > 0) $(pensDoel(wie)).appendChild(pensRij("ander_pensioen", Math.round(overbrug)));
     const kap = f => `€ ${nl(pensioen * f / 1000)}k`;  // impliciet kapitaal (factor ~15-20)
-    $("pensImportInfo").innerHTML =
+    $(infoId).innerHTML =
       `Geïmporteerd (${wie === "partner" ? "partner" : "jij"}): <b>€ ${nl(pensioen)}/jaar</b> werkgeverspensioen`
       + (overbrug > 0 ? ` + € ${nl(overbrug)}/jaar overbrugging` : "")
       + `.<br><span class="muted">Impliciet kapitaal achter die belofte: ± ${kap(15)}–${kap(20)} (uitkering × annuïteitsfactor 15–20; indicatief). Controleer evt. met de opbouwformule: ~1,875% × salaris × dienstjaren.</span>`;
   } else {
-    $("pensImportInfo").textContent = "Geen ouderdomspensioen gevonden in dit bestand.";
+    $(infoId).textContent = "Geen ouderdomspensioen gevonden in dit bestand.";
   }
 }
-$("pensImport").onclick = () => $("pensFile").click();
-$("pensFile").onchange = (e) => {
-  const f = e.target.files[0];
+function leesBestand(input, wie) {
+  const f = input.files[0];
   if (!f) return;
   const reader = new FileReader();
-  reader.onload = () => verwerkPensioenJSON(reader.result);
+  reader.onload = () => verwerkPensioenJSON(reader.result, wie);
   reader.readAsText(f);
-  e.target.value = "";  // reset zodat hetzelfde bestand opnieuw kan
-};
-$("pensPlakBtn").onclick = () => { if ($("pensPlak").value.trim()) verwerkPensioenJSON($("pensPlak").value); };
+  input.value = "";  // reset zodat hetzelfde bestand opnieuw kan
+}
+$("pensImport").onclick = () => $("pensFile").click();
+$("pensImportPartner").onclick = () => $("pensFilePartner").click();
+$("pensFile").onchange = (e) => leesBestand(e.target, "jij");
+$("pensFilePartner").onchange = (e) => leesBestand(e.target, "partner");
+$("pensPlakBtn").onclick = () => { if ($("pensPlak").value.trim()) verwerkPensioenJSON($("pensPlak").value, $("pensPlakWie").value); };
 
 function autoAOW() { return $("hasPartner").checked ? 14379 : 20929; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
 function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
-function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}}
+function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}} — twee aparte lijsten
   const r = {jij:{pot:0, uitk:0}, partner:{pot:0, uitk:0}};
-  document.querySelectorAll("#pensLijst .bron").forEach(b => {
+  const lees = (lijstId, wie) => document.querySelectorAll(`#${lijstId} .bron`).forEach(b => {
     const t = b.querySelector(".pensType").value, v = +b.querySelector(".pensBedrag").value || 0;
-    const wie = ($("hasPartner").checked && b.querySelector(".pensWie").value === "partner") ? "partner" : "jij";
     if (t === "lijfrente_pot") r[wie].pot += v; else r[wie].uitk += v;
   });
+  lees("pensLijst", "jij");
+  if ($("hasPartner").checked) lees("pensLijstPartner", "partner");  // partner alleen als er een is
   return r;
 }
 
