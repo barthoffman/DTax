@@ -1237,7 +1237,8 @@ async function berekenVermogensadvies() {
       const spaNet = 0.0128 - 0.0128 * 0.36;                            // box 3 banktegoeden na heffing
       const kb = realK(belNet), ks = realK(spaNet), kc = realK(0);
       proj = `
-        <h2 style="margin-top:14px">Zo groeit het — doorkijk naar je pensioen (over ${jr} jaar, ${P.uitkeringsjaren} uitkeringsjaren)</h2>
+        <details class="uitsplitsing" style="margin-top:14px"><summary>Zo groeit het — doorkijk naar je pensioen + wat inflatie met je geld doet</summary>
+        <p class="muted" style="margin:2px 0">Over ${jr} jaar, ${P.uitkeringsjaren} uitkeringsjaren.</p>
         <table><thead><tr><th></th><th>Pot bij pensioen</th><th>Per jaar uitkering</th><th>In geld van nu*</th></tr></thead><tbody>
           ${P.lijfrente_pot>0?`<tr><td>Lijfrente</td><td class="num">${eur(P.lijfrente_pot)}</td><td class="num">${eur(P.lijfrente_uitkering)} (box 1)<div class="muted">${eur(P.lijfrente_uitkering_reeel)} nu</div></td><td class="num">${eur(P.lijfrente_pot/defl)} (pot)</td></tr>`:""}
           ${P.bv_pot>0?`<tr><td>BV</td><td class="num">${eur(P.bv_pot)}</td><td class="num">${eur(P.bv_dividend)} (box 2)</td><td class="num">${eur(P.bv_pot/defl)} (pot)</td></tr>`:""}
@@ -1250,7 +1251,7 @@ async function berekenVermogensadvies() {
           <tr><td>Sparen (~1,3%)</td><td class="num">€ ${ks.toLocaleString("nl-NL")}</td><td class="muted">${pct(ks)} — je blijft achter op de inflatie</td></tr>
           <tr><td>Niets doen (cash)</td><td class="num">€ ${kc.toLocaleString("nl-NL")}</td><td class="muted">${pct(kc)} — inflatie vreet het langzaam op</td></tr>
         </tbody></table>
-        <p class="muted">*<b>In geld van nu</b> = wat het straks waard is in <b>koopkracht van vandaag</b>. Het is een <b>aanname</b> (bij ${(P.inflatie*100).toFixed(1)}% inflatie — pas de inflatie hierboven aan; bij <b>deflatie</b>, zoals Japan jaren had, wordt geld juist méér waard). De kern: je geld groeit écht alleen als het <b>rendement de inflatie verslaat</b> — beleggen wel, sparen en cash niet. <span style="opacity:.8">(Boven het heffingvrij vermogen; eronder is box 3 onbelast en wint beleggen nog meer.)</span></p>`;
+        <p class="muted">*<b>In geld van nu</b> = wat het straks waard is in <b>koopkracht van vandaag</b>. Het is een <b>aanname</b> (bij ${(P.inflatie*100).toFixed(1)}% inflatie — pas de inflatie hierboven aan; bij <b>deflatie</b>, zoals Japan jaren had, wordt geld juist méér waard). De kern: je geld groeit écht alleen als het <b>rendement de inflatie verslaat</b> — beleggen wel, sparen en cash niet. <span style="opacity:.8">(Boven het heffingvrij vermogen; eronder is box 3 onbelast en wint beleggen nog meer.)</span></p></details>`;
     }
     let best = "";
     if (r.bestaand_box3_last>0) best += `<p class="muted">Bestaand box 3-vermogen kost je nu ± ${eur(r.bestaand_box3_last)}/jaar.</p>`;
@@ -1276,14 +1277,16 @@ async function berekenVermogensadvies() {
       </tbody></table>
       ${r.herverdeling.gefaseerd?`<p class="muted">Het box 3-deel kun je de komende jaren alsnog <b>gefaseerd</b> in je lijfrente leggen (telkens tot je jaarruimte) voor de belastingvrije groei — maar <b>alleen zolang je pensioenuitkering onder de schijfgrens (± ${r.lijfrente_optimaal?eur(r.lijfrente_optimaal.target_box1):"de eerste schijf"}) blijft</b>. Daarboven raakt je opnametarief je tarief van nu en is box 3 net zo goed.</p>`:""}` : ""}
       ${proj}
-      <h2 style="margin-top:14px">Waarom deze volgorde — per € 1.000 inleg, netto na ${r.jaren} jaar</h2>
+      <details class="uitsplitsing"><summary>Waarom deze volgorde — per € 1.000 inleg (${r.jaren} jaar)</summary>
       <p class="muted">Een <b>verhouding</b> (geen totaal): per € 1.000 over ${r.jaren} jaar. Lijfrente belegt het volle pre-tax bedrag belastingvrij, box 3 het ná-belaste bedrag mét jaarlijkse heffing, sparen tegen een lage rente. Dáárom: <b>lijfrente eerst</b> (tot je jaarruimte), dan box 3, sparen het laatst.</p>
       ${sub("Privé")}
       <table><thead><tr><th></th><th>Per € 1.000</th></tr></thead><tbody>${crowsFor(priveC)}</tbody></table>
       ${zakC.length?`${sub("Zakelijk")}<table><thead><tr><th></th><th>Per € 1.000</th></tr></thead><tbody>${crowsFor(zakC)}</tbody></table>`:""}
+      </details>
       ${best}
+      <details class="uitsplitsing"><summary>Aannames & liquiditeit</summary>
       <p class="muted">${r.liquiditeit_advies}</p>
-      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul>`;
+      <ul class="tips">${r.waarschuwingen.map(w=>`<li>${w}</li>`).join("")}</ul></details>`;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
 
