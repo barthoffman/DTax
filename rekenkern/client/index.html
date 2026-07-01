@@ -198,7 +198,6 @@
         <div id="grpUren" class="hide">
           <label class="chk" style="margin-top:10px"><input type="checkbox" id="mixUren" checked> Onderneming voldoet aan urencriterium (1.225 u)</label>
           <label class="chk"><input type="checkbox" id="mixStarter"> Starter (eerste 3 jaar als ondernemer — extra startersaftrek)</label>
-          <label>Meewerk-uren partner in je zaak (voor meewerkaftrek, vanaf 525 u)<input type="number" id="mixMeewerk" placeholder="0" min="0" step="25"></label>
         </div>
       </fieldset>
       <fieldset>
@@ -214,6 +213,7 @@
             <label>Spaargeld partner box 3 (€)<input type="number" id="mixPartnerBank" placeholder="0" min="0" step="5000"></label>
             <label>Beleggingen partner box 3 (€)<input type="number" id="mixPartnerBeleg" placeholder="0" min="0" step="5000"></label>
           </div>
+          <div id="grpMeewerk" class="hide"><label>Meewerk-uren partner in je zaak (voor meewerkaftrek, vanaf 525 u — alleen bij winst uit onderneming, niet bij een BV)<input type="number" id="mixMeewerk" placeholder="0" min="0" step="25"></label></div>
           <p class="muted" id="poolInfo" style="margin:2px 0 0"></p>
         </div>
         <label class="chk"><input type="checkbox" id="hasWoning"> Woning</label>
@@ -765,6 +765,8 @@ function toonZakelijk() {
   document.querySelectorAll(".topnav .zak").forEach(e => e.classList.toggle("hide", !bv));
   $("grpBv").classList.toggle("hide", !bv);     // bestaand BV-vermogen alleen met een BV
   $("grpUren").classList.toggle("hide", !ond);  // urencriterium alleen bij ondernemersinkomen
+  // Meewerkaftrek: alleen bij echte IB-onderneming (winst) — de partner-eis komt van grpPartner.
+  $("grpMeewerk").classList.toggle("hide", !types.includes("winst"));
 }
 $("inkLijst").addEventListener("change", toonZakelijk);
 toonZakelijk();
