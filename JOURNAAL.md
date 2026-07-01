@@ -9,6 +9,25 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-01 — Fase 27: NU-afmakers + Straks/allocator-verfijningen
+
+- **BESLISSING**: IACK, startersaftrek, groene beleggingen en meewerkaftrek gekoppeld in
+  `optimalisatie_advies` (rekenkern had de velden al). IACK gaat naar de minstverdienende /
+  alleenstaande ouder via `is_minstverdienende`; meewerkaftrek via nieuwe params-tabel
+  (`meewerkaftrek_schijven`, art. 3.78). UI-velden bij Kinderen, onderneming en box 3.
+  Backlog A1–A4 afgevinkt.
+- **BEVINDING**: meewerkaftrek-schijven 2026 ongewijzigd (1,25/2/3/4%), maar wordt **−75% per
+  2027 en afgeschaft in 2030** (Voorjaarsnota 2025). Bron **OND-meewerk**. Op termijn dus
+  vervallend — bij jaarovergang checken.
+- **BESLISSING**: allocator-output herstructureerd naar "dit heb je → verdelen → groeit → waarom":
+  per-potje als **rate per € 1.000** (i.p.v. verwarrend totaal), Doorkijk-reëel consistent als
+  **pot in geld van nu**, en nieuw blok **"Wat doet inflatie met je geld?"** (€ 1.000 → koopkracht:
+  beleggen +43%, sparen −21%, cash −33%) om beleggen intuïtief te maken. Uitleg-secties inklapbaar.
+- **BESLISSING**: Straks toont nu een **"zelf te beheren" box 3-blok** (vrij opneembaar) als
+  contrast met het vaste, extern beheerde pensioen (impliciet-kapitaal-blok).
+- **BEVINDING**: "reëel" is een **aanname** (inflatie), geen voorspelling — bij deflatie (Japan)
+  wordt geld juist méér waard. Label → "in geld van nu (bij 2% inflatie)", eerlijk gemarkeerd.
+
 ## 2026-06-30 — Fase 26: volwaardig partner-model (box 3, aanspraken, Straks-huishouden)
 
 - **BESLISSING — partner als tweede persoon.** Bestaande aanspraken zijn vermogen (vast tot
