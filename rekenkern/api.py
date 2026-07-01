@@ -332,8 +332,23 @@ def _straks_handler(body: dict) -> dict:
 
 def _vermogensadvies_handler(body: dict) -> dict:
     from belastingkern.vermogensadvies import vermogensadvies
+    jaar = int(body.get("jaar", 2026))
+    # Partner huishoud-optimalisatie: reken de eigen jaarruimte + marginaal uit het partnerinkomen.
+    partner_inkomen = float(body.get("partner_inkomen", 0))
+    partner_jr, partner_marg = 0.0, 0.3756
+    if partner_inkomen > 0:
+        from belastingkern.pensioen import jaarruimte as _jaarruimte
+        from belastingkern.engine import bereken_persoon
+        from belastingkern.model import Persoon
+        from belastingkern.params import laad_params
+        pp = laad_params(jaar)
+        partner_jr = _jaarruimte(partner_inkomen, pp)
+        if partner_jr > 0:  # marginaal = belastingbesparing van een lijfrente-aftrek t.o.v. de jaarruimte
+            t0 = bereken_persoon(Persoon(loon=partner_inkomen), pp).te_betalen
+            t1 = bereken_persoon(Persoon(loon=partner_inkomen, aftrekposten_box1=partner_jr), pp).te_betalen
+            partner_marg = round((t0 - t1) / partner_jr, 4)
     r = vermogensadvies(
-        int(body.get("jaar", 2026)),
+        jaar,
         nieuwe_inleg=float(body.get("nieuwe_inleg", 0)),
         bestaand_box3=float(body.get("bestaand_box3", 0)),
         bestaand_spaargeld=float(body.get("bestaand_spaargeld", 0)),
@@ -351,6 +366,10 @@ def _vermogensadvies_handler(body: dict) -> dict:
         partner=bool(body.get("partner", False)),
         uitkeringsjaren=int(body.get("uitkeringsjaren", 20)),
         inflatie=float(body.get("inflatie", 0.02)),
+        partner_marginaal=partner_marg,
+        partner_jaarruimte=partner_jr,
+        partner_verwacht_pensioen=float(body.get("partner_verwacht_pensioen", 0)),
+        partner_bestaande_lijfrente=float(body.get("partner_bestaande_lijfrente", 0)),
     )
     return {
         "jaar": r.jaar, "nieuwe_inleg": r.nieuwe_inleg, "jaren": r.jaren, "rendement": r.rendement,

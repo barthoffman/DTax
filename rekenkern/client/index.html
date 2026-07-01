@@ -1213,6 +1213,11 @@ function vaBody(adv) {
     jaarruimte: adv.lijfrente ? adv.lijfrente.inleg : 0, vrij_opneembaar:+$("vaVrij").value,
     verwacht_pensioen: autoAOW() + pensSom().jij.uitk,
     bestaande_lijfrente: pensSom().jij.pot,
+    // Partner (huishoud-optimalisatie): eigen inkomen → eigen jaarruimte + marginaal (server-side),
+    // eigen pensioen + eigen bestaande lijfrente-pot.
+    partner_inkomen: +$("mixPartner").value,
+    partner_verwacht_pensioen: autoAOW() + pensSom().partner.uitk,
+    partner_bestaande_lijfrente: pensSom().partner.pot,
     // BV-container alleen als je een BV hébt (bestaand BV-vermogen) of als een BV wordt aangeraden.
     is_ondernemer: ((+$("mixBvSpaar").value + +$("mixBvBeleg").value) > 0) || !!(adv.rechtsvorm && adv.rechtsvorm.beste === "bv"),
     partner: (+$("mixPartner").value) > 0,
@@ -1269,17 +1274,20 @@ async function berekenVermogensadvies() {
       <h2 style="margin-top:14px">Aanbevolen verdeling van de inleg</h2>
       ${sub("Privé")}
       <table><tbody>
-        ${A.lijfrente>0?`<tr class="win"><td>Lijfrente (vastzetten tot pensioen)</td><td class="num">${eur(A.lijfrente)}</td></tr>`:""}
+        ${A.lijfrente>0?`<tr class="win"><td>Lijfrente${A.lijfrente_partner>0?" — jij":""} (vastzetten tot pensioen)</td><td class="num">${eur(A.lijfrente)}</td></tr>`:""}
+        ${A.lijfrente_partner>0?`<tr class="win"><td>Lijfrente — partner (vastzetten tot pensioen)</td><td class="num">${eur(A.lijfrente_partner)}</td></tr>`:""}
         ${A.box3>0?`<tr><td>Box 3 (flexibel)</td><td class="num">${eur(A.box3)}</td></tr>`:""}
-        ${A.lijfrente<=0&&A.box3<=0?`<tr><td class="muted">—</td><td class="num">—</td></tr>`:""}
+        ${A.lijfrente<=0&&A.lijfrente_partner<=0&&A.box3<=0?`<tr><td class="muted">—</td><td class="num">—</td></tr>`:""}
       </tbody></table>
+      ${r.lijfrente_optimaal && r.lijfrente_optimaal.partner ? `<p class="muted">Huishoud-optimaal: lijfrente-inleg gaat <b>eerst naar wie het hoogste marginale tarief heeft</b> (grootste uitstelvoordeel)${r.lijfrente_optimaal.partner.prioriteit?" — hier je <b>partner</b>":""}. Partner: jaarruimte ± ${eur(r.lijfrente_optimaal.partner.jaarruimte)}, tarief nu ${(r.lijfrente_optimaal.partner.marginaal*100).toFixed(1)}%.</p>` : ""}
       ${r.lijfrente_optimaal && r.lijfrente_optimaal.gecapt ? `<p class="muted">Lijfrente begrensd op ± ${eur(A.lijfrente)}: méér zou je pensioenuitkering boven € ${(r.lijfrente_optimaal.target_box1).toLocaleString("nl-NL")} (box 1) duwen, waar het opnametarief je marginale tarief van nu (${(r.lijfrente_optimaal.marginaal_nu*100).toFixed(1)}%) raakt. Daarboven is box 3 gunstiger én flexibel — vandaar de rest in box 3.</p>` : ""}
       ${A.bv>0?`${sub("Zakelijk (BV)")}<table><tbody><tr><td>In de BV laten groeien</td><td class="num">${eur(A.bv)}</td></tr></tbody></table>`:""}
       ${r.herverdeling ? `
       <h2 style="margin-top:14px">Je bestaande spaargeld (${eur(r.herverdeling.spaargeld)})</h2>
       <p class="muted">Je houdt <b>${eur(r.herverdeling.liquide)}</b> liquide. Het overschot van <b>${eur(r.herverdeling.surplus)}</b> staat nu tegen ~1,3% in box 3 — slimmer verdeeld:</p>
       <table><tbody>
-        ${r.herverdeling.naar_lijfrente>0?`<tr class="win"><td>Naar lijfrente <span class="muted">— fiscale winst (aftrek + belastingvrije groei), tot je jaarruimte</span></td><td class="num">${eur(r.herverdeling.naar_lijfrente)}</td></tr>`:""}
+        ${r.herverdeling.naar_lijfrente>0?`<tr class="win"><td>Naar lijfrente${r.herverdeling.naar_lijfrente_partner>0?" — jij":""} <span class="muted">— fiscale winst (aftrek + belastingvrije groei), tot je jaarruimte</span></td><td class="num">${eur(r.herverdeling.naar_lijfrente)}</td></tr>`:""}
+        ${r.herverdeling.naar_lijfrente_partner>0?`<tr class="win"><td>Naar lijfrente — partner <span class="muted">— fiscale winst, tot de jaarruimte van je partner</span></td><td class="num">${eur(r.herverdeling.naar_lijfrente_partner)}</td></tr>`:""}
         ${r.herverdeling.naar_box3>0?`<tr><td>Naar box 3-beleggen <span class="muted">— rendementswinst (hoger rendement dan sparen; géén belastingvoordeel — je betaalt zelfs meer box 3)</span></td><td class="num">${eur(r.herverdeling.naar_box3)}</td></tr>`:""}
       </tbody></table>
       ${r.herverdeling.gefaseerd?`<p class="muted">Het box 3-deel kun je de komende jaren alsnog <b>gefaseerd</b> in je lijfrente leggen (telkens tot je jaarruimte) voor de belastingvrije groei — maar <b>alleen zolang je pensioenuitkering onder de schijfgrens (± ${r.lijfrente_optimaal?eur(r.lijfrente_optimaal.target_box1):"de eerste schijf"}) blijft</b>. Daarboven raakt je opnametarief je tarief van nu en is box 3 net zo goed.</p>`:""}` : ""}

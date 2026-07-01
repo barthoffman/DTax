@@ -40,6 +40,31 @@ def _fv_annuity(bedrag_per_jaar: float, groei: float, jaren: int) -> float:
     return bedrag_per_jaar * (((1 + groei) ** jaren - 1) / groei)
 
 
+def _lijf_cap_persoon(p, *, marginaal, jaarruimte, verwacht_pensioen, bestaande_lijfrente,
+                      rendement, jaren, uj):
+    """Pensioen-bewuste lijfrente-cap voor één persoon: vul de lijfrente zó dat de toekomstige
+    uitkering box 1 vult tot de schijfgrens die net ONDER het marginale tarief nu ligt (daarboven
+    geen tariefarbitrage meer). De uitkering stapelt op de verwachte AOW + pensioen van die persoon."""
+    schijven_aow = p["box1"]["schijven_vanaf_aow"]
+    target_box1 = next((s["tot"] for s in schijven_aow if s["tot"] is not None), 0.0)
+    for s in schijven_aow:
+        if s["tot"] is not None and s["tarief"] < marginaal:
+            target_box1 = s["tot"]
+    bestaande_lijf_pot = bestaande_lijfrente * (1 + rendement) ** jaren
+    bestaande_lijf_uitkering = bestaande_lijf_pot / uj
+    effectief_pensioen = max(0.0, verwacht_pensioen) + bestaande_lijf_uitkering
+    target_uitkering = max(0.0, target_box1 - effectief_pensioen)
+    fv_factor = _fv_annuity(1.0, rendement, jaren)
+    cap_raw = (target_uitkering * uj / fv_factor) if fv_factor > 0 else jaarruimte
+    return {
+        "marginaal": marginaal, "jaarruimte": jaarruimte,
+        "cap": max(0.0, min(jaarruimte, cap_raw)),  # begrensd door de jaarruimte
+        "target_box1": target_box1, "bestaande_lijf_pot": bestaande_lijf_pot,
+        "bestaande_lijf_uitkering": bestaande_lijf_uitkering, "effectief_pensioen": effectief_pensioen,
+        "target_uitkering": target_uitkering,
+    }
+
+
 @dataclass
 class VermogensadviesResultaat:
     jaar: int
@@ -77,6 +102,10 @@ def vermogensadvies(
     partner: bool = False,
     uitkeringsjaren: int = 20,
     inflatie: float = 0.02,
+    partner_marginaal: float = 0.3756,
+    partner_jaarruimte: float = 0.0,
+    partner_verwacht_pensioen: float = 0.0,
+    partner_bestaande_lijfrente: float = 0.0,
 ) -> VermogensadviesResultaat:
     p = laad_params(jaar)
     vpb = p["vpb"]["schijven"][0]["tarief"]
@@ -114,48 +143,64 @@ def vermogensadvies(
             soort="zakelijk"))
     containers.sort(key=lambda c: -c.netto_eind)
 
-    # Pensioen-bewuste lijfrente-cap: vul de lijfrente zó dat de toekomstige uitkering box 1
-    # vult tot de schijfgrens die net ONDER je marginale tarief nu ligt (daarboven geen
-    # tariefarbitrage meer → box 3). De uitkering stapelt op je verwachte AOW + pensioen.
-    schijven_aow = p["box1"]["schijven_vanaf_aow"]
-    target_box1 = next((s["tot"] for s in schijven_aow if s["tot"] is not None), 0.0)
-    for s in schijven_aow:
-        if s["tot"] is not None and s["tarief"] < marginaal_nu:
-            target_box1 = s["tot"]
+    # Pensioen-bewuste lijfrente-cap PER PERSOON (jij + evt. partner). Vul lijfrente daar waar het
+    # marginale tarief NU het hoogst is (grootste uitstelvoordeel), tot de schijfgrens onder dat tarief.
     uj = max(1, int(uitkeringsjaren))
-    # Een al opgebouwde lijfrente groeit vooruit en keert óók box 1 uit → vult je pensioen alvast.
-    bestaande_lijf_pot = bestaande_lijfrente * (1 + rendement) ** jaren
-    bestaande_lijf_uitkering = bestaande_lijf_pot / uj
-    effectief_pensioen = max(0.0, verwacht_pensioen) + bestaande_lijf_uitkering
-    target_uitkering = max(0.0, target_box1 - effectief_pensioen)
-    fv_factor = _fv_annuity(1.0, rendement, jaren)  # pot per €1 jaarlijkse inleg
-    lijf_cap = (target_uitkering * uj / fv_factor) if fv_factor > 0 else jaarruimte
+    jij_cap = _lijf_cap_persoon(p, marginaal=marginaal_nu, jaarruimte=jaarruimte,
+                                verwacht_pensioen=verwacht_pensioen, bestaande_lijfrente=bestaande_lijfrente,
+                                rendement=rendement, jaren=jaren, uj=uj)
+    slots = [dict(jij_cap, wie="jij")]
+    partner_cap = None
+    if partner and partner_jaarruimte > 0:
+        partner_cap = _lijf_cap_persoon(p, marginaal=partner_marginaal, jaarruimte=partner_jaarruimte,
+                                        verwacht_pensioen=partner_verwacht_pensioen,
+                                        bestaande_lijfrente=partner_bestaande_lijfrente,
+                                        rendement=rendement, jaren=jaren, uj=uj)
+        slots.append(dict(partner_cap, wie="partner"))
+    slots.sort(key=lambda s: -s["marginaal"])  # hoogste marginaal eerst = grootste uitstelvoordeel
+    totale_cap = sum(s["cap"] for s in slots)
+    totale_jaarruimte = jaarruimte + (partner_jaarruimte if partner_cap else 0.0)
+    lijf_gecapt = totale_cap < min(totale_jaarruimte, inleg) - 1 if totale_jaarruimte > 0 else False
+    bestaande_lijf_pot_tot = jij_cap["bestaande_lijf_pot"] + (partner_cap["bestaande_lijf_pot"] if partner_cap else 0.0)
 
-    # Watervalallocatie van de JAARLIJKSE inleg: lijfrente tot de cap, dan de rest → box 3/BV.
-    lijf_deel = min(jaarruimte, inleg, lijf_cap) if jaarruimte > 0 else 0.0
-    overschot = inleg - lijf_deel
-    lijf_gecapt = lijf_cap < min(jaarruimte, inleg) - 1 if jaarruimte > 0 else False
+    # Watervalallocatie van de JAARLIJKSE inleg: lijfrente-slots (hoogste marginaal eerst), rest → box 3/BV.
+    resterend = inleg
+    lijf = {"jij": 0.0, "partner": 0.0}
+    for s in slots:
+        neem = max(0.0, min(s["cap"], resterend))
+        lijf[s["wie"]] = neem
+        resterend -= neem
+    lijf_deel = lijf["jij"] + lijf["partner"]
+    overschot = resterend
     overschot_naar = "box3"
     if is_ondernemer and inleg > 0 and (bv_net / eenheid) > (box3_net / eenheid):
         overschot_naar = "bv"
     allocatie = {
-        "lijfrente": round(lijf_deel, 2),
+        "lijfrente": round(lijf["jij"], 2),
+        "lijfrente_partner": round(lijf["partner"], 2),
         "box3": round(overschot if overschot_naar == "box3" else 0.0, 2),
         "bv": round(overschot if overschot_naar == "bv" else 0.0, 2),
     }
 
-    # Herverdeling van BESTAAND spaargeld: houd je buffer liquide, verdeel het overschot.
-    # Vul de resterende jaarruimte van dit jaar met lijfrente (tenzij gecapt), rest → box 3-beleggen.
+    # Herverdeling van BESTAAND spaargeld: buffer liquide, overschot → resterende lijfrente-ruimte
+    # (hoogste marginaal eerst, over beide personen), rest → box 3-beleggen.
     liquide = min(max(0.0, vrij_opneembaar), bestaand_spaargeld)
     surplus = round(bestaand_spaargeld - liquide, 2)
-    lijf_ruimte_over = max(0.0, min(jaarruimte, lijf_cap) - lijf_deel)
-    herv_lijfrente = 0.0 if lijf_gecapt else min(lijf_ruimte_over, surplus)
-    herv_box3 = surplus - herv_lijfrente
+    herv = {"jij": 0.0, "partner": 0.0}
+    rest_surplus = surplus
+    for s in slots:
+        ruimte = max(0.0, s["cap"] - lijf[s["wie"]])
+        neem = min(ruimte, rest_surplus)
+        herv[s["wie"]] = neem
+        rest_surplus -= neem
+    herv_lijfrente = herv["jij"] + herv["partner"]
+    herv_box3 = round(surplus - herv_lijfrente, 2)
     herverdeling = {
         "spaargeld": round(bestaand_spaargeld, 2), "liquide": round(liquide, 2),
-        "surplus": surplus, "naar_lijfrente": round(herv_lijfrente, 2),
-        "naar_box3": round(herv_box3, 2),
-        # rest kan de komende jaren alsnog in lijfrente (tot je jaarruimte) i.p.v. in box 3
+        "surplus": surplus, "naar_lijfrente": round(herv["jij"], 2),
+        "naar_lijfrente_partner": round(herv["partner"], 2),
+        "naar_box3": herv_box3,
+        # rest kan de komende jaren alsnog in lijfrente (tot de jaarruimte) i.p.v. in box 3
         "gefaseerd": bool(herv_box3 > 1 and not lijf_gecapt),
     } if surplus > 0 else None
 
@@ -186,9 +231,9 @@ def vermogensadvies(
     # Projectie: jaarlijkse inleg per container → pot bij pensioen → jaarlijkse uitkering.
     pct3 = min(forfait, rendement)  # tegenbewijs-benadering voor de box 3-drag
     net_box3 = rendement - pct3 * tarief3
-    # Jaarlijkse inleg (annuïteit) + bestaande lijfrente-pot + eenmalig herverdeeld spaargeld (lump).
-    lijf_pot = (_fv_annuity(allocatie["lijfrente"], rendement, jaren) + bestaande_lijf_pot
-                + herv_lijfrente * (1 + rendement) ** jaren)
+    # Jaarlijkse inleg (annuïteit, jij + partner) + bestaande lijfrente-potten + herverdeeld spaargeld (lump).
+    lijf_pot = (_fv_annuity(allocatie["lijfrente"] + allocatie["lijfrente_partner"], rendement, jaren)
+                + bestaande_lijf_pot_tot + herv_lijfrente * (1 + rendement) ** jaren)
     box3_pot = _fv_annuity(allocatie["box3"], net_box3, jaren) + herv_box3 * (1 + net_box3) ** jaren
     bv_pot = _fv_annuity(allocatie["bv"], rendement * (1 - vpb), jaren)
     # Bestaand box 3-vermogen doorgegroeid tot pensioen + de nieuwe box 3-inleg.
@@ -238,19 +283,26 @@ def vermogensadvies(
             "dezelfde inleg én een constant rendement. Nominale bedragen lopen dan extreem op en "
             "zijn vooral illustratief — controleer of je leeftijd klopt.")
     lijfrente_optimaal = {
-        "cap": round(min(lijf_cap, jaarruimte), 2), "target_box1": round(target_box1, 2),
+        "cap": round(jij_cap["cap"], 2), "target_box1": round(jij_cap["target_box1"], 2),
         "verwacht_pensioen": round(max(0.0, verwacht_pensioen), 2),
-        "bestaande_lijfrente_uitkering": round(bestaande_lijf_uitkering, 2),
-        "effectief_pensioen": round(effectief_pensioen, 2),
-        "target_uitkering": round(target_uitkering, 2), "marginaal_nu": marginaal_nu,
+        "bestaande_lijfrente_uitkering": round(jij_cap["bestaande_lijf_uitkering"], 2),
+        "effectief_pensioen": round(jij_cap["effectief_pensioen"], 2),
+        "target_uitkering": round(jij_cap["target_uitkering"], 2), "marginaal_nu": marginaal_nu,
         "gecapt": bool(lijf_gecapt),
+        "toegewezen": round(lijf["jij"] + herv["jij"], 2),
+        "partner": ({
+            "cap": round(partner_cap["cap"], 2), "target_box1": round(partner_cap["target_box1"], 2),
+            "marginaal": partner_marginaal, "jaarruimte": round(partner_jaarruimte, 2),
+            "verwacht_pensioen": round(max(0.0, partner_verwacht_pensioen), 2),
+            "toegewezen": round(lijf["partner"] + herv["partner"], 2),
+            "prioriteit": partner_marginaal > marginaal_nu,  # partner heeft het hoogste tarief
+        } if partner_cap else None),
     }
     if lijf_gecapt:
         waarschuwingen.insert(0,
-            f"Lijfrente begrensd op ± € {lijf_deel:,.0f}/jaar: meer zou je pensioenuitkering boven "
-            f"€ {target_box1:,.0f} (box 1) duwen, waar het opnametarief je marginale tarief van nu "
-            f"({marginaal_nu*100:.1f}%) raakt — daarboven is box 3 gunstiger (en flexibel). Het "
-            "overschot gaat daarom naar box 3.".replace(",", "."))
+            f"Lijfrente begrensd op ± € {lijf_deel:,.0f}/jaar (huishouden): meer zou de pensioenuitkering "
+            "boven de schijfgrens duwen, waar het opnametarief het marginale tarief van nu raakt — daarboven "
+            "is box 3 gunstiger (en flexibel). Het overschot gaat daarom naar box 3.".replace(",", "."))
     return VermogensadviesResultaat(
         jaar=jaar, nieuwe_inleg=round(inleg, 2), jaren=jaren, rendement=rendement,
         containers=containers, allocatie=allocatie,
