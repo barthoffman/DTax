@@ -248,6 +248,23 @@ def optimalisatie_advies(
                 f"{p.box3['heffingvrij_vermogen_pp']:,.0f} p.p.).".replace(",", "."),
                 "art. 2.17 / 5.5 Wet IB 2001"))
 
+    # 4b. Meewerkaftrek: partner laten meewerken in de IB-zaak (als nog niet benut).
+    if partner and ondernemer_inkomen > 0 and huidige_vorm != "bv" and meewerk_uren < 525:
+        mw2 = round(0.02 * ondernemer_inkomen, 2)  # ~part-time (875–1.225 u = 2%)
+        persoon_mw = dataclasses.replace(
+            zzp_persoon, onderneming=_ond(ondernemer_inkomen, urencriterium, starter, meewerk + mw2))
+        t_mw, _, _ = _huishouden(persoon_mw, partner, profiel, p, inkomen, 0.0, 0.0, minst, partner_minst)
+        besp_mw = round(base_tax - t_mw, 2)
+        if besp_mw > 1:
+            sugg.append(Suggestie(
+                "Partner laten meewerken in je zaak (meewerkaftrek)",
+                besp_mw,
+                "Werkt je fiscale partner ≥ 525 u/jaar mee (zonder loon ≥ € 5.000)? Dan is 1,25–4% van je "
+                f"winst aftrekbaar — bij ~part-time (2%) ≈ € {besp_mw:,.0f}. Vul de meewerk-uren in voor je eigen "
+                "situatie. Werkt de partner véél mee én heeft die weinig eigen inkomen, dan is een écht loon "
+                "≥ € 5.000 vaak voordeliger (inkomen verschuiven naar de lege schijven van je partner).".replace(",", "."),
+                "art. 3.78 Wet IB 2001"))
+
     # 5. Vermogen: box 3-last nu (op het TOTALE box 3-vermogen) + BV-uitstel voor de beleggingen.
     vermogen = None
     beleggingen = b3.overige_bezittingen
