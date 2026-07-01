@@ -228,6 +228,9 @@ def _advies_handler(body: dict) -> dict:
         pensioenaangroei=float(body.get("pensioenaangroei", 0) or 0),
         partner_pensioenaangroei=float(body.get("partner_pensioenaangroei", 0) or 0),
         reserveringsruimte_beschikbaar=float(body.get("reserveringsruimte_beschikbaar", 0) or 0),
+        verwacht_pensioen=float(body.get("verwacht_pensioen", 0) or 0),
+        bestaande_lijfrente=float(body.get("bestaande_lijfrente", 0) or 0),
+        uitkeringsjaren=int(body.get("uitkeringsjaren", 20) or 20),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,
