@@ -312,10 +312,17 @@ de meewerkaftrek. Voorbeeld (winst € 60k): partner met **€ 0** eigen inkomen
 suggestie verschijnt zodra je een IB-onderneming + fiscaal partner hebt en nog geen meewerk-uren
 invulde — vergelijkbaar met de lijfrente-suggestie.
 
-**Voorwaarde blijft realiteit:** de arbeidsbeloning moet een *reële* vergoeding zijn voor werk
-dat je partner echt verricht — je kunt niet zomaar € 27.500 "op papier" verschuiven. **Let op:**
-de meewerkaftrek wordt vanaf 2027 met 75% gekort en in 2030 afgeschaft (Voorjaarsnota 2025, bron
-OND-meewerk); de arbeidsbeloning-route blijft.
+> ⚠️ **Het berekende bedrag is een fiscaal optimum, geen vrijbrief.** De arbeidsbeloning moet een
+> **reële, zakelijke vergoeding** zijn voor werk dat je partner **daadwerkelijk verricht** — het
+> bedrag dat je een willekeurige derde voor datzelfde werk zou betalen, passend bij de uren en de
+> aard van het werk. Je kunt niet zomaar € 27.500 "op papier" naar je partner schuiven om belasting
+> te besparen. Een beloning die niet in verhouding staat tot het werk is een **schijnconstructie**;
+> de Belastingdienst kan de aftrek dan corrigeren (en zo nodig navorderen + boete). Zie het getal
+> uit de module dus als *"tot dit bedrag zou het fiscaal gunstig zijn"* — hoever je daadwerkelijk
+> gaat, wordt begrensd door wat je partner **echt** doet.
+
+**Let op:** de meewerkaftrek wordt vanaf 2027 met 75% gekort en in 2030 afgeschaft (Voorjaarsnota
+2025, bron OND-meewerk); de arbeidsbeloning-route blijft.
 
 ### Groene beleggingen — een optimalisatie mét een rendementsafweging
 
