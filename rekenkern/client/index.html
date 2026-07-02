@@ -349,7 +349,7 @@
 
     <div id="modeVermogen" class="hide">
       <div class="tabs" style="margin-bottom:12px">
-        <button type="button" class="subtab tab active subPrive" data-sub="advies">Advies</button>
+        <button type="button" class="subtab tab active subPrive" data-sub="advies">Schatting</button>
         <button type="button" class="subtab tab subPrive" data-sub="beleggen">Groei-uitleg</button>
         <button type="button" class="subtab tab subPrive" data-sub="lijfrente">Lijfrente</button>
         <button type="button" class="subtab tab subZak hide" data-sub="uitstel">BV-uitstel</button>
@@ -371,7 +371,7 @@
     <div id="modeBeleggen" class="hide">
       <fieldset>
         <legend>Groei-uitleg — zo schatten we je vermogensgroei in</legend>
-        <p class="muted">Geen aparte invoer nodig: dit gebruikt je <b>vermogen, inleg, rendement en horizon</b> uit <b>Mijn belasting</b> en <b>Advies</b>. Klik op <b>Bereken</b> om te zien hóe elk potje groeit en waarom dat fiscaal verschilt.</p>
+        <p class="muted">Geen aparte invoer nodig: dit gebruikt je <b>vermogen, inleg, rendement en horizon</b> uit <b>Mijn belasting</b> en <b>Schatting</b>. Klik op <b>Bereken</b> om te zien hóe elk potje groeit en waarom dat fiscaal verschilt.</p>
       </fieldset>
     </div><!-- /modeBeleggen -->
 
@@ -405,7 +405,7 @@
           <label>Jaren tot opname<input type="number" id="lijJaren" value="20" min="1"></label>
         </div>
         <label>Uitkeringsjaren (spreiding)<input type="number" id="lijUitkeringsjaren" value="20" min="1"></label>
-        <p class="muted" style="margin:6px 0 0">Je AOW + bestaande aanspraken (uit <b>Advies</b>) bepalen automatisch het opnametarief — vul ze daar in.</p>
+        <p class="muted" style="margin:6px 0 0">Je AOW + bestaande aanspraken (uit <b>Mijn belasting</b>) bepalen automatisch het opnametarief — vul ze daar in.</p>
         <div class="row">
           <label>Marginaal tarief nu (%)<input type="number" id="lijMarginaal" value="37.56" min="0"></label>
           <label>Opnametarief (%, leeg = uit pensioen berekend)<input type="number" id="lijTariefUit" placeholder="berekend" min="0"></label>
@@ -1225,7 +1225,7 @@ async function berekenGroeiUitleg() {
         <li><b>De pensioen-cap</b> — lijfrentes belastingvrije groei reken je af in box 1 bij opname; zit je pensioen al vol (boven de schijfgrens), dan is dat tarief ≥ je tarief nu → geen voordeel meer.</li>
         <li><b>Tegenbewijs</b> — bij laag werkelijk rendement is box 3 goedkoper dan het forfait.</li>
       </ul>
-      <p class="muted">Reëel (euro's van nu, ${(P.inflatie*100).toFixed(1)}% inflatie): onbelast ${eur(P.lijfrente_pot_reeel)}, box 3 ${eur(P.box3_straks_reeel)}. Inflatie deflateert alles ~evenredig. Aanname: ${r.jaren} jaar dezelfde inleg én constant ${(r.rendement*100).toFixed(1)}% rendement — een schatting. De volledige doorkijk staat bij <b>Advies</b> en <b>Straks</b>.</p>`;
+      <p class="muted">Reëel (euro's van nu, ${(P.inflatie*100).toFixed(1)}% inflatie): onbelast ${eur(P.lijfrente_pot_reeel)}, box 3 ${eur(P.box3_straks_reeel)}. Inflatie deflateert alles ~evenredig. Aanname: ${r.jaren} jaar dezelfde inleg én constant ${(r.rendement*100).toFixed(1)}% rendement — een schatting. De volledige doorkijk staat bij <b>Schatting</b> en <b>Straks</b>.</p>`;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
 
