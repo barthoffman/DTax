@@ -928,13 +928,17 @@ $("strVulIn").onclick = async () => {
     // Jij: AOW automatisch, pensioen uit de bouwer, lijfrente/box 3 uit de projectie.
     $("strAow").value = Math.round(autoAOW());
     $("strPensioen").value = Math.round(ps.jij.uitk);
+    // Box 3 per persoon = ieders eigen ingevoerde box 3, doorgegroeid tot pensioen (symmetrisch).
+    const jrB3 = +$("mixHorizon").value || 15;
+    const rB3 = (+$("mixRendement").value) / 100;
+    const gBel = Math.pow(1 + rB3 - Math.min(0.06, rB3) * 0.36, jrB3);  // beleggingen, netto box 3 (zelfde als engine)
+    const gSpa = Math.pow(1.0128, jrB3);                                // spaargeld ~1,28% (forfait banktegoeden)
     if (P) {
       $("strLijfrente").value = Math.round(P.lijfrente_uitkering_jij != null ? P.lijfrente_uitkering_jij : P.lijfrente_uitkering);
       $("strDividend").value = Math.round(P.bv_dividend);
-      const b3tot = P.box3_straks_totaal != null ? P.box3_straks_totaal : P.box3_straks;
-      $("strBeleg").value = Math.round(b3tot - (P.box3_straks_partner || 0));  // jij = huishouden − partner
-      $("strBank").value = Math.round(P.spaargeld_straks != null ? P.spaargeld_straks : 0);
     }
+    $("strBeleg").value = Math.round(+$("mixBeleg").value * gBel);  // jouw box 3-beleggingen, gegroeid
+    $("strBank").value = Math.round(+$("mixBank").value * gSpa);    // jouw spaargeld, gegroeid
     // Partner: AOW automatisch, pensioen + lijfrente-pot uit de bouwer (pot → uitkering).
     if ($("hasPartner").checked) {
       $("strPartner").checked = true;
@@ -945,8 +949,8 @@ $("strVulIn").onclick = async () => {
       $("strpAow").value = Math.round(autoAOW());
       $("strpPensioen").value = Math.round(ps.partner.uitk);
       $("strpLijfrente").value = Math.round(P && P.lijfrente_uitkering_partner != null ? P.lijfrente_uitkering_partner : ps.partner.pot * groei);
-      $("strpBeleg").value = Math.round(P ? (P.box3_straks_partner || 0) : 0);  // eigen box 3-beleggingen partner
-      $("strpBank").value = 0;  // partner-spaargeld is herverdeeld naar de gezamenlijke pool
+      $("strpBeleg").value = Math.round(+$("mixPartnerBeleg").value * gBel);  // box 3-beleggingen partner, gegroeid
+      $("strpBank").value = Math.round(+$("mixPartnerBank").value * gSpa);    // spaargeld partner, gegroeid
     } else {
       $("strPartner").checked = false;
       $("strPartnerVelden").classList.add("hide");
