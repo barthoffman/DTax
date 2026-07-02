@@ -1558,25 +1558,16 @@ async function berekenStraks() {
 }
 
 // Volledige schatting als PDF voor de boekhouder — dependency-vrij via een print-venster.
+// Neemt de complete uitleg uit de drie tabs over, met alle <details> opengeklapt.
 async function pdfBoekhouder() {
   const info = $("pdfInfo");
-  info.innerHTML = '<span class="muted">Schatting samenstellen…</span>';
+  info.innerHTML = '<span class="muted">Volledige schatting samenstellen…</span>';
   try {
-    const adv = await post("/advies", tab1Body());
-    const va = await post("/vermogensadvies", vaBody(adv));
-    // Straks-body identiek aan berekenStraks (box 3 gepoold voor de heffing).
-    const p3b = $("strPartner").checked ? +$("strpBeleg").value : 0, p3s = $("strPartner").checked ? +$("strpBank").value : 0;
-    const sBody = {jaar:+$("jaar").value, aow:+$("strAow").value, pensioen:+$("strPensioen").value,
-      lijfrente:+$("strLijfrente").value, bv_dividend:+$("strDividend").value,
-      box3:{banktegoeden:+$("strBank").value + p3s, overige_bezittingen:+$("strBeleg").value + p3b, schulden:0}};
-    if ($("strPartner").checked) sBody.partner = {aow:+$("strpAow").value, pensioen:+$("strpPensioen").value, lijfrente:+$("strpLijfrente").value, box3:{}};
-    const straks = await post("/straks", sBody);
-
+    const jaar = $("jaar").value;
     const s = somBronnen("#inkLijst"), partner = +$("mixPartner").value;
     const datum = new Date().toLocaleDateString("nl-NL", {year:"numeric",month:"long",day:"numeric"});
     const rij = (l,v) => `<tr><td>${l}</td><td class="num">${v}</td></tr>`;
-
-    let inputs = rij("Belastingjaar", adv.jaar);
+    let inputs = rij("Belastingjaar", jaar);
     if (s.loon) inputs += rij("Loon / uitkering", eur(s.loon));
     if (s.winst) inputs += rij("Winst (IB-onderneming)", eur(s.winst));
     if (s.winst_bv) inputs += rij("Winst (eigen BV)", eur(s.winst_bv));
@@ -1587,52 +1578,31 @@ async function pdfBoekhouder() {
     if (+$("mixFactorA").value) inputs += rij("Factor A (pensioenaangroei)", eur(+$("mixFactorA").value));
     inputs += rij("Aanname rendement / horizon", `${$("mixRendement").value}% / ${$("mixHorizon").value} jaar`);
 
-    let rv = "";
-    if (adv.rechtsvorm) { const R = adv.rechtsvorm;
-      rv = `<h2>Beste ondernemingsvorm: ${R.beste_label}</h2><table><thead><tr><th>Ondernemen als</th><th>Huishouden netto</th></tr></thead><tbody>`
-        + R.opties.map(o=>`<tr${o.naam===R.beste?' class="win"':''}><td>${o.label}</td><td class="num">${eur(o.huishouden_netto)}</td></tr>`).join("") + `</tbody></table>`;
-    }
-    const sug = adv.suggesties.map(x => `<tr><td>${x.titel}<div class="mut">${x.toelichting||""}</div></td><td class="num">${eur(x.besparing)}</td><td class="mut">${x.wetsartikel||""}</td></tr>`).join("");
+    // De volledige uitleg uit de drie tabs ophalen (elk rendert in #result → capturen).
+    await berekenIndividu();        const nu = $("result").innerHTML;
+    await berekenVermogensadvies(); const verm = $("result").innerHTML;
+    await berekenStraks();          const str = $("result").innerHTML;  // eindigt op Straks (huidige tab)
+    const open = h => (h||"").replace(/<details/g, "<details open");   // alles uitgeklapt in de PDF
 
-    const A = va.allocatie || {}; let alloc = "";
-    if (A.lijfrente>0) alloc += rij("Naar lijfrente (jij)", eur(A.lijfrente));
-    if (A.lijfrente_partner>0) alloc += rij("Naar lijfrente (partner)", eur(A.lijfrente_partner));
-    if (A.box3>0) alloc += rij("Naar box 3", eur(A.box3));
-    if (A.bv>0) alloc += rij("In de BV laten groeien", eur(A.bv));
-    const P = va.projectie; let proj = "";
-    if (P) {
-      if (P.lijfrente_pot_jij>0) proj += rij("Lijfrente-pot jij (bij pensioen)", eur(P.lijfrente_pot_jij));
-      if (P.lijfrente_pot_partner>0) proj += rij("Lijfrente-pot partner", eur(P.lijfrente_pot_partner));
-      if (P.box3_straks_totaal>0) proj += rij("Box 3 (bij pensioen)", eur(P.box3_straks_totaal));
-      if (P.spaargeld_straks>0) proj += rij("Spaargeld (bij pensioen)", eur(P.spaargeld_straks));
-      if (P.bv_pot>0) proj += rij("BV-pot (bij pensioen)", eur(P.bv_pot));
-    }
-    const stRij = (t,p) => `<tr><td>${t}</td><td class="num">${eur(p.te_betalen)}</td><td class="num">${eur(p.netto)}</td></tr>`;
-    let straksRows = stRij(straks.partner?"Jij":"Belastingplichtige", straks.jij);
-    if (straks.partner) straksRows += stRij("Partner", straks.partner);
-
-    const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8"><title>Fiscale schatting ${adv.jaar}</title><style>
-      body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2937;max-width:820px;margin:24px auto;padding:0 22px;line-height:1.5}
-      h1{font-size:22px;margin:0 0 4px} h2{font-size:15px;margin:20px 0 6px;border-bottom:1px solid #e5e7eb;padding-bottom:3px}
-      table{width:100%;border-collapse:collapse;margin:6px 0} td,th{padding:5px 8px;border-bottom:1px solid #f1f1f1;text-align:left;font-size:13px;vertical-align:top}
-      th{color:#6b7280;font-weight:600;font-size:12px} .num{text-align:right;white-space:nowrap} .win{background:#eef7ee} .win td{font-weight:600}
-      .mut{color:#6b7280;font-size:12px} .disc{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:6px;padding:9px 12px;font-size:12px;color:#4b5563}
-      footer{margin-top:26px;font-size:11px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:8px} @media print{body{margin:0}}
+    const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8"><title>Fiscale schatting ${jaar}</title><style>
+      body{font:14px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2937;max-width:820px;margin:24px auto;padding:0 22px}
+      h1{font-size:22px;margin:0 0 6px} h2{font-size:15px;margin:16px 0 8px}
+      .disc{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:6px;padding:9px 12px;font-size:12px;color:#4b5563;margin-bottom:8px}
+      table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+      th,td{text-align:right;padding:6px 8px;border-bottom:1px solid #eceff3} th:first-child,td:first-child{text-align:left}
+      th{color:#6b7280;font-weight:600;font-size:12px} tr.win td{color:#059669;font-weight:700}
+      .num{font-variant-numeric:tabular-nums;white-space:nowrap} .best{font-size:15px} .best b{color:#059669;font-size:20px}
+      .muted{color:#6b7280;font-size:12px} ul.tips{margin:8px 0 0;padding-left:18px;color:#4b5563;font-size:12px} ul.tips li{margin:5px 0}
+      details.uitsplitsing{margin-top:12px;border-top:1px solid #e5e7eb} details.uitsplitsing>summary{font-weight:700;font-size:14px;padding:8px 0;list-style:none} details>summary::-webkit-details-marker{display:none}
+      .err{color:#b91c1c} .pb{page-break-before:always} footer{margin-top:24px;font-size:11px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:8px} @media print{body{margin:0}}
     </style></head><body>
-      <h1>Fiscale schatting — ${adv.jaar}</h1>
-      <p class="disc"><b>Schatting op basis van de wet (${adv.jaar}).</b> Dit is géén belastingaangifte. Bedoeld ter <b>controle en advies door je boekhouder/adviseur</b> — wij maken de schatting, zij doen de controle. Opgesteld op ${datum}. Cijfers indicatief; primaire bron: wetten.overheid.nl.</p>
-      <h2>1. Uitgangspunten</h2><table>${inputs}</table>
-      <h2>2. Je belasting nu</h2>
-      <p>Je betaalt nu <b>${eur(adv.baseline_belasting)}</b> belasting${adv.baseline_toeslagen>0?` − ${eur(adv.baseline_toeslagen)} toeslagen`:""} · netto besteedbaar <b>${eur(adv.baseline_netto)}</b>.</p>
-      ${rv}
-      <h2>3. Optimalisaties — potentieel ${eur(adv.totaal_potentieel)}/jaar</h2>
-      ${sug ? `<table><thead><tr><th>Optimalisatie</th><th>Besparing/jaar</th><th>Wetsartikel</th></tr></thead><tbody>${sug}</tbody></table>` : `<p class="mut">Geen aanvullende optimalisaties gevonden.</p>`}
-      ${alloc ? `<h2>4. Vermogen — aanbevolen verdeling nieuwe inleg (${eur(va.nieuwe_inleg)}/jaar)</h2><table>${alloc}</table>` : ""}
-      ${proj ? `<h2>5. Vermogen bij pensioen (projectie, ${va.jaren} jaar)</h2><table>${proj}</table>` : ""}
-      <h2>6. Straks — je situatie vanaf pensioen (${straks.jaar}-tarieven)</h2>
-      <table><thead><tr><th></th><th>Te betalen</th><th>Netto besteedbaar</th></tr></thead><tbody>${straksRows}
-        <tr class="win"><td>Huishouden samen</td><td class="num">${eur(straks.huishouden.te_betalen)}</td><td class="num">${eur(straks.huishouden.netto)}</td></tr></tbody></table>
-      <footer>Gegenereerd door het Belastingen-dashboard — een <b>schatting</b> op basis van de wet ${adv.jaar}, geen aangifte. Laat controleren door je boekhouder. Bronnen: wetten.overheid.nl (Wet IB 2001, Wet Vpb, AWIR).</footer>
+      <h1>Fiscale schatting — ${jaar}</h1>
+      <p class="disc"><b>Schatting op basis van de wet (${jaar}).</b> Dit is géén belastingaangifte. Bedoeld ter <b>controle en advies door je boekhouder/adviseur</b> — wij maken de schatting, zij doen de controle. Opgesteld op ${datum}. Alle onderdelen staan volledig uitgeklapt. Cijfers indicatief; primaire bron: wetten.overheid.nl.</p>
+      <h2>Uitgangspunten</h2><table>${inputs}</table>
+      <div class="pb">${open(nu)}</div>
+      <div class="pb">${open(verm)}</div>
+      <div class="pb">${open(str)}</div>
+      <footer>Gegenereerd door het Belastingen-dashboard — een <b>schatting</b> op basis van de wet ${jaar}, geen aangifte. Laat controleren door je boekhouder. Bronnen: wetten.overheid.nl (Wet IB 2001, Wet Vpb, AWIR) + het bronregister van het dashboard.</footer>
       <script>window.onload=function(){window.focus();window.print();}<\/script></body></html>`;
 
     const w = window.open("", "_blank");
