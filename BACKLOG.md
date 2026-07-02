@@ -35,7 +35,7 @@ A is leeg.
 | V2 | **AOW naar `params`** | pensioen-inputs zijn al geünificeerd (fase 26–28); alleen de AOW-bedragen (€ 20.929/€ 14.379) staan nog hardcoded in de client — verplaats naar `params` (sourced PEN-03) | klein |
 | ~~V3~~ | ✅ **Vastgoed ín de BV** (gebouwd 2026-07-02, box 3 vs BV-vergelijking, OVB-*) | — | — |
 | ~~V4~~ | ⏸️ **Uitkeringsfase lijfrente jaar-voor-jaar** — **bewust niet gebouwd** (2026-07-02): lijfrente én box 3 groeien tijdens de uitkering evenredig → verandert de keuze niet, puur cosmetisch. | — | — |
-| ~~V5~~ | ⏸️ **Heffingvrij op BV spaar/beleggen-split** — **bewust niet gebouwd** (2026-07-02): ~€ 300–500/jr in een niche; heffingvrij staat vól op beleggingen = taxpayer-optimale toewijzing. Fix raakt de gedeelde uitstel-module (risico) voor weinig winst. | — | — |
+| ~~V5~~ | ⏸️ **Heffingvrij-verdeling op de privé-kant van de BV-vergelijking** — **bewust niet gebouwd** (2026-07-02): heffingvrij is puur box 3/privé (de BV-kant krijgt het terecht níet — Vpb + box 2). Nuance: bij "uitkeren naar box 3" wordt het heffingvrij nu vól op het beleggingen-deel toegepast i.p.v. gewogen over spaar+beleggen → ~€ 300–500/jr in een niche (bestaand BV-vermogen mét beide). Vól op beleggingen = de hoogste-forfait-toewijzing (taxpayer-optimaal); fix raakt de gedeelde uitstel-module voor weinig winst. | — | — |
 
 ---
 
