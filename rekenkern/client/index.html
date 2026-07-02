@@ -730,7 +730,20 @@ $("pensFile").onchange = (e) => leesBestand(e.target, "jij");
 $("pensFilePartner").onchange = (e) => leesBestand(e.target, "partner");
 $("pensPlakBtn").onclick = () => { if ($("pensPlak").value.trim()) verwerkPensioenJSON($("pensPlak").value, $("pensPlakWie").value); };
 
-function autoAOW() { return $("hasPartner").checked ? 14379 : 20929; }  // SVB 2026 (partner = samenwonend), vol opgebouwd
+let aowCache = null;  // {jaar: {alleenstaand, samenwonend_pp}} — uit params (bron PEN-03), geladen op /aow
+function autoAOW() {  // jaar-bewust; fallback = 2026-bedragen tot /aow geladen is
+  const a = aowCache && aowCache[$("jaar").value];
+  return $("hasPartner").checked ? (a ? a.samenwonend_pp : 14379) : (a ? a.alleenstaand : 20929);
+}
+fetch("/aow").then(r => r.json()).then(d => {  // AOW-bedragen uit params laden
+  aowCache = d.aow;
+  const a = aowCache[$("jaar").value];
+  if (a) { $("strAow").value = Math.round(a.alleenstaand); $("strpAow").value = Math.round(a.samenwonend_pp); }
+}).catch(() => {});
+$("jaar").addEventListener("change", () => {  // AOW-defaults volgen het gekozen jaar
+  const a = aowCache && aowCache[$("jaar").value];
+  if (a) { $("strAow").value = Math.round($("strPartner").checked ? a.samenwonend_pp : a.alleenstaand); $("strpAow").value = Math.round(a.samenwonend_pp); }
+});
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
 function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
 function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}} — twee aparte lijsten

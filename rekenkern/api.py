@@ -546,6 +546,13 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/grondslag":
             from belastingkern.rapport import WETTELIJKE_GRONDSLAG, DISCLAIMER
             return self._send(200, {"wettelijke_grondslag": WETTELIJKE_GRONDSLAG, "disclaimer": DISCLAIMER})
+        if self.path == "/aow":  # AOW-bedragen per jaar (bruto incl. vakantiegeld) uit params — bron PEN-03
+            from belastingkern.params import laad_params
+            out = {}
+            for j in sorted(int(p.stem) for p in _PARAMS_DIR.glob("*.json")):
+                a = laad_params(j)["aow"]
+                out[str(j)] = {"alleenstaand": a["alleenstaand"], "samenwonend_pp": a["samenwonend_pp"]}
+            return self._send(200, {"aow": out})
         self._send(404, {"error": f"onbekend pad: {self.path}"})
 
     def do_POST(self) -> None:

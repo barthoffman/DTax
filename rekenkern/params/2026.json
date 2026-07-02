@@ -56,6 +56,11 @@
     "_bron_meewerk": "OND-meewerk",
     "_bron_kia": "OND-KIA-2026"
   },
+  "aow": {
+    "alleenstaand": 20929,
+    "samenwonend_pp": 14379,
+    "_bron": "PEN-03"
+  },
   "heffingskortingen": {
     "algemene": {
       "_bron": "HK-03",
