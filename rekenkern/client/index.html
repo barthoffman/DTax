@@ -315,7 +315,7 @@
         </div>
         <label>Uitkeringsjaren (spreiding van de uitkering)<input type="number" id="vaUitkeringsjaren" value="20" min="1"></label>
         <p class="muted" style="margin:8px 0 0">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, 2e pijler komt van je pensioenoverzicht:</p>
-        <p class="muted" style="margin:8px 0 2px"><b>Bestaande aanspraken</b> — vermogen dat al vaststaat, maar vast tot je pensioen (van je pensioenoverzicht). Bepaalt mee hoeveel nieuwe lijfrente nog loont:</p>
+        <p class="muted" style="margin:8px 0 2px"><b>Bestaande aanspraken</b> — vermogen dat al vaststaat, maar vast tot je pensioen (van je pensioenoverzicht). Bepaalt mee hoeveel nieuwe lijfrente nog loont. <b>Lijfrente afgesloten?</b> Voeg 'm hier toe als "al opgebouwde pot" — dan houdt de tool er rekening mee en raadt 'ie niet dubbel aan.</p>
         <p class="muted" id="hdrAanspraakJij" style="font-weight:700;margin:8px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em;display:none">Jouw aanspraken</p>
         <div id="pensLijst"></div>
         <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin-top:8px">
@@ -1047,13 +1047,22 @@ async function berekenIndividu() {
     if (!heeftInkomen && partner <= 0) {
       out.innerHTML = `
         <h2>Welkom — vul links je gegevens in</h2>
+        <div style="background:#f1f5ff;border-radius:8px;padding:10px 14px;margin:0 0 12px">
+          <p style="margin:0 0 4px"><b>📋 Voorbereiding</b> — handig om erbij te pakken:</p>
+          <ul style="padding-left:18px;line-height:1.7;margin:0">
+            <li>Je <b>jaaropgave(n)</b> of laatste loonstrook (loon/winst, en van je partner).</li>
+            <li>Je <b>pensioenoverzicht</b> van <b>mijnpensioenoverzicht.nl</b> — download 'm als <b>JSON</b>; die importeer je bij <b>Vermogen</b> zodat je pensioen én jaarruimte (factor A) kloppen.</li>
+            <li>WOZ-waarde + hypotheekrente (bij een koopwoning), en je box 3-saldi.</li>
+          </ul>
+        </div>
         <p>Geef bij <b>"Wat verdien je, en hoe?"</b> je inkomen op via <b>+ inkomensbestanddeel</b> (loon, winst als ZZP, of winst via je eigen BV) en vink je <b>situatie</b> aan (partner, kinderen, woning, vermogen). Daarna zie je hier:</p>
         <ol style="padding-left:18px; line-height:1.8">
           <li><b>Wat je nu betaalt</b> — je belasting en netto besteedbaar, uitgesplitst per persoon.</li>
           <li><b>Beste ondernemingsvorm</b> — ZZP, BV of loon: wat is fiscaal het gunstigst (met het omslagpunt voor een BV)?</li>
           <li><b>Wat is verstandig</b> — lijfrente, box 3 splitsen, partnertoerekening: gekwantificeerd, als één samenhangende route (geen dubbeltelling).</li>
         </ol>
-        <p class="muted">Via de stappen reken je daarnaast je <b>vermogen</b> (waar laat je het renderen) en <b>straks</b> (je pensioenfase) door. Schatting op basis van de wet (2025/2026), geen aangifte.</p>`;
+        <p class="muted">Via de stappen reken je daarnaast je <b>vermogen</b> (waar laat je het renderen) en <b>straks</b> (je pensioenfase) door. Schatting op basis van de wet (2025/2026), geen aangifte.</p>
+        <p class="muted">💡 <b>Volg je later een advies op?</b> Pas dan je invoer aan — sluit je bijvoorbeeld een lijfrente af, voer 'm bij <b>Vermogen</b> in als "al opgebouwde pot". Dan herrekent de tool de resterende stappen en raadt 'ie niet dubbel aan.</p>`;
       return;
     }
     const pb = partnerBox3();
@@ -1160,7 +1169,8 @@ async function berekenIndividu() {
         ? `<details class="uitsplitsing" open><summary>Wat is verstandig — potentieel ${eur(adv.totaal_potentieel)}/jaar besparing</summary>
            <table><thead><tr><th>Optimalisatie</th><th>Besparing/jaar</th></tr></thead><tbody>${sugRows}</tbody></table>
            <p class="best">Totaal potentieel: <b>${eur(adv.totaal_potentieel)}</b> per jaar — je belastingdruk daalt indicatief van ${eur(adv.baseline_belasting)} naar ± ${eur(adv.baseline_belasting - adv.totaal_potentieel)} (netto besteedbaar ± ${eur(adv.baseline_netto + adv.totaal_potentieel)}).</p>
-           <p class="muted">Berekend als één samenhangende route: eerst de rechtsvorm, dan lijfrente / box 3 / toerekening op díe situatie — dus geen dubbeltelling.</p></details>`
+           <p class="muted">Berekend als één samenhangende route: eerst de rechtsvorm, dan lijfrente / box 3 / toerekening op díe situatie — dus geen dubbeltelling.</p>
+           <p class="muted">💡 <b>Ga je een advies opvolgen?</b> Werk daarna je invoer bij — een afgesloten <b>lijfrente</b> voer je bij <b>Vermogen</b> in als "al opgebouwde pot", en een gewijzigd inkomen/vermogen pas je aan. Dan blijft het advies kloppen en telt het niet dubbel.</p></details>`
         : `<p class="muted">Geen aanvullende optimalisaties gevonden voor deze gegevens.</p>`}`;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
