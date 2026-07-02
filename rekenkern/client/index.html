@@ -246,6 +246,9 @@
             <label>Jaarhuur van die woning (€)<input type="number" id="mixVerhuurHuur" placeholder="0" min="0" step="1000"></label>
           </div>
           <p class="muted" id="verhuurInfo" style="margin:2px 0 0">Verhuurd met huurbescherming? Dan telt de woning voor <b>WOZ × leegwaarderatio</b> in box 3, niet de volle WOZ.</p>
+          <label>Jaarlijkse kosten van dit pand (€, voor de BV-vergelijking)<input type="number" id="mixVerhuurKosten" placeholder="0" min="0" step="500"></label>
+          <button type="button" id="vastgoedBtn" style="width:auto;padding:6px 12px;margin-top:6px">Vergelijk box 3 vs BV voor dit pand</button>
+          <div id="vastgoedInfo" class="muted" style="margin-top:6px"></div>
           <label>Schulden box 3 (hypotheek 2e woning, leningen — niet je eigen woning) (€)<input type="number" id="mixSchulden" placeholder="0" min="0" step="5000"></label>
           <p class="muted" style="margin:2px 0 0">Bestaande schuld bij een box 3-bezit. Lenen puur om box 3-belasting te verlagen loont niet: een schuld bespaart maar ~0,97%/jaar (2,7% forfait × 36%), terwijl je 4–5% echte rente betaalt — en de eerste € 3.800 p.p. telt door de drempel niet mee.</p>
           <div id="grpRend" class="hide">
@@ -783,6 +786,21 @@ function updateVerhuur() {
 fetch("/leegwaarde").then(r => r.json()).then(d => { leegwaardeCache = d.leegwaarderatio; updateVerhuur(); }).catch(() => {});
 $("mixVerhuurWoz").addEventListener("input", updateVerhuur);
 $("mixVerhuurHuur").addEventListener("input", updateVerhuur);
+$("vastgoedBtn").onclick = async () => {  // box 3 vs BV voor het verhuurpand
+  const woz = +$("mixVerhuurWoz").value;
+  if (!woz) { $("vastgoedInfo").textContent = "Vul eerst de WOZ-waarde in."; return; }
+  $("vastgoedInfo").innerHTML = '<span class="muted">Bezig…</span>';
+  try {
+    const r = await post("/vastgoed", {jaar:+$("jaar").value, woz, jaarhuur:+$("mixVerhuurHuur").value, kosten:+$("mixVerhuurKosten").value});
+    const beste = r.beste === "box3" ? "box 3" : "de BV";
+    $("vastgoedInfo").innerHTML =
+      `<b>Box 3</b>: ${eur(r.box3_heffing)}/jaar (forfait over ${eur(r.netto_box3_waarde)} = WOZ × leegwaarderatio − schuld).<br>`
+      + `<b>BV</b>: ${eur(r.bv_vpb)}/jaar Vpb over de huurwinst (${eur(r.netto_huur)}); mét box 2 bij uitkeren → ${eur(r.bv_uitgekeerd)}/jaar.<br>`
+      + `Eenmalig bij aankoop/inbreng in een BV: <b>overdrachtsbelasting ${eur(r.overdrachtsbelasting)}</b> (${(r.ovb_pct*100).toFixed(1)}%).<br>`
+      + `→ <b>Jaarlijks is ${beste} goedkoper</b> (BV in de BV gehouden). `
+      + `<span style="opacity:.8">Caveats: box 3-vastgoed wijzigt per 2027 (leegwaarderatio weg) en 2028 (werkelijk rendement); afschrijving, waardegroei en jaarlijkse BV-overhead niet meegerekend.</span>`;
+  } catch(e) { $("vastgoedInfo").innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+};
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
 function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
 function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}} — twee aparte lijsten

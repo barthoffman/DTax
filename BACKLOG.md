@@ -33,7 +33,7 @@ A is leeg.
 |---|---|---|---|
 | ~~V1~~ | ✅ **Leegwaarderatio verhuurwoningen** (gebouwd 2026-07-02, LEEG-*; vervalt per 2027) | — | — |
 | V2 | **AOW naar `params`** | pensioen-inputs zijn al geünificeerd (fase 26–28); alleen de AOW-bedragen (€ 20.929/€ 14.379) staan nog hardcoded in de client — verplaats naar `params` (sourced PEN-03) | klein |
-| V3 | **Vastgoed ín de BV** | eigen dynamiek (huur, WOZ, geen box 3-vrijstelling, overdrachtsbelasting) | middel |
+| ~~V3~~ | ✅ **Vastgoed ín de BV** (gebouwd 2026-07-02, box 3 vs BV-vergelijking, OVB-*) | — | — |
 | V4 | **Uitkeringsfase lijfrente jaar-voor-jaar** | nu lump-sum op pensioendatum; doorgroei tijdens uitkeren genegeerd (conservatief) | middel — **laag nut**, beide routes groeien evenredig |
 | V5 | **Heffingvrij gewogen gemiddelde op BV spaar/beleggen-split** | nu volledig op beleggingen i.p.v. gewogen; ~€ 300–500/jr afwijking | klein |
 

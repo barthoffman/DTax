@@ -398,6 +398,18 @@ def _vermogensadvies_handler(body: dict) -> dict:
     }
 
 
+def _vastgoed_handler(body: dict) -> dict:
+    from belastingkern.vastgoed import vergelijk_vastgoed
+    return vergelijk_vastgoed(
+        int(body.get("jaar", 2026)),
+        woz=float(body.get("woz", 0)),
+        jaarhuur=float(body.get("jaarhuur", 0)),
+        kosten=float(body.get("kosten", 0)),
+        schuld=float(body.get("schuld", 0)),
+        is_woning=bool(body.get("is_woning", True)),
+    )
+
+
 def _dividendplan_handler(body: dict) -> dict:
     from belastingkern.dividendplan import box2_dividendplan
     r = box2_dividendplan(
@@ -581,6 +593,7 @@ class Handler(BaseHTTPRequestHandler):
             "/dividendplan": _dividendplan_handler,
             "/vermogensadvies": _vermogensadvies_handler,
             "/straks": _straks_handler,
+            "/vastgoed": _vastgoed_handler,
         }
         handler = roin.get(self.path)
         if handler is None:

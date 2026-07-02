@@ -85,6 +85,11 @@
     "boven": 1.0,
     "_bron": "LEEG-2025"
   },
+  "overdrachtsbelasting": {
+    "verhuurde_woning": 0.104,
+    "niet_woning": 0.104,
+    "_bron": "OVB-2025"
+  },
   "heffingskortingen": {
     "algemene": {
       "_bron": "HK-02",

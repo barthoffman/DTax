@@ -86,6 +86,11 @@
     "boven": 1.0,
     "_bron": "LEEG-2026"
   },
+  "overdrachtsbelasting": {
+    "verhuurde_woning": 0.08,
+    "niet_woning": 0.104,
+    "_bron": "OVB-2026"
+  },
   "heffingskortingen": {
     "algemene": {
       "_bron": "HK-03",
