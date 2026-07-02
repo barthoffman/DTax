@@ -103,3 +103,10 @@ cd rekenkern
 python3 api.py            # API + dashboard op http://127.0.0.1:8000
 ```
 Open `http://127.0.0.1:8000`, vul je gegevens in → advies + downloadbaar rapport voor de boekhouder.
+
+## Hosting & deployment
+
+De app draait live op **https://staging.watmagwel.nl** (achter e-mail-OTP-login), via een
+Cloudflare-tunnel naar een container op de Mac mini. De volledige opzet — tunnel, container,
+DNS, auth/SMTP, het `./deploy.sh`-commando en geleerde valkuilen — staat in
+**[`DEPLOYMENT.md`](DEPLOYMENT.md)**.
