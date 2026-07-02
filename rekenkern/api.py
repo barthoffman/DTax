@@ -17,8 +17,12 @@ Voorbeeld:
 from __future__ import annotations
 
 import json
+import os
+from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+
+import auth
 
 from belastingkern import (
     Situatie, Huishoudprofiel, optimaliseer,
@@ -527,15 +531,38 @@ def _optimaliseer_handler(body: dict) -> dict:
 class Handler(BaseHTTPRequestHandler):
     server_version = "BelastingAPI/1.0"
 
-    def _send(self, status: int, payload: dict) -> None:
+    def _send(self, status: int, payload: dict, cookie: str | None = None) -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Content-Length", str(len(body)))
+        if cookie:
+            self.send_header("Set-Cookie", cookie)
         self.end_headers()
         self.wfile.write(body)
+
+    # --- auth-helpers ------------------------------------------------------
+    def _cookie(self, name: str) -> str | None:
+        raw = self.headers.get("Cookie")
+        if not raw:
+            return None
+        m = SimpleCookie(raw).get(name)
+        return m.value if m else None
+
+    def _current_email(self) -> str | None:
+        return auth.session_email(self._cookie("sid"))
+
+    def _is_https(self) -> bool:  # achter Cloudflare-tunnel → X-Forwarded-Proto: https
+        return (self.headers.get("X-Forwarded-Proto", "").lower() == "https"
+                or bool(os.environ.get("FORCE_SECURE")))
+
+    def _session_cookie(self, tok: str) -> str:
+        sec = "; Secure" if self._is_https() else ""  # lokaal (http) geen Secure, anders geen cookie
+        return f"sid={tok}; HttpOnly{sec}; SameSite=Lax; Path=/; Max-Age={auth.SESSION_TTL}"
+
+    def _clear_cookie(self) -> str:
+        sec = "; Secure" if self._is_https() else ""
+        return f"sid=; HttpOnly{sec}; SameSite=Lax; Path=/; Max-Age=0"
 
     def _send_html(self) -> None:
         try:
@@ -576,9 +603,58 @@ class Handler(BaseHTTPRequestHandler):
                 lw = laad_params(j)["leegwaarderatio"]
                 out[str(j)] = {"schijven": lw["schijven"], "boven": lw["boven"]}
             return self._send(200, {"leegwaarderatio": out})
+        if self.path == "/auth/me":  # wie ben ik? (client toont login of app)
+            email = self._current_email()
+            if not email:
+                return self._send(401, {"error": "niet ingelogd"})
+            return self._send(200, {"email": email, "is_admin": auth.is_admin(email)})
+        if self.path == "/admin/allowlist":  # admin: de allowlist opvragen
+            email = self._current_email()
+            if not email:
+                return self._send(401, {"error": "niet ingelogd"})
+            if not auth.is_admin(email):
+                return self._send(403, {"error": "geen admin"})
+            return self._send(200, {"allowlist": auth.load_allowlist(), "admin": auth.ADMIN_EMAIL})
         self._send(404, {"error": f"onbekend pad: {self.path}"})
 
     def do_POST(self) -> None:
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(length) or b"{}")
+        except (ValueError, TypeError) as e:
+            return self._send(400, {"error": f"ongeldige invoer: {e}"})
+
+        # --- auth (publiek) ---
+        if self.path == "/auth/otp":
+            return self._send(200, auth.request_otp(body.get("email", "")))
+        if self.path == "/auth/verify":
+            tok = auth.verify_otp(body.get("email", ""), body.get("code", ""))
+            if not tok:
+                return self._send(401, {"error": "ongeldige of verlopen code"})
+            email = body.get("email", "")
+            return self._send(200, {"ok": True, "email": auth._norm(email), "is_admin": auth.is_admin(email)},
+                              cookie=self._session_cookie(tok))
+        if self.path == "/auth/logout":
+            auth.delete_session(self._cookie("sid"))
+            return self._send(200, {"ok": True}, cookie=self._clear_cookie())
+
+        # --- alles hierna vereist een geldige sessie ---
+        email = self._current_email()
+        if email is None:
+            return self._send(401, {"error": "niet ingelogd"})
+
+        # --- admin: allowlist beheren ---
+        if self.path == "/admin/allowlist":
+            if not auth.is_admin(email):
+                return self._send(403, {"error": "geen admin"})
+            actie = body.get("actie")
+            if actie == "add":
+                return self._send(200, {"allowlist": auth.add_email(body.get("email", ""))})
+            if actie == "remove":
+                return self._send(200, {"allowlist": auth.remove_email(body.get("email", ""))})
+            return self._send(400, {"error": "actie moet 'add' of 'remove' zijn"})
+
+        # --- data-endpoints (achter login) ---
         roin = {
             "/vergelijk": _vergelijk_handler,
             "/optimaliseer": _optimaliseer_handler,
@@ -599,8 +675,6 @@ class Handler(BaseHTTPRequestHandler):
         if handler is None:
             return self._send(404, {"error": f"onbekend pad: {self.path}"})
         try:
-            length = int(self.headers.get("Content-Length", 0))
-            body = json.loads(self.rfile.read(length) or b"{}")
             return self._send(200, handler(body))
         except (KeyError, ValueError, TypeError) as e:
             return self._send(400, {"error": f"ongeldige invoer: {e}"})

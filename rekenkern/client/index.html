@@ -76,12 +76,43 @@
 </style>
 </head>
 <body>
+<div id="authOverlay" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div class="card" style="max-width:380px;width:100%">
+    <h2 style="text-transform:none;font-size:18px;color:var(--txt)">Inloggen</h2>
+    <p class="muted">Toegang is op uitnodiging. Log in met je e-mailadres; je krijgt een 6-cijferige code.</p>
+    <div id="authStep1">
+      <label>E-mailadres<input type="email" id="authEmail" placeholder="jij@voorbeeld.nl" autocomplete="email"></label>
+      <button type="button" id="authSend">Stuur inlogcode</button>
+    </div>
+    <div id="authStep2" class="hide">
+      <p class="muted">Is <b id="authEmailShown"></b> bekend, dan is er een code verstuurd. Vul 'm hieronder in (10 min geldig).</p>
+      <label>Inlogcode<input type="text" id="authCode" inputmode="numeric" maxlength="6" placeholder="123456"></label>
+      <button type="button" id="authVerify">Inloggen</button>
+      <button type="button" class="sec" id="authBack">Ander e-mailadres</button>
+    </div>
+    <p class="muted" id="authMsg" style="margin-top:8px"></p>
+  </div>
+</div>
+<div id="adminOverlay" class="hide" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1001;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div class="card" style="max-width:460px;width:100%">
+    <h2 style="text-transform:none;font-size:18px;color:var(--txt)">Beheer toegang</h2>
+    <div id="adminLijst"></div>
+    <label style="margin-top:10px">Nieuw e-mailadres toevoegen<input type="email" id="adminNieuw" placeholder="tester@voorbeeld.nl"></label>
+    <button type="button" id="adminAdd">Toevoegen</button>
+    <button type="button" class="sec" id="adminClose">Sluiten</button>
+    <p class="muted" id="adminMsg"></p>
+  </div>
+</div>
 <header>
   <div>
     <h1>Belasting-optimalisatie</h1>
     <p>Vul je situatie in en zie de fiscaal gunstigste route (werknemer / ZZP / DGA). <b>Wij maken de schatting, je boekhouder de controle en het advies</b> — geen aangifte.</p>
   </div>
-  <button id="theme" type="button" aria-label="Wissel licht/donker">☀️ Licht</button>
+  <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+    <button id="adminBtn" type="button" class="sec hide" style="width:auto;padding:8px 12px;font-size:13px">Beheer toegang</button>
+    <button id="logoutBtn" type="button" class="sec hide" style="width:auto;padding:8px 12px;font-size:13px">Uitloggen</button>
+    <button id="theme" type="button" aria-label="Wissel licht/donker">☀️ Licht</button>
+  </div>
 </header>
 
 <div class="wrap">
@@ -1624,7 +1655,73 @@ $("bereken").onclick = () => {
   return berekenLijfrente();
 };
 $("rapportBtn").onclick = rapport;
-berekenIndividu();
+
+// --- Authenticatie (e-mail-OTP) ---
+const authOv = $("authOverlay");
+async function authInit() {
+  try {
+    const r = await fetch("/auth/me");
+    if (r.ok) authGeslaagd(await r.json()); else showLogin();
+  } catch { showLogin(); }
+}
+function showLogin() {
+  authOv.style.display = "flex";
+  $("authStep1").classList.remove("hide"); $("authStep2").classList.add("hide");
+}
+function authGeslaagd(me) {
+  authOv.style.display = "none";
+  $("logoutBtn").classList.remove("hide");
+  $("adminBtn").classList.toggle("hide", !me.is_admin);
+  berekenIndividu();  // eerste weergave, nu ingelogd
+}
+$("authSend").onclick = async () => {
+  const email = $("authEmail").value.trim();
+  if (!email) { $("authMsg").textContent = "Vul je e-mailadres in."; return; }
+  $("authMsg").textContent = "Code versturen…";
+  try {
+    await fetch("/auth/otp", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email})});
+    $("authEmailShown").textContent = email;
+    $("authStep1").classList.add("hide"); $("authStep2").classList.remove("hide");
+    $("authMsg").textContent = ""; $("authCode").focus();
+  } catch { $("authMsg").innerHTML = '<span class="err">Kon de code niet versturen.</span>'; }
+};
+$("authVerify").onclick = async () => {
+  const email = $("authEmailShown").textContent, code = $("authCode").value.trim();
+  $("authMsg").textContent = "Controleren…";
+  try {
+    const r = await fetch("/auth/verify", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email, code})});
+    if (r.ok) authGeslaagd(await r.json());
+    else $("authMsg").innerHTML = '<span class="err">Ongeldige of verlopen code.</span>';
+  } catch { $("authMsg").innerHTML = '<span class="err">Er ging iets mis.</span>'; }
+};
+$("authBack").onclick = showLogin;
+$("authEmail").addEventListener("keydown", e => { if (e.key === "Enter") $("authSend").click(); });
+$("authCode").addEventListener("keydown", e => { if (e.key === "Enter") $("authVerify").click(); });
+$("logoutBtn").onclick = async () => { await fetch("/auth/logout", {method:"POST"}); location.reload(); };
+
+// --- Admin: allowlist beheren ---
+$("adminBtn").onclick = () => { $("adminOverlay").classList.remove("hide"); laadAllowlist(); };
+$("adminClose").onclick = () => $("adminOverlay").classList.add("hide");
+async function laadAllowlist() {
+  $("adminMsg").textContent = "";
+  const r = await fetch("/admin/allowlist");
+  if (!r.ok) { $("adminMsg").innerHTML = '<span class="err">Geen toegang.</span>'; return; }
+  const d = await r.json();
+  const rows = d.allowlist.map(e => `<div class="bron"><span style="flex:1">${e}</span><button type="button" class="del" data-email="${e}" style="width:auto;padding:6px 10px">×</button></div>`).join("");
+  $("adminLijst").innerHTML = `<p class="muted">Admin: <b>${d.admin}</b> (altijd toegang)</p>` + (rows || '<p class="muted">Nog geen extra adressen.</p>');
+  $("adminLijst").querySelectorAll(".del").forEach(b => b.onclick = () => adminActie("remove", b.dataset.email));
+}
+async function adminActie(actie, email) {
+  await fetch("/admin/allowlist", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({actie, email})});
+  laadAllowlist();
+}
+$("adminAdd").onclick = () => {
+  const email = $("adminNieuw").value.trim();
+  if (!email) return;
+  $("adminNieuw").value = ""; adminActie("add", email);
+};
+
+authInit();
 </script>
 </body>
 </html>

@@ -9,6 +9,22 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-02 — Fase 33: e-mail-OTP-login + admin-allowlist (stdlib, geen deps)
+
+- **BESLISSING (auth)**: eigen e-mail-OTP-login, volledig **stdlib** (`smtplib`, `secrets`,
+  `http.cookies`) — geen dependencies. Nieuwe `auth.py`: allowlist + admin
+  (`ADMIN_EMAIL`, default bart.hoffman@gmail.com), 6-cijferige OTP (10 min, eenmalig, max 5
+  pogingen, rate-limit 5/uur), sessie in HttpOnly-cookie (Secure alleen achter HTTPS via
+  `X-Forwarded-Proto`, dus lokaal http werkt ook). Opslag JSON in `authdata/` (gitignored).
+- **Dev-modus**: zonder `SMTP_*`-env-vars gaat de OTP naar het **serverlog**; echte mail plug
+  je later in via `SMTP_HOST/PORT/USER/PASS/FROM`. Keuze gebruiker: dev-eerst + allowlist-only.
+- **api.py**: auth-routes publiek (`/auth/otp|verify|logout`, GET `/auth/me`), daarna een gate
+  — alle data-endpoints + `/admin/allowlist` vereisen een sessie; admin-only voor beheer.
+  Param-GET's (`/aow`, `/leegwaarde`) blijven publiek (client laadt ze vóór login).
+- **Client**: login-overlay (e-mail → code → inloggen), admin-knop "Beheer toegang"
+  (toevoegen/verwijderen), uitlog-knop; eerste render pas ná login. End-to-end getest via curl
+  (401 zonder cookie → OTP uit dev-log → cookie → 200 → admin-add). Tests GESLAAGD.
+
 ## 2026-07-02 — Fase 32: positionering, verhuur-lijst, PDF voor boekhouder
 
 - **BESLISSING (positionering)**: framing *"wij maken de schatting, de boekhouder de controle
