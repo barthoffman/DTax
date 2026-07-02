@@ -9,6 +9,26 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-02 — Fase 31: invoer-verbouwing ("nu" = het invoer-hart) + Straks auto
+
+- **BESLISSING (invoerstructuur)**: alle huidige-situatie-invoer verhuisd naar **Mijn
+  belasting** ("nu"): de **buffer** ("hoeveel spaargeld liquide houden", was op Vermogen)
+  bij het box 3-spaargeld, en het complete **aanspraken-blok** (bestaande aanspraken +
+  import + factor A + reserveringsruimte + partner-aanspraken + bestaand BV-vermogen) als
+  nieuwe fieldset "Vermogen voor later — pensioen & aanspraken". Vermogen houdt alleen de
+  reken-parameters (nieuwe inleg, inflatie, uitkeringsjaren) + de output. Rekenlogica
+  ongewijzigd: de body-builders (`tab1Body`/`vaBody`) lezen al via `$(id)`, dus puur HTML
+  herschikken. 17/17 fieldsets gebalanceerd, geen dubbele ID's, tests GESLAAGD.
+- **BESLISSING (Straks auto)**: Straks vult+rekent nu **automatisch** bij openen van de tab
+  (leeg → ophalen uit opbouw; al ingevuld → herrekenen, handmatige overrides blijven staan).
+  `strVulIn`-onclick omgezet naar herbruikbare `vulStraks()`. Knop = "Opnieuw ophalen uit
+  mijn opbouw" (override-mogelijkheid expliciet).
+- **BEVINDING**: hiermee is zowel **privé vermogen** als **Straks** volledig berekenbaar
+  vanaf één invoerscherm ("nu"); de "kan iemand op pagina 2 beginnen?"-mismatch is opgelost
+  (NU = invoer, Vermogen/Straks = views). Motivatie: gebruiker wees op de verwarring dat
+  de herverdeling een **advies** is (model kiest niet) + dat een "vermogen straks"-gebruiker
+  mentaal op tab 2 begint.
+
 ## 2026-07-02 — Fase 30: V2 (AOW→params) + blok B compleet + aftoppingscorrectie
 
 - **BESLISSING (V2)**: AOW-bedragen van hardcoded in de client naar `params` (jaar-bewust), endpoint

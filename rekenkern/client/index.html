@@ -240,6 +240,7 @@
             <label>Spaargeld box 3 (€)<input type="number" id="mixBank" placeholder="0" min="0" step="5000"></label>
             <label>Beleggingen / 2e woning (box 3, €)<input type="number" id="mixBeleg" placeholder="0" min="0" step="5000"></label>
           </div>
+          <label>Hoeveel spaargeld vrij beschikbaar houden? (€) — je buffer; de <b>rest</b> is een <b>advies</b> om te herverdelen naar lijfrente/box 3 (0 = alles beleggen, geen buffer)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
           <label>Waarvan groene beleggingen (box 3, €) — vrijstelling € 26.715 p.p.<input type="number" id="mixGroen" placeholder="0" min="0" step="5000"></label>
           <div class="row">
             <label>Verhuurde woning — WOZ-waarde (€)<input type="number" id="mixVerhuurWoz" placeholder="0" min="0" step="10000"></label>
@@ -293,28 +294,9 @@
           <label>Specifieke zorgkosten dit jaar (€) — bijv. hulpmiddelen/medicijnen/vervoer; níet premie of eigen risico<input type="number" id="mixZorgkosten" placeholder="0" min="0" step="100"></label>
         </div>
       </fieldset>
-    </div><!-- /modeIndividu -->
-
-    <div id="modeVermogen" class="hide">
-      <div class="tabs" style="margin-bottom:12px">
-        <button type="button" class="subtab tab active subPrive" data-sub="advies">Advies</button>
-        <button type="button" class="subtab tab subPrive" data-sub="beleggen">Groei-uitleg</button>
-        <button type="button" class="subtab tab subPrive" data-sub="lijfrente">Lijfrente</button>
-        <button type="button" class="subtab tab subZak hide" data-sub="uitstel">BV-uitstel</button>
-        <button type="button" class="subtab tab subZak hide" data-sub="dividend">Dividend</button>
-      </div>
-
-    <div id="modeVermogensadvies">
       <fieldset>
-        <legend>Waar laat ik mijn vermogen het beste renderen?</legend>
-        <p class="muted">Gebruikt je inkomen, vermogen en besparing uit <b>Mijn belasting</b>.</p>
-        <label>Nieuwe inleg per jaar (€ — samen met je partner; wordt over beide verdeeld. Leeg = besparing uit Mijn belasting)<input type="number" id="vaNieuw" placeholder="besparing" min="0"></label>
-        <div class="row">
-          <label>Hoeveel spaargeld vrij beschikbaar houden? (€)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
-          <label>Inflatie (%)<input type="number" id="vaInflatie" value="2" min="0"></label>
-        </div>
-        <label>Uitkeringsjaren (spreiding van de uitkering)<input type="number" id="vaUitkeringsjaren" value="20" min="1"></label>
-        <p class="muted" style="margin:8px 0 0">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, 2e pijler komt van je pensioenoverzicht:</p>
+        <legend>Vermogen voor later — pensioen &amp; aanspraken</legend>
+        <p class="muted" style="margin:0 0 6px">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, de 2e pijler komt van je pensioenoverzicht. Dit maakt je <b>Vermogen</b>- en <b>Straks</b>-doorkijk compleet.</p>
         <p class="muted" style="margin:8px 0 2px"><b>Bestaande aanspraken</b> — vermogen dat al vaststaat, maar vast tot je pensioen (van je pensioenoverzicht). Bepaalt mee hoeveel nieuwe lijfrente nog loont. <b>Lijfrente afgesloten?</b> Voeg 'm hier toe als "al opgebouwde pot" — dan houdt de tool er rekening mee en raadt 'ie niet dubbel aan.</p>
         <p class="muted" id="hdrAanspraakJij" style="font-weight:700;margin:8px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em;display:none">Jouw aanspraken</p>
         <div id="pensLijst"></div>
@@ -357,6 +339,27 @@
             <label>BV-spaargeld (€)<input type="number" id="mixBvSpaar" placeholder="0" min="0" step="5000"></label>
             <label>BV-beleggingen (€)<input type="number" id="mixBvBeleg" placeholder="0" min="0" step="5000"></label>
           </div>
+        </div>
+      </fieldset>
+    </div><!-- /modeIndividu -->
+
+    <div id="modeVermogen" class="hide">
+      <div class="tabs" style="margin-bottom:12px">
+        <button type="button" class="subtab tab active subPrive" data-sub="advies">Advies</button>
+        <button type="button" class="subtab tab subPrive" data-sub="beleggen">Groei-uitleg</button>
+        <button type="button" class="subtab tab subPrive" data-sub="lijfrente">Lijfrente</button>
+        <button type="button" class="subtab tab subZak hide" data-sub="uitstel">BV-uitstel</button>
+        <button type="button" class="subtab tab subZak hide" data-sub="dividend">Dividend</button>
+      </div>
+
+    <div id="modeVermogensadvies">
+      <fieldset>
+        <legend>Waar laat ik mijn vermogen het beste renderen?</legend>
+        <p class="muted">Gebruikt je <b>inkomen, vermogen, buffer en aanspraken</b> uit <b>Mijn belasting</b> — hier alleen de reken-parameters:</p>
+        <label>Nieuwe inleg per jaar (€ — samen met je partner; wordt over beide verdeeld. Leeg = besparing uit Mijn belasting)<input type="number" id="vaNieuw" placeholder="besparing" min="0"></label>
+        <div class="row">
+          <label>Inflatie (%)<input type="number" id="vaInflatie" value="2" min="0"></label>
+          <label>Uitkeringsjaren (spreiding van de uitkering)<input type="number" id="vaUitkeringsjaren" value="20" min="1"></label>
         </div>
       </fieldset>
     </div><!-- /modeVermogensadvies -->
@@ -414,7 +417,8 @@
       <fieldset>
         <legend>Straks — je situatie vanaf pensioen (AOW-leeftijd 67)</legend>
         <p class="muted" id="straksLeeftijd">Vul je leeftijd in bij Mijn belasting om te zien over hoeveel jaar.</p>
-        <button type="button" id="strVulIn" style="width:auto;padding:6px 12px;margin-bottom:10px">Vul in vanuit mijn opbouw</button>
+        <p class="muted" style="margin:0 0 8px">Deze velden vullen zich <b>automatisch</b> uit je gegevens bij <b>Mijn belasting</b> (inkomen, vermogen, aanspraken). Je mag ze hieronder <b>zelf overschrijven</b>; klik op de knop om opnieuw op te halen (je overschrijft dan je aanpassingen).</p>
+        <button type="button" id="strVulIn" style="width:auto;padding:6px 12px;margin-bottom:10px">Opnieuw ophalen uit mijn opbouw</button>
         <div class="row">
           <label>AOW per jaar (€)<input type="number" id="strAow" value="20929" min="0"></label>
           <label>Pensioen (2e pijler) per jaar (€)<input type="number" id="strPensioen" placeholder="0" min="0"></label>
@@ -826,6 +830,8 @@ document.querySelectorAll(".tab[data-mode]").forEach(t => t.onclick = () => {
     $("straksLeeftijd").textContent = lf>0
       ? `Over ${Math.max(0, 67-lf)} jaar (AOW-leeftijd 67). Je lijfrente/pensioen komt dan vrij als uitkering.`
       : "Vul je leeftijd in bij Mijn belasting om te zien over hoeveel jaar je AOW ingaat.";
+    // Auto: leeg → ophalen uit je opbouw; al ingevuld → herrekenen (handmatige overrides blijven staan).
+    if (lf>0) { if (!(+$("strAow").value)) vulStraks(); else berekenStraks(); return; }
   }
   $("result").innerHTML = '<span class="muted">Klik op <b>Bereken</b>.</span>';
 });
@@ -919,7 +925,7 @@ $("mixBeleg").addEventListener("input", () => $("grpRend").classList.toggle("hid
 $("strPartner").onclick = () =>
   $("strPartnerVelden").classList.toggle("hide", !$("strPartner").checked);
 
-$("strVulIn").onclick = async () => {
+async function vulStraks() {
   $("result").innerHTML = '<span class="muted">Bezig…</span>';
   try {
     const adv = await post("/advies", tab1Body());
@@ -957,7 +963,8 @@ $("strVulIn").onclick = async () => {
     }
     berekenStraks();
   } catch(e) { $("result").innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
-};
+}
+$("strVulIn").onclick = vulStraks;
 
 let subV = "advies";
 document.querySelectorAll(".subtab").forEach(t => t.onclick = () => {
