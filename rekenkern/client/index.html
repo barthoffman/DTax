@@ -296,7 +296,9 @@
       </fieldset>
       <fieldset>
         <legend>Vermogen voor later — pensioen &amp; aanspraken</legend>
-        <p class="muted" style="margin:0 0 6px">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, de 2e pijler komt van je pensioenoverzicht. Dit maakt je <b>Vermogen</b>- en <b>Straks</b>-doorkijk compleet.</p>
+        <label class="chk"><input type="checkbox" id="hasAanspraken"> Ik heb pensioen/aanspraken — of wil mijn lijfrente-ruimte zien (maakt je <b>Vermogen</b>- &amp; <b>Straks</b>-doorkijk compleet)</label>
+        <div id="grpAanspraken" class="hide">
+        <p class="muted" style="margin:8px 0 6px">Je pensioen straks bepaalt of extra lijfrente nog loont — AOW is bekend, de 2e pijler komt van je pensioenoverzicht.</p>
         <p class="muted" style="margin:8px 0 2px"><b>Bestaande aanspraken</b> — vermogen dat al vaststaat, maar vast tot je pensioen (van je pensioenoverzicht). Bepaalt mee hoeveel nieuwe lijfrente nog loont. <b>Lijfrente afgesloten?</b> Voeg 'm hier toe als "al opgebouwde pot" — dan houdt de tool er rekening mee en raadt 'ie niet dubbel aan.</p>
         <p class="muted" id="hdrAanspraakJij" style="font-weight:700;margin:8px 0 2px;text-transform:uppercase;font-size:12px;letter-spacing:.04em;display:none">Jouw aanspraken</p>
         <div id="pensLijst"></div>
@@ -341,6 +343,7 @@
             <label>BV-beleggingen (€)<input type="number" id="mixBvBeleg" placeholder="0" min="0" step="5000"></label>
           </div>
         </div>
+        </div><!-- /grpAanspraken -->
       </fieldset>
     </div><!-- /modeIndividu -->
 
@@ -900,6 +903,7 @@ $("hasVermogen").onchange = () => {
 $("hasGiften").onchange = () => _toggle("grpGiften", $("hasGiften").checked, ["mixGiftGewoon","mixGiftPeriodiek"]);
 $("hasAlimentatie").onchange = () => _toggle("grpAlimentatie", $("hasAlimentatie").checked, ["mixAlimentatie"]);
 $("hasZorgkosten").onchange = () => _toggle("grpZorgkosten", $("hasZorgkosten").checked, ["mixZorgkosten"]);
+$("hasAanspraken").onchange = () => _toggle("grpAanspraken", $("hasAanspraken").checked);  // geen clearIds: geïmporteerde data blijft staan
 function updateWonen() {
   const w = $("wonen").value;
   $("grpKoop").classList.toggle("hide", w !== "koop");
