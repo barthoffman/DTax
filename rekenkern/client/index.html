@@ -238,9 +238,14 @@
         <div id="grpVermogen" class="hide">
           <div class="row">
             <label>Spaargeld box 3 (€)<input type="number" id="mixBank" placeholder="0" min="0" step="5000"></label>
-            <label>Beleggingen / 2e woning / verhuur (box 3, €)<input type="number" id="mixBeleg" placeholder="0" min="0" step="5000"></label>
+            <label>Beleggingen / 2e woning (box 3, €)<input type="number" id="mixBeleg" placeholder="0" min="0" step="5000"></label>
           </div>
           <label>Waarvan groene beleggingen (box 3, €) — vrijstelling € 26.715 p.p.<input type="number" id="mixGroen" placeholder="0" min="0" step="5000"></label>
+          <div class="row">
+            <label>Verhuurde woning — WOZ-waarde (€)<input type="number" id="mixVerhuurWoz" placeholder="0" min="0" step="10000"></label>
+            <label>Jaarhuur van die woning (€)<input type="number" id="mixVerhuurHuur" placeholder="0" min="0" step="1000"></label>
+          </div>
+          <p class="muted" id="verhuurInfo" style="margin:2px 0 0">Verhuurd met huurbescherming? Dan telt de woning voor <b>WOZ × leegwaarderatio</b> in box 3, niet de volle WOZ.</p>
           <label>Schulden box 3 (hypotheek 2e woning, leningen — niet je eigen woning) (€)<input type="number" id="mixSchulden" placeholder="0" min="0" step="5000"></label>
           <p class="muted" style="margin:2px 0 0">Bestaande schuld bij een box 3-bezit. Lenen puur om box 3-belasting te verlagen loont niet: een schuld bespaart maar ~0,97%/jaar (2,7% forfait × 36%), terwijl je 4–5% echte rente betaalt — en de eerste € 3.800 p.p. telt door de drempel niet mee.</p>
           <div id="grpRend" class="hide">
@@ -759,6 +764,25 @@ $("jaar").addEventListener("change", () => {  // AOW-defaults volgen het gekozen
   const a = aowCache && aowCache[$("jaar").value];
   if (a) { $("strAow").value = Math.round($("strPartner").checked ? a.samenwonend_pp : a.alleenstaand); $("strpAow").value = Math.round(a.samenwonend_pp); }
 });
+
+let leegwaardeCache = null;  // {jaar: {schijven, boven}} — leegwaarderatio-tabel uit params (bron LEEG-*)
+function leegwaardeVal() {  // box 3-waarde verhuurde woning = WOZ × leegwaarderatio
+  const woz = +$("mixVerhuurWoz").value, huur = +$("mixVerhuurHuur").value;
+  const t = leegwaardeCache && leegwaardeCache[$("jaar").value];
+  if (!woz || !t) return woz || 0;  // zonder tabel: volle WOZ (defensief)
+  let ratio = t.boven; const verh = huur / woz;
+  for (const s of t.schijven) if (verh < s.tot_verhouding) { ratio = s.ratio; break; }
+  return Math.round(woz * ratio);
+}
+function updateVerhuur() {
+  const woz = +$("mixVerhuurWoz").value;
+  if (!woz) { $("verhuurInfo").innerHTML = "Verhuurd met huurbescherming? Dan telt de woning voor <b>WOZ × leegwaarderatio</b> in box 3, niet de volle WOZ."; return; }
+  const v = leegwaardeVal();
+  $("verhuurInfo").innerHTML = `Box 3-waarde: <b>${eur(v)}</b> = WOZ × ${Math.round(v / woz * 100)}% leegwaarderatio — <b>${eur(woz - v)}</b> lager dan de volle WOZ. <span style="opacity:.8">(Vervalt per 2027; géén ratio bij niet-zakelijke verhuur aan naasten.)</span>`;
+}
+fetch("/leegwaarde").then(r => r.json()).then(d => { leegwaardeCache = d.leegwaarderatio; updateVerhuur(); }).catch(() => {});
+$("mixVerhuurWoz").addEventListener("input", updateVerhuur);
+$("mixVerhuurHuur").addEventListener("input", updateVerhuur);
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
 function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
 function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}} — twee aparte lijsten
@@ -1015,7 +1039,7 @@ async function berekenIndividu() {
       dividend_box2:s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value, meewerk_uren:+$("mixMeewerk").value, investering:+$("mixInvestering").value,
       pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value, reserveringsruimte_beschikbaar:+$("mixReservering").value, giften_gewoon:+$("mixGiftGewoon").value, giften_periodiek:+$("mixGiftPeriodiek").value, partneralimentatie:+$("mixAlimentatie").value, zorgkosten:+$("mixZorgkosten").value,
       partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(), rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
-      box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg, schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
+      box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg + leegwaardeVal(), schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
       eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
       profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
     if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;
@@ -1253,7 +1277,7 @@ function tab1Body() {
     verwacht_pensioen: autoAOW() + pensSom().jij.uitk, bestaande_lijfrente: pensSom().jij.pot, uitkeringsjaren:+$("vaUitkeringsjaren").value || 20,
     urencriterium:$("mixUren").checked, partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(),
     rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
-    box3:{banktegoeden:+$("mixBank").value + partnerBox3().bank, overige_bezittingen:+$("mixBeleg").value + partnerBox3().beleg, schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
+    box3:{banktegoeden:+$("mixBank").value + partnerBox3().bank, overige_bezittingen:+$("mixBeleg").value + partnerBox3().beleg + leegwaardeVal(), schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
     eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
     profiel:{aantal_kinderen:+$("mixKinderen").value, heeft_toeslagpartner:partner>0, partner_inkomen:partner}};
   if ($("mixHuur").value) body.profiel.rekenhuur = +$("mixHuur").value;

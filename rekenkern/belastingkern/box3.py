@@ -16,6 +16,21 @@ from .model import Box3Vermogen
 from .params import Params
 
 
+def leegwaarde(woz: float, jaarhuur: float, p) -> float:
+    """Box 3-waarde van een verhuurde woning met huurbescherming = WOZ × leegwaarderatio
+    (art. 5.20 lid 3 Wet IB / UBIB art. 17a). De ratio hangt af van jaarhuur/WOZ; bij ≥ 5% = 100%."""
+    if woz <= 0:
+        return 0.0
+    cfg = p["leegwaarderatio"]
+    verhouding = jaarhuur / woz
+    ratio = cfg["boven"]
+    for s in cfg["schijven"]:
+        if verhouding < s["tot_verhouding"]:
+            ratio = s["ratio"]
+            break
+    return round(woz * ratio, 2)
+
+
 @dataclass
 class Box3Resultaat:
     rendementsgrondslag: float

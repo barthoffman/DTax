@@ -557,6 +557,13 @@ class Handler(BaseHTTPRequestHandler):
                 a = laad_params(j)["aow"]
                 out[str(j)] = {"alleenstaand": a["alleenstaand"], "samenwonend_pp": a["samenwonend_pp"]}
             return self._send(200, {"aow": out})
+        if self.path == "/leegwaarde":  # leegwaarderatio-tabel per jaar (verhuurde woning box 3)
+            from belastingkern.params import laad_params
+            out = {}
+            for j in sorted(int(p.stem) for p in _PARAMS_DIR.glob("*.json")):
+                lw = laad_params(j)["leegwaarderatio"]
+                out[str(j)] = {"schijven": lw["schijven"], "boven": lw["boven"]}
+            return self._send(200, {"leegwaarderatio": out})
         self._send(404, {"error": f"onbekend pad: {self.path}"})
 
     def do_POST(self) -> None:

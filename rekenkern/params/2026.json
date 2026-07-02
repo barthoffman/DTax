@@ -75,6 +75,17 @@
     "hoog_vast": 848, "hoog_vanaf": 51411, "hoog_pct": 0.0575,
     "_bron": "ZORG-2026"
   },
+  "leegwaarderatio": {
+    "schijven": [
+      {"tot_verhouding": 0.01, "ratio": 0.73},
+      {"tot_verhouding": 0.02, "ratio": 0.79},
+      {"tot_verhouding": 0.03, "ratio": 0.84},
+      {"tot_verhouding": 0.04, "ratio": 0.90},
+      {"tot_verhouding": 0.05, "ratio": 0.95}
+    ],
+    "boven": 1.0,
+    "_bron": "LEEG-2026"
+  },
   "heffingskortingen": {
     "algemene": {
       "_bron": "HK-03",
