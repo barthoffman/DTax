@@ -39,6 +39,14 @@ A is leeg.
 
 ---
 
+## Product / later (niet-fiscaal)
+- **Boekhouder-rapport** — de `.md`-export is verborgen (2026-07-02): boekhouders werken
+  niet met Markdown. Later: een **gestructureerd/boekhoud-formaat** (PDF, of een export die
+  aansluit bij aangifte/boekhoudsoftware). Mogelijk als **betaalde** feature. Code staat er
+  nog (knop `rapportBtn` met class `hide`, functie `rapport()`), alleen de knop is verstopt.
+
+---
+
 ## Onzeker / te verifiëren
 - Box 3-forfaits banktegoeden (~1,28%) en schulden (~2,70%) 2026 zijn **voorlopig** — checken bij
   definitieve vaststelling (zie `bronnen/bronregister.md`).
