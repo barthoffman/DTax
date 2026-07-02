@@ -40,10 +40,14 @@ A is leeg.
 ---
 
 ## Product / later (niet-fiscaal)
-- **Boekhouder-rapport** — de `.md`-export is verborgen (2026-07-02): boekhouders werken
-  niet met Markdown. Later: een **gestructureerd/boekhoud-formaat** (PDF, of een export die
-  aansluit bij aangifte/boekhoudsoftware). Mogelijk als **betaalde** feature. Code staat er
-  nog (knop `rapportBtn` met class `hide`, functie `rapport()`), alleen de knop is verstopt.
+- **Positionering**: *wij maken de **schatting**, de boekhouder doet de **controle en het
+  advies***. Doorgevoerd in de UI-teksten (2026-07-02): header-tagline, welkom-disclaimer,
+  "Advies"-subtab → "Schatting", rapport-titel → "Fiscale schatting".
+- **Meeneembare PDF voor de boekhouder** — aan het eind een **PDF-export** die de gebruiker
+  meeneemt naar de boekhouder (voor de controle + het advies). Waarschijnlijk **betaald**.
+  De `.md`-export is nu verborgen (boekhouders werken niet met Markdown); de bouwstenen staan
+  er nog (`rapportBtn` met class `hide`, functies `rapport()`/`mdAdvies()` etc.) → basis voor
+  de PDF. Later: gestructureerd formaat dat aansluit op aangifte/boekhoudsoftware.
 
 ---
 

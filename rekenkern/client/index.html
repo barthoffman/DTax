@@ -79,7 +79,7 @@
 <header>
   <div>
     <h1>Belasting-optimalisatie</h1>
-    <p>Vul je situatie in en zie de fiscaal gunstigste route (werknemer / ZZP / DGA). Schatting, geen aangifte.</p>
+    <p>Vul je situatie in en zie de fiscaal gunstigste route (werknemer / ZZP / DGA). <b>Wij maken de schatting, je boekhouder de controle en het advies</b> — geen aangifte.</p>
   </div>
   <button id="theme" type="button" aria-label="Wissel licht/donker">☀️ Licht</button>
 </header>
@@ -240,7 +240,7 @@
             <label>Spaargeld box 3 (€)<input type="number" id="mixBank" placeholder="0" min="0" step="5000"></label>
             <label>Beleggingen / 2e woning (box 3, €)<input type="number" id="mixBeleg" placeholder="0" min="0" step="5000"></label>
           </div>
-          <label>Hoeveel spaargeld vrij beschikbaar houden? (€) — je buffer; de <b>rest</b> is een <b>advies</b> om te herverdelen naar lijfrente/box 3 (0 = alles beleggen, geen buffer)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
+          <label>Hoeveel spaargeld vrij beschikbaar houden? (€) — je buffer; de <b>rest</b> is een <b>suggestie</b> om te herverdelen naar lijfrente/box 3 (0 = alles beleggen, geen buffer)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
           <label>Waarvan groene beleggingen (box 3, €) — vrijstelling € 26.715 p.p.<input type="number" id="mixGroen" placeholder="0" min="0" step="5000"></label>
           <div class="row">
             <label>Verhuurde woning — WOZ-waarde (€)<input type="number" id="mixVerhuurWoz" placeholder="0" min="0" step="10000"></label>
@@ -581,7 +581,7 @@ function mdUitstel(r) {
   return m;
 }
 function mdAdvies(adv) {
-  let m = `# Fiscaal advies — ${adv.jaar}\n\nHuidige situatie: ${eur(adv.baseline_belasting)} belasting, ${eur(adv.baseline_toeslagen)} toeslagen, netto besteedbaar ${eur(adv.baseline_netto)}.\n\n`;
+  let m = `# Fiscale schatting — ${adv.jaar}\n\n_Schatting op basis van de wet — bedoeld ter controle en advies door je boekhouder, geen aangifte._\n\nHuidige situatie: ${eur(adv.baseline_belasting)} belasting, ${eur(adv.baseline_toeslagen)} toeslagen, netto besteedbaar ${eur(adv.baseline_netto)}.\n\n`;
   if (adv.rechtsvorm) {
     m += `## Rechtsvorm ondernemersinkomen (beste: ${adv.rechtsvorm.beste_label})\n\n| Ondernemen als | Huishouden netto | Marginaal |\n|---|---|---|\n`;
     adv.rechtsvorm.opties.forEach(o => m += `| ${o.label}${o.naam===adv.rechtsvorm.beste?" (beste)":""} | ${eur(o.huishouden_netto)} | ${(o.marginaal_tarief*100).toFixed(0)}% |\n`);
@@ -1076,6 +1076,7 @@ async function berekenIndividu() {
           <li><b>Wat is verstandig</b> — lijfrente, box 3 splitsen, partnertoerekening: gekwantificeerd, als één samenhangende route (geen dubbeltelling).</li>
         </ol>
         <p class="muted">Via de stappen reken je daarnaast je <b>vermogen</b> (waar laat je het renderen) en <b>straks</b> (je pensioenfase) door. Schatting op basis van de wet (2025/2026), geen aangifte.</p>
+        <p class="muted">Zo bedoeld: <b>wij maken de schatting</b>, jij neemt 'm mee naar je <b>boekhouder voor de controle en het advies</b>. (Een meeneembare PDF-export komt later.)</p>
         <p class="muted">💡 <b>Volg je later een advies op?</b> Pas dan je invoer aan — sluit je bijvoorbeeld een lijfrente af, voer 'm bij <b>Vermogen</b> in als "al opgebouwde pot". Dan herrekent de tool de resterende stappen en raadt 'ie niet dubbel aan.</p>`;
       return;
     }
