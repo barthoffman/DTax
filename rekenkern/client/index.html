@@ -93,7 +93,7 @@
     <p class="muted" id="authMsg" style="margin-top:8px"></p>
   </div>
 </div>
-<div id="adminOverlay" class="hide" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1001;display:flex;align-items:center;justify-content:center;padding:20px">
+<div id="adminOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1001;display:none;align-items:center;justify-content:center;padding:20px">
   <div class="card" style="max-width:460px;width:100%">
     <h2 style="text-transform:none;font-size:18px;color:var(--txt)">Beheer toegang</h2>
     <div id="adminLijst"></div>
@@ -1700,15 +1700,17 @@ $("authCode").addEventListener("keydown", e => { if (e.key === "Enter") $("authV
 $("logoutBtn").onclick = async () => { await fetch("/auth/logout", {method:"POST"}); location.reload(); };
 
 // --- Admin: allowlist beheren ---
-$("adminBtn").onclick = () => { $("adminOverlay").classList.remove("hide"); laadAllowlist(); };
-$("adminClose").onclick = () => $("adminOverlay").classList.add("hide");
+$("adminBtn").onclick = () => { $("adminOverlay").style.display = "flex"; laadAllowlist(); };
+$("adminClose").onclick = () => $("adminOverlay").style.display = "none";
 async function laadAllowlist() {
   $("adminMsg").textContent = "";
   const r = await fetch("/admin/allowlist");
   if (!r.ok) { $("adminMsg").innerHTML = '<span class="err">Geen toegang.</span>'; return; }
   const d = await r.json();
-  const rows = d.allowlist.map(e => `<div class="bron"><span style="flex:1">${e}</span><button type="button" class="del" data-email="${e}" style="width:auto;padding:6px 10px">×</button></div>`).join("");
-  $("adminLijst").innerHTML = `<p class="muted">Admin: <b>${d.admin}</b> (altijd toegang)</p>` + (rows || '<p class="muted">Nog geen extra adressen.</p>');
+  const rows = d.allowlist.map(e => `<div class="bron"><span style="flex:1">${e}</span><button type="button" class="del sec" data-email="${e}" style="width:auto;padding:6px 12px">Verwijderen</button></div>`).join("");
+  $("adminLijst").innerHTML = `<p class="muted" style="margin:0 0 6px">Wie heeft toegang:</p>`
+    + `<div class="bron"><span style="flex:1"><b>${d.admin}</b> — admin (altijd toegang)</span></div>`
+    + (rows || '<p class="muted">Nog geen extra adressen toegevoegd.</p>');
   $("adminLijst").querySelectorAll(".del").forEach(b => b.onclick = () => adminActie("remove", b.dataset.email));
 }
 async function adminActie(actie, email) {
