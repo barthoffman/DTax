@@ -9,6 +9,19 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-02 — Fase 30: V2 (AOW→params) + blok B compleet + aftoppingscorrectie
+
+- **BESLISSING (V2)**: AOW-bedragen van hardcoded in de client naar `params` (jaar-bewust), endpoint
+  `/aow`. 2026 exact (PEN-03: € 20.929/€ 14.379); 2025 benadering (PEN-03b, gemarkeerd voorlopig).
+- **CORRECTIE (belangrijk)**: de engine paste de tariefaanpassing **art. 2.10a** alleen toe op
+  eigen woning + ondernemersaftrek, níet op generieke `aftrekposten_box1`. Nieuw Persoon-veld
+  **`persoonsgebonden_aftrek`** dat box 1 verlaagt **én** afgetopt wordt op ~37,56%. Corrigeert de
+  giften (stonden op vol tarief) en gebruikt voor alimentatie/zorgkosten. Bron AFTOP-2.10a.
+- **BESLISSING**: blok B afgebouwd — **giftenaftrek** (gewoon + periodiek, drempel/plafond,
+  gewone→periodiek-tip), **partneralimentatie** (art. 6.3), **specifieke zorgkosten** (art. 6.20
+  drempelstaffel; verhoging art. 6.19 conservatief niet gemodelleerd). Alle gesourcet (GIFT/ALIM/
+  ZORG-*). Backlog blok A én B nu leeg.
+
 ## 2026-07-01 — Fase 29: KIA + jaarruimte-verfijningen + eerlijke cap-uitleg
 
 - **BESLISSING**: **KIA** (kleinschaligheidsinvesteringsaftrek) gebouwd — params-tabel 2025+2026
