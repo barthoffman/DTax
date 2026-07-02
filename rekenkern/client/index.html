@@ -1144,7 +1144,7 @@ async function berekenIndividu() {
         </ol>
         <p class="muted">Via de stappen reken je daarnaast je <b>vermogen</b> (waar laat je het renderen) en <b>straks</b> (je pensioenfase) door. Schatting op basis van de wet (2025/2026), geen aangifte.</p>
         <p class="muted">Zo bedoeld: <b>wij maken de schatting</b>, jij neemt 'm mee naar je <b>boekhouder voor de controle en het advies</b>. (Een meeneembare PDF-export komt later.)</p>
-        <p class="muted">💡 <b>Volg je later een advies op?</b> Pas dan je invoer aan — sluit je bijvoorbeeld een lijfrente af, voer 'm bij <b>Vermogen</b> in als "al opgebouwde pot". Dan herrekent de tool de resterende stappen en raadt 'ie niet dubbel aan.</p>`;
+        <p class="muted">💡 <b>Doe je na overleg met je boekhouder een wijziging?</b> Werk dan je invoer bij — sluit je bijvoorbeeld een lijfrente af, voer 'm bij <b>Vermogen</b> in als "al opgebouwde pot". Dan herrekent de tool de resterende stappen en telt het niet dubbel.</p>`;
       return;
     }
     const pb = partnerBox3();
@@ -1244,6 +1244,8 @@ async function berekenIndividu() {
     out.innerHTML = `
       <h2>Mijn belasting — ${adv.jaar}</h2>
       <p class="best">Je betaalt nu ${eur(adv.baseline_belasting)} belasting${adv.baseline_toeslagen>0?` − ${eur(adv.baseline_toeslagen)} toeslagen`:""} · netto besteedbaar ${eur(adv.baseline_netto)}.</p>
+      ${adv.baseline_zvw>0?`<p class="muted">Inclusief <b>Zvw inkomensafhankelijke bijdrage ${eur(adv.baseline_zvw)}</b> (${adv.rechtsvorm&&adv.rechtsvorm.huidige_vorm==="bv"?"werkgeversheffing via je BV over het gebruikelijk loon":"lage bijdrage over je belastbare winst"}).</p>`:""}
+      ${adv.baseline_zvw_werkgever>0?`<p class="muted">Daarnaast betaalt je werkgever nog ± ${eur(adv.baseline_zvw_werkgever)} werkgeversheffing Zvw over je loon (staat niet op jouw aanslag).</p>`:""}
       ${det}
       ${rv}
       ${vm}
@@ -1252,7 +1254,7 @@ async function berekenIndividu() {
            <table><thead><tr><th>Optimalisatie</th><th>Besparing/jaar</th></tr></thead><tbody>${sugRows}</tbody></table>
            <p class="best">Totaal potentieel: <b>${eur(adv.totaal_potentieel)}</b> per jaar — je belastingdruk daalt indicatief van ${eur(adv.baseline_belasting)} naar ± ${eur(adv.baseline_belasting - adv.totaal_potentieel)} (netto besteedbaar ± ${eur(adv.baseline_netto + adv.totaal_potentieel)}).</p>
            <p class="muted">Berekend als één samenhangende route: eerst de rechtsvorm, dan lijfrente / box 3 / toerekening op díe situatie — dus geen dubbeltelling.</p>
-           <p class="muted">💡 <b>Ga je een advies opvolgen?</b> Werk daarna je invoer bij — een afgesloten <b>lijfrente</b> voer je bij <b>Vermogen</b> in als "al opgebouwde pot", en een gewijzigd inkomen/vermogen pas je aan. Dan blijft het advies kloppen en telt het niet dubbel.</p></details>`
+           <p class="muted">💡 <b>Doe je na overleg met je boekhouder een wijziging?</b> Werk dan je invoer bij — een afgesloten <b>lijfrente</b> voer je bij <b>Vermogen</b> in als "al opgebouwde pot", en een gewijzigd inkomen/vermogen pas je aan. Dan blijft de schatting kloppen en telt het niet dubbel.</p></details>`
         : `<p class="muted">Geen aanvullende optimalisaties gevonden voor deze gegevens.</p>`}`;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }

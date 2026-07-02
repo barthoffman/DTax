@@ -259,6 +259,7 @@ def _advies_handler(body: dict) -> dict:
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,
         "baseline_toeslagen": r.baseline_toeslagen, "baseline_netto": r.baseline_netto,
+        "baseline_zvw": r.baseline_zvw, "baseline_zvw_werkgever": r.baseline_zvw_werkgever,
         "totaal_potentieel": r.totaal_potentieel, "rechtsvorm": r.rechtsvorm,
         "vermogen": r.vermogen, "lijfrente": r.lijfrente, "detail": r.detail,
         "suggesties": [

@@ -22,7 +22,8 @@ from .mix import bereken_mix, _persoon_detail
 from .model import Box3Vermogen, EigenWoning, Onderneming, Persoon
 from .giften import giftenaftrek
 from .zorgkosten import zorgkosten_aftrek, zorgkosten_drempel
-from .onderneming import kia_aftrek
+from .onderneming import kia_aftrek, bereken_onderneming
+from .socialezekerheid import lage_bijdrage_zvw, werkgeversheffing_zvw
 from .optimalisatiemotor import box3_last
 from .vermogensadvies import _lijf_cap_persoon
 from .params import laad_params
@@ -47,6 +48,8 @@ class AdviesResultaat:
     baseline_belasting: float
     baseline_toeslagen: float
     baseline_netto: float
+    baseline_zvw: float = 0.0            # Zvw-bijdrage in de te-betalen (ZZP zelf / DGA via BV)
+    baseline_zvw_werkgever: float = 0.0  # werkgeversheffing Zvw over loon (context, niet je eigen aanslag)
     suggesties: list[Suggestie] = field(default_factory=list)
     rechtsvorm: dict | None = None   # ZZP vs BV vs loon voor het ondernemersinkomen
     vermogen: dict | None = None     # box 3-last nu + BV-uitstel-vergelijking voor de beleggingen
@@ -154,6 +157,20 @@ def optimalisatie_advies(
     cur_box2 += dividend_box2
     base_tax, base_toeslagen, base_netto = _huishouden(
         cur_persoon, partner, profiel, p, inkomen, cur_box2, cur_extra, minst, partner_minst)
+    # Zvw inkomensafhankelijke bijdrage: ZZP betaalt zelf over de belastbare winst; een DGA betaalt via
+    # de BV de werkgeversheffing over het (gebruikelijk) loon; een zuivere werknemer heeft alleen de
+    # werkgeverslast (niet op de eigen aanslag).
+    zvw_zelf = zvw_werkgever = 0.0
+    if cur_naam == "bv":
+        zvw_zelf = werkgeversheffing_zvw(_cur_arb, p)
+    elif ondernemer_inkomen > 0 and cur_persoon.onderneming:
+        zvw_zelf = lage_bijdrage_zvw(bereken_onderneming(cur_persoon.onderneming, p).belastbare_winst, p)
+        if loon > 0:
+            zvw_werkgever = werkgeversheffing_zvw(loon, p)
+    elif loon > 0:
+        zvw_werkgever = werkgeversheffing_zvw(loon, p)
+    base_tax = round(base_tax + zvw_zelf, 2)
+    base_netto = round(base_netto - zvw_zelf, 2)
     rp = bereken_persoon(cur_persoon, p, box2_inkomen=cur_box2, is_minstverdienende=minst)
     rpp = bereken_persoon(partner, p, is_minstverdienende=partner_minst) if partner else None
     detail = {
@@ -453,6 +470,7 @@ def optimalisatie_advies(
         }
 
     sugg.sort(key=lambda s: -s.besparing)
-    return AdviesResultaat(jaar, base_tax, base_toeslagen, base_netto, sugg,
-                           rechtsvorm=rechtsvorm, vermogen=vermogen, lijfrente=lijfrente,
-                           detail=detail)
+    return AdviesResultaat(jaar, base_tax, base_toeslagen, base_netto,
+                           baseline_zvw=zvw_zelf, baseline_zvw_werkgever=zvw_werkgever,
+                           suggesties=sugg, rechtsvorm=rechtsvorm, vermogen=vermogen,
+                           lijfrente=lijfrente, detail=detail)
