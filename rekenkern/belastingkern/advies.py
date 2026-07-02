@@ -20,6 +20,7 @@ from .dga import bepaal_gebruikelijk_loon
 from .engine import bereken_persoon
 from .mix import bereken_mix, _persoon_detail
 from .model import Box3Vermogen, EigenWoning, Onderneming, Persoon
+from .giften import giftenaftrek
 from .onderneming import kia_aftrek
 from .optimalisatiemotor import box3_last
 from .vermogensadvies import _lijf_cap_persoon
@@ -108,6 +109,8 @@ def optimalisatie_advies(
     verwacht_pensioen: float = 0.0,
     bestaande_lijfrente: float = 0.0,
     uitkeringsjaren: int = 20,
+    giften_gewoon: float = 0.0,
+    giften_periodiek: float = 0.0,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
@@ -310,6 +313,35 @@ def optimalisatie_advies(
                     toel + "Let op: de oudste ruimte vervalt elk jaar — benut het vóór het verloopt. Eenmalige "
                     f"inhaal (max € {maxrr:,.0f}/jaar), geen jaarlijks terugkerende ruimte.".replace(",", "."),
                     "art. 3.127 lid 2-3 Wet IB 2001"))
+
+    # 2d. Giftenaftrek + optimalisatie: gewone giften periodiek vastleggen (dan vervalt de drempel).
+    if giften_gewoon > 0 or giften_periodiek > 0:
+        di = rp.verzamelinkomen  # drempelinkomen ≈ verzamelinkomen van de huidige route
+        aftrek_nu = giftenaftrek(p, gewone=giften_gewoon, periodiek=giften_periodiek, drempelinkomen=di)
+        if aftrek_nu > 0:
+            p_g = dataclasses.replace(op_persoon, aftrekposten_box1=op_persoon.aftrekposten_box1 + aftrek_nu)
+            t_g, ts_g, _ = _huishouden(p_g, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
+            besp_g = round((op_tax - t_g) + (ts_g - op_toeslagen), 2)
+            if besp_g > 1:
+                sugg.append(Suggestie(
+                    f"Giftenaftrek — € {aftrek_nu:,.0f} aftrekbaar".replace(",", "."), besp_g,
+                    "Giften aan ANBI's zijn aftrekbaar in box 1 (tegen je marginale tarief) en verlagen je "
+                    "toetsingsinkomen (soms meer toeslagen).", "art. 6.32 Wet IB 2001"))
+        if giften_gewoon > 0:  # optimalisatie: gewone → periodiek → geen drempel
+            aftrek_per = giftenaftrek(p, gewone=0.0, periodiek=giften_periodiek + giften_gewoon, drempelinkomen=di)
+            if aftrek_per - aftrek_nu > 1:
+                p_a = dataclasses.replace(op_persoon, aftrekposten_box1=op_persoon.aftrekposten_box1 + aftrek_nu)
+                p_b = dataclasses.replace(op_persoon, aftrekposten_box1=op_persoon.aftrekposten_box1 + aftrek_per)
+                ta, tsa, _ = _huishouden(p_a, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
+                tb, tsb, _ = _huishouden(p_b, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
+                besp_per = round((ta - tb) + (tsb - tsa), 2)
+                drempel = max(p["giften"]["drempel_pct"] * di, p["giften"]["drempel_min"])
+                if besp_per > 1:
+                    sugg.append(Suggestie(
+                        "Gewone giften periodiek vastleggen (drempel vervalt)", besp_per,
+                        f"Leg je jaarlijkse giften vast als periodieke gift (akte, min. 5 jaar): de drempel van "
+                        f"± € {drempel:,.0f} vervalt en wordt óók aftrekbaar. Zelfde gift, meer aftrek.".replace(",", "."),
+                        "art. 6.34 Wet IB 2001"))
 
     # 3. Partnertoerekening eigen woning (op het box 1-inkomen van de gekozen route).
     if partner and (ew.woz_waarde or ew.betaalde_hypotheekrente):

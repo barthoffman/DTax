@@ -60,6 +60,13 @@
     "samenwonend_pp": 13836,
     "_bron": "PEN-03b"
   },
+  "giften": {
+    "drempel_pct": 0.01,
+    "drempel_min": 60,
+    "plafond_pct": 0.10,
+    "periodiek_max": 1500000,
+    "_bron": "GIFT-2025"
+  },
   "heffingskortingen": {
     "algemene": {
       "_bron": "HK-02",

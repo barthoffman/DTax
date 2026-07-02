@@ -17,7 +17,7 @@ A is leeg.
 | # | Optimalisatie | Voor wie | Inspanning |
 |---|---|---|---|
 | ~~KIA~~ | ✅ **KIA / kleinschaligheidsinvesteringsaftrek** (gebouwd 2026-07-01, JOURNAAL fase 29) | — | — |
-| 1 | **Giftenaftrek** (m.n. periodieke giften) | gever aan ANBI | middel — aftrekpost + drempel/plafond |
+| ~~1~~ | ✅ **Giftenaftrek** (gebouwd 2026-07-02, gewoon + periodiek + drempel/plafond, GIFT-*) | — | — |
 | 2 | **Partneralimentatie (betaald)** | gescheiden, betaalt alimentatie | klein/middel — box 1-aftrekpost |
 | 3 | **Specifieke zorgkosten** | hoge zorgkosten boven drempel | middel — drempel afhankelijk van inkomen |
 
