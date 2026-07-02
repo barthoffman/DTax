@@ -22,6 +22,22 @@ from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+
+def _load_dotenv() -> None:
+    """Laadt een .env (KEY=VALUE per regel) in os.environ — stdlib, geen dependency.
+    Bestaande env-vars winnen (setdefault). Handig voor de SMTP-config."""
+    p = Path(__file__).resolve().parent / ".env"
+    if not p.exists():
+        return
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
 import auth
 
 from belastingkern import (

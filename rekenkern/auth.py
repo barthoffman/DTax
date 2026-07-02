@@ -136,7 +136,12 @@ def request_otp(email) -> dict:
     if is_allowed(e) and _rate_ok(e):
         code = f"{secrets.randbelow(1_000_000):06d}"
         _otps[e] = {"code": code, "expires": time.time() + OTP_TTL, "tries": 0}
-        if _send_otp(e, code) == "dev":
+        try:
+            via = _send_otp(e, code)
+        except Exception as ex:  # SMTP-fout mag de login niet laten crashen
+            print(f"[AUTH] SMTP-fout bij versturen naar {e}: {ex}", flush=True)
+            via = "error"
+        if via == "dev":
             resp["dev_code"] = code  # alleen zonder SMTP-config (lokaal testen)
     return resp
 
