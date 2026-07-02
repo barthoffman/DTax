@@ -60,8 +60,12 @@ class Persoon:
     onderneming: "Onderneming | None" = None  # volledige route incl. ondernemersaftrek
     resultaat_overige_werkzaamheden: float = 0.0
 
-    # Aftrekposten box 1 (persoonsgebonden aftrek, ondernemersaftrek e.d.) — al gesaldeerd
+    # Aftrekposten box 1 tegen het volle marginale tarief (lijfrente/uitgaven inkomensvoorziening,
+    # afd. 3.7 — níet afgetopt door art. 2.10a).
     aftrekposten_box1: float = 0.0
+    # Persoonsgebonden aftrek (afd. 6: giften, betaalde partneralimentatie, specifieke zorgkosten) —
+    # verlaagt box 1 én valt onder de tariefaanpassing van art. 2.10a (max aftrektarief ~37,56%).
+    persoonsgebonden_aftrek: float = 0.0
 
     # Vermogen / woning
     eigen_woning: EigenWoning = field(default_factory=EigenWoning)

@@ -90,6 +90,16 @@ def bereken_persoon(
             onderneming=None,
         )
 
+    # Persoonsgebonden aftrek (giften/alimentatie/zorgkosten): verlaagt box 1 én valt onder de
+    # tariefaanpassing van art. 2.10a → in aftrekposten_box1 (inkomensverlaging) + extra_aftrek_2_10a.
+    if eff.persoonsgebonden_aftrek:
+        extra_aftrek_2_10a += eff.persoonsgebonden_aftrek
+        eff = dataclasses.replace(
+            eff,
+            aftrekposten_box1=eff.aftrekposten_box1 + eff.persoonsgebonden_aftrek,
+            persoonsgebonden_aftrek=0.0,
+        )
+
     box1 = bereken_box1(eff, p, extra_aftrek_2_10a=extra_aftrek_2_10a)
     box3 = bereken_box3(
         eff.box3,

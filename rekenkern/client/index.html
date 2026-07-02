@@ -274,6 +274,7 @@
           <label>Gewone giften dit jaar (€) — eerste 1% telt niet<input type="number" id="mixGiftGewoon" placeholder="0" min="0" step="100"></label>
           <label>Periodieke giften (vastgelegd, ≥ 5 jr) (€) — geen drempel<input type="number" id="mixGiftPeriodiek" placeholder="0" min="0" step="100"></label>
         </div>
+        <label>Betaalde partneralimentatie dit jaar (€) — aftrekbaar; kinderalimentatie niet<input type="number" id="mixAlimentatie" placeholder="0" min="0" step="500"></label>
       </fieldset>
     </div><!-- /modeIndividu -->
 
@@ -1000,7 +1001,7 @@ async function berekenIndividu() {
     const pb = partnerBox3();
     const body = {jaar:+$("jaar").value, loon, ondernemer_inkomen:ondernemer, huidige_vorm:huidigeVorm, urencriterium:$("mixUren").checked,
       dividend_box2:s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value, meewerk_uren:+$("mixMeewerk").value, investering:+$("mixInvestering").value,
-      pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value, reserveringsruimte_beschikbaar:+$("mixReservering").value, giften_gewoon:+$("mixGiftGewoon").value, giften_periodiek:+$("mixGiftPeriodiek").value,
+      pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value, reserveringsruimte_beschikbaar:+$("mixReservering").value, giften_gewoon:+$("mixGiftGewoon").value, giften_periodiek:+$("mixGiftPeriodiek").value, partneralimentatie:+$("mixAlimentatie").value,
       partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(), rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
       box3:{banktegoeden:+$("mixBank").value + pb.bank, overige_bezittingen:+$("mixBeleg").value + pb.beleg, schulden:+$("mixSchulden").value, groene_beleggingen:+$("mixGroen").value},
       eigen_woning:{woz_waarde:+$("mixWoz").value, betaalde_hypotheekrente:+$("mixRente").value},
@@ -1236,7 +1237,7 @@ function tab1Body() {
     loon: s.loon + s.uitkering_pensioen + s.resultaat_overige_werkzaamheden,
     ondernemer_inkomen: s.winst + s.winst_bv, huidige_vorm: s.winst_bv > 0 ? "bv" : "zzp",
     dividend_box2: s.dividend_bv, starter:$("mixStarter").checked, jongste_kind_leeftijd:$("mixJongsteKind").value, meewerk_uren:+$("mixMeewerk").value, investering:+$("mixInvestering").value,
-    pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value, reserveringsruimte_beschikbaar:+$("mixReservering").value, giften_gewoon:+$("mixGiftGewoon").value, giften_periodiek:+$("mixGiftPeriodiek").value,
+    pensioenaangroei:+$("mixFactorA").value, partner_pensioenaangroei:+$("mixFactorAPartner").value, reserveringsruimte_beschikbaar:+$("mixReservering").value, giften_gewoon:+$("mixGiftGewoon").value, giften_periodiek:+$("mixGiftPeriodiek").value, partneralimentatie:+$("mixAlimentatie").value,
     verwacht_pensioen: autoAOW() + pensSom().jij.uitk, bestaande_lijfrente: pensSom().jij.pot, uitkeringsjaren:+$("vaUitkeringsjaren").value || 20,
     urencriterium:$("mixUren").checked, partner_inkomen:partner, heeft_fiscaal_partner:fiscaalPartner(),
     rendement:(+$("mixRendement").value)/100, horizon:+$("mixHorizon").value,
