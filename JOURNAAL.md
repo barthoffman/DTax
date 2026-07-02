@@ -9,6 +9,22 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-02 — Fase 34: belastingjaar 2024 toegevoegd (gesourcet)
+
+- **BESLISSING**: 2024 toegevoegd als derde belastingjaar. Engine is jaar-agnostisch → alleen
+  `params/2024.json` + bronnen; client + `/jaren`/`/aow`/`/leegwaarde` detecteren het jaar
+  automatisch (glob). Structuur identiek aan 2025/2026 (3 schijven) — puur data.
+- **BEVINDING (verificatie)**: 2024-berekening narekenbaar — werknemer loon € 50.000 → box 1
+  € 18.485 (50.000 × 36,97%), kortingen € 6.570 (AHK € 1.692 + arbeidskorting € 4.878), **te betalen
+  € 11.915** (= handberekening). Tests blijven groen. Voordeel van 2024: mensen kunnen 't tegen hun
+  eigen (afgeronde) aangifte leggen.
+- **Bronnen**: ~60 waarden gesourcet (belastingdienst.nl fisin2024/tabellen, wetten.overheid.nl,
+  svb.nl, Stcrt) — bron-ID's `*-2024` in `bronregister.md`. Definitieve box 3-forfaits (bank 1,44% /
+  schuld 2,61%), MKB 13,31%, zelfstandigenaftrek € 3.750, box 2 hoog 33%, gebruikelijk loon € 56.000.
+- **OPEN PUNT**: de **toeslagen**-sectie draagt nog de 2025-benadering (`_2024_nog_te_sourcen`) →
+  IB-kern is 2024-correct, toeslagen (zorg/huur/KGB/kinderopvang) nog te sourcen. Klein: AOW-jaarbedrag
+  benadering, `schijf1_grens_geboren_voor_1946` + `excessief_lenen_drempel` te verifiëren.
+
 ## 2026-07-02 — Fase 33: e-mail-OTP-login + admin-allowlist (stdlib, geen deps)
 
 - **BESLISSING (auth)**: eigen e-mail-OTP-login, volledig **stdlib** (`smtplib`, `secrets`,

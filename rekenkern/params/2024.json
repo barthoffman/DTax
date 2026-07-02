@@ -1,0 +1,383 @@
+{
+  "jaar": 2024,
+  "_toelichting": "Parameters belastingjaar 2024 (afgesloten jaar -> definitieve cijfers). Bron-ID's in bronnen/bronregister.md; opgehaald 2026-07-02 van belastingdienst.nl/wetten.overheid.nl/svb.nl. LET OP: de toeslagen-sectie draagt nog de 2025-benadering (zie _2024_nog_te_sourcen) en de AOW-jaarbedragen zijn een benadering (2x/jaar aangepast).",
+  "aow_leeftijd": "67j0m",
+  "box1": {
+    "_bron": "B1-tarief-2024",
+    "premies_volksverzekeringen_schijf1": {
+      "aow": 0.179,
+      "anw": 0.001,
+      "wlz": 0.0965,
+      "_bron": "B1-premies-2024"
+    },
+    "schijven_onder_aow": [
+      {
+        "tot": 38098,
+        "tarief": 0.3697
+      },
+      {
+        "tot": 75518,
+        "tarief": 0.3697
+      },
+      {
+        "tot": null,
+        "tarief": 0.495
+      }
+    ],
+    "schijven_vanaf_aow": [
+      {
+        "tot": 38098,
+        "tarief": 0.1907
+      },
+      {
+        "tot": 75518,
+        "tarief": 0.3697
+      },
+      {
+        "tot": null,
+        "tarief": 0.495
+      }
+    ],
+    "schijf1_grens_geboren_voor_1946": 40021,
+    "eigenwoningforfait": {
+      "_bron": "B1-ewf-2024",
+      "percentage": 0.0035,
+      "woz_grens_villa": 1310000,
+      "villa_vast_bedrag": 4585,
+      "villa_percentage": 0.0235
+    },
+    "hra_max_aftrektarief": 0.3697,
+    "_bron_hra": "B1-hra-2024",
+    "hillen_percentage": 0.8,
+    "_bron_hillen": "B1-hillen-2024",
+    "_grens1946_onzeker": true
+  },
+  "onderneming": {
+    "_bron": "OND-2024",
+    "urencriterium_uren": 1225,
+    "zelfstandigenaftrek": 3750,
+    "startersaftrek": 2123,
+    "mkb_winstvrijstelling_pct": 0.1331,
+    "stakingsaftrek": 3630,
+    "meewerkaftrek_schijven": [
+      {
+        "vanaf_uren": 525,
+        "pct": 0.0125
+      },
+      {
+        "vanaf_uren": 875,
+        "pct": 0.02
+      },
+      {
+        "vanaf_uren": 1225,
+        "pct": 0.03
+      },
+      {
+        "vanaf_uren": 1750,
+        "pct": 0.04
+      }
+    ],
+    "kia": {
+      "drempel": 2800,
+      "eerste_pct": 0.28,
+      "eerste_tot": 69765,
+      "vast_bedrag": 19535,
+      "vast_tot": 129194,
+      "afbouw_pct": 0.0756,
+      "boven": 387580
+    },
+    "_bron_mkb": "OND-mkb-2024",
+    "_bron_starters": "OND-WET-3.76",
+    "_bron_meewerk": "OND-meewerk",
+    "_bron_kia": "OND-KIA-2024"
+  },
+  "aow": {
+    "alleenstaand": 19416,
+    "samenwonend_pp": 13224,
+    "_bron": "PEN-03-2024",
+    "_benadering": true
+  },
+  "giften": {
+    "drempel_pct": 0.01,
+    "drempel_min": 60,
+    "plafond_pct": 0.1,
+    "periodiek_max": 250000,
+    "_bron": "GIFT-2024"
+  },
+  "zorgkosten": {
+    "drempel_vast_solo": 163,
+    "grens_vast_solo": 9420,
+    "drempel_vast_partner": 326,
+    "grens_vast_partner": 18840,
+    "midden_pct": 0.0165,
+    "midden_tot": 50034,
+    "hoog_vast": 825,
+    "hoog_vanaf": 50034,
+    "hoog_pct": 0.0575,
+    "_bron": "ZORG-2024"
+  },
+  "leegwaarderatio": {
+    "schijven": [
+      {
+        "tot_verhouding": 0.01,
+        "ratio": 0.73
+      },
+      {
+        "tot_verhouding": 0.02,
+        "ratio": 0.79
+      },
+      {
+        "tot_verhouding": 0.03,
+        "ratio": 0.84
+      },
+      {
+        "tot_verhouding": 0.04,
+        "ratio": 0.9
+      },
+      {
+        "tot_verhouding": 0.05,
+        "ratio": 0.95
+      }
+    ],
+    "boven": 1.0,
+    "_bron": "LEEG-2024"
+  },
+  "overdrachtsbelasting": {
+    "verhuurde_woning": 0.104,
+    "niet_woning": 0.104,
+    "_bron": "OVB-2024"
+  },
+  "heffingskortingen": {
+    "algemene": {
+      "_bron": "HK-alg-2024",
+      "grondslag": "verzamelinkomen",
+      "onder_aow": {
+        "max": 3362,
+        "afbouw_start": 24813,
+        "afbouw_pct": 0.0663,
+        "nihil_vanaf": 75518
+      },
+      "vanaf_aow": {
+        "max": 1735,
+        "afbouw_start": 24813,
+        "afbouw_pct": 0.03421,
+        "nihil_vanaf": 75518
+      }
+    },
+    "arbeids": {
+      "_bron": "HK-arb-2024",
+      "grondslag": "arbeidsinkomen",
+      "onder_aow": {
+        "max": 5532,
+        "segmenten": [
+          {
+            "ondergrens": 0,
+            "basis": 0,
+            "pct": 0.08425
+          },
+          {
+            "ondergrens": 11490,
+            "basis": 968,
+            "pct": 0.31433
+          },
+          {
+            "ondergrens": 24820,
+            "basis": 5158,
+            "pct": 0.02471
+          },
+          {
+            "ondergrens": 39957,
+            "basis": 5532,
+            "pct": -0.0651
+          },
+          {
+            "ondergrens": 124934,
+            "basis": 0,
+            "pct": 0
+          }
+        ]
+      },
+      "vanaf_aow_max": 2854
+    },
+    "iack": {
+      "_bron": "HK-iack-2024",
+      "grondslag": "arbeidsinkomen",
+      "drempel": 6073,
+      "opbouw_pct": 0.1145,
+      "max": 2950,
+      "vanaf_aow_max": 1521,
+      "kind_max_leeftijd": 12
+    },
+    "ouderen": {
+      "_bron": "HK-oud-2024",
+      "grondslag": "verzamelinkomen",
+      "max": 2010,
+      "afbouw_start": 44770,
+      "afbouw_pct": 0.15,
+      "nihil_vanaf": 58170
+    },
+    "alleenstaande_ouderen": {
+      "_bron": "HK-oud-2024",
+      "bedrag": 524
+    },
+    "jonggehandicapten": {
+      "_bron": "HK-oud-2024",
+      "bedrag": 820
+    }
+  },
+  "zvw": {
+    "_bron": "ZVW-2024",
+    "_toelichting": "Zvw inkomensafhankelijke bijdrage 2024.",
+    "werkgeversheffing_pct": 0.0657,
+    "lage_bijdrage_pct": 0.0532,
+    "max_bijdrage_inkomen": 71628
+  },
+  "werknemersverzekeringen": {
+    "_bron": "WV-2024",
+    "_toelichting": "Werkgeverspremies WW/WIA 2024 (Stcrt 2023,31686). Whk indicatief.",
+    "awf_laag": 0.0264,
+    "awf_hoog": 0.0764,
+    "aof_laag": 0.0618,
+    "aof_hoog": 0.0754,
+    "whk_gemiddeld": 0.0122,
+    "_bron_whk": "WV-2024",
+    "max_premieloon": 71628
+  },
+  "box2": {
+    "_bron": "DGA-04-2024",
+    "_toelichting": "Box 2 aanmerkelijk belang 2024. Tweeschijvenstelsel nieuw in 2024; hoog tarief 33% (per 2025 verlaagd naar 31%).",
+    "schijven": [
+      {
+        "tot": 67000,
+        "tarief": 0.245
+      },
+      {
+        "tot": null,
+        "tarief": 0.33
+      }
+    ]
+  },
+  "vpb": {
+    "_bron": "DGA-02",
+    "_toelichting": "Vennootschapsbelasting 2024, art. 22 Wet Vpb 1969.",
+    "schijven": [
+      {
+        "tot": 200000,
+        "tarief": 0.19
+      },
+      {
+        "tot": null,
+        "tarief": 0.258
+      }
+    ]
+  },
+  "dga": {
+    "_bron": "DGA-06",
+    "gebruikelijk_loon_normbedrag": 56000,
+    "_bron_gebruikelijk_loon": "DGA-07-2024",
+    "excessief_lenen_drempel": 500000,
+    "_bron_excessief_lenen": "DGA-09"
+  },
+  "vaste_kosten_indicatief": {
+    "_indicatief": true,
+    "_bron": "marktindicatie 2026 (boekhoudkosten); NIET wettelijk, instelbaar per gebruiker",
+    "_toelichting": "Jaarlijkse administratie-/boekhoudkosten per rechtsvorm; aftrekbaar (verlagen grondslag). Oprichtingskosten BV (eenmalig, ~€400-800) niet inbegrepen.",
+    "werknemer": 0,
+    "zzp": 900,
+    "dga": 2000
+  },
+  "oprichtingskosten_indicatief": {
+    "_indicatief": true,
+    "_bron": "marktindicatie (notaris BV-oprichting + KvK); NIET wettelijk, instelbaar",
+    "_toelichting": "Eenmalig; geamortiseerd over de horizon. Notariskosten BV-oprichting doorgaans NIET aftrekbaar -> als cash-out gemodelleerd. Aanname: men switcht niet terug -> lange horizon -> klein effect.",
+    "werknemer": 0,
+    "zzp": 80,
+    "dga": 600,
+    "standaard_horizon_jaren": 10
+  },
+  "pensioen": {
+    "_bron": "PEN-01-2024",
+    "_toelichting": "Jaarruimte lijfrente (art. 3.127 Wet IB 2001). Factor A (pensioenaangroei via werkgever) is invoer; voor ZZP/DGA zonder werkgeverspensioen = 0.",
+    "opbouwpercentage": 0.3,
+    "aow_franchise": 17545,
+    "max_premiegevend_inkomen": 137800,
+    "max_jaarruimte": 36077,
+    "max_reserveringsruimte": 41608,
+    "factor_aftrek_pensioenaangroei": 6.27
+  },
+  "toeslagen": {
+    "_toelichting": "LET OP: draagt de 2025-benadering; 2024-toeslagbedragen (zorg/huur/KGB/kinderopvang) nog te sourcen. De inkomstenbelasting-kern (box 1/2/3, kortingen, onderneming) is wel 2024-gesourcet.",
+    "zorgtoeslag": {
+      "_bron": "TOE-BD-ZT-hoogte",
+      "max_alleenstaande": 1572,
+      "max_partners": 3000,
+      "drempelinkomen": 28300,
+      "inkomensgrens_alleenstaande": 39719,
+      "inkomensgrens_partners": 50206,
+      "vermogensgrens_alleenstaande": 141896,
+      "vermogensgrens_partners": 179429
+    },
+    "huurtoeslag": {
+      "_bron": "TOE-RO-HT2025",
+      "structuur": "benadering_2025",
+      "_toelichting": "LET OP: 2025 gebruikte officieel een kwadratische eigen-bijdrageformule. Hier benaderd met hetzelfde lineaire model als 2026 (ijkpunt/afbouw geschat) — markeren als benadering tot exacte 2025-formuleparameters zijn verwerkt.",
+      "min_eigen_bijdrage_1p": 199.05,
+      "min_eigen_bijdrage_mp": 197.24,
+      "kwaliteitskortingsgrens": 477.2,
+      "aftoppingsgrens_laag": 682.96,
+      "aftoppingsgrens_hoog": 731.93,
+      "max_huurgrens": 900.07,
+      "minimuminkomensijkpunt_1p": 22500,
+      "minimuminkomensijkpunt_mp": 30500,
+      "afbouw_per_euro_1p": 0.27,
+      "afbouw_per_euro_mp": 0.22,
+      "vermogensgrens_alleenstaande": 37395,
+      "vermogensgrens_partners": 74790
+    },
+    "kinderopvangtoeslag": {
+      "_bron": "TOE-RO-KOT2025",
+      "_toelichting": "Vergoedingspercentage lineair benaderd tussen de twee inkomensankers (officieel staffel Bijlage I). Geen vermogenstoets.",
+      "max_uurtarief_dagopvang": 10.71,
+      "max_uurtarief_bso": 9.52,
+      "max_uurtarief_gastouder": 8.1,
+      "urennorm_dagopvang_pct": 1.4,
+      "urennorm_bso_pct": 0.7,
+      "urennorm_gastouder_pct": 1.4,
+      "max_uren_per_kind_per_maand": 230,
+      "vergoeding_max_pct": 0.96,
+      "vergoeding_inkomensgrens_max": 49403,
+      "vergoeding_min_pct_eerste_kind": 0.333,
+      "vergoeding_min_pct_volgende_kind": 0.671,
+      "vergoeding_inkomensgrens_min": 226546
+    },
+    "kindgebonden_budget": {
+      "_bron": "TOE-WKGB",
+      "basisbedrag_per_kind": 2511,
+      "opslag_12_15": 703,
+      "opslag_16_17": 936,
+      "alleenstaande_ouderkop": 3389,
+      "afbouwpunt_alleenstaande": 28406,
+      "afbouwpunt_partners": 37545,
+      "afbouw_pct": 0.071,
+      "vermogensgrens_alleenstaande": 141896,
+      "vermogensgrens_partners": 179429
+    },
+    "_2024_nog_te_sourcen": true
+  },
+  "box3": {
+    "_bron": "B3-2024",
+    "tarief": 0.36,
+    "heffingvrij_vermogen_pp": 57000,
+    "schuldendrempel_pp": 3700,
+    "forfait": {
+      "banktegoeden": 0.0144,
+      "overige_bezittingen": 0.0604,
+      "schulden": 0.0261,
+      "banktegoeden_voorlopig": false,
+      "schulden_voorlopig": false,
+      "_bron": "B3-2024"
+    },
+    "groene_vrijstelling_pp": 71251,
+    "_bron_groen": "B3-groen-2024"
+  }
+}

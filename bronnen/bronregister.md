@@ -257,6 +257,42 @@ en de voorlopige box 3-forfaits begin het jaar erna nalopen.
 | RO-rijksbelastingen | Rijksoverheid | overzicht rijksbelastingen | 2026-06-28 | https://www.rijksoverheid.nl/themas/belastingen-uitkeringen-en-toeslagen/belasting-betalen/overzicht-rijksbelastingen |
 | ECON-inflatie | ECB / DNB | inflatie-default 2% in projecties = ECB-doelstelling op middellange termijn (aanpasbaar in de tool) | 2026-06-30 | https://www.ecb.europa.eu/mopo/strategy/pricestab/html/index.nl.html |
 
+## Belastingjaar 2024 — toegevoegd 2026-07-02
+
+2024 is een **afgesloten jaar** → definitieve cijfers. Opgehaald **2026-07-02** van belastingdienst.nl
+(fisin2024 + tabellen), wetten.overheid.nl (Wet IB 2001, geldig 01-01-2024), svb.nl.
+**Aandachtspunten**: AOW-jaarbedragen zijn een benadering (2×/jaar aangepast); de box 3-forfaits
+banktegoeden **1,44%** en schulden **2,61%** zijn de *definitieve* percentages (voorlopig stond 1,03/2,47%);
+de **toeslagen**-sectie draagt nog de 2025-benadering (`_2024_nog_te_sourcen`); `schijf1_grens_geboren_voor_1946`
+en `excessief_lenen_drempel` zijn nog te verifiëren.
+
+| Bron-ID | Onderwerp (2024) | Waarde(n) | Bron |
+|---|---|---|---|
+| B1-tarief-2024 | Box 1-schijven | onder-AOW 36,97% (t/m €38.098 én t/m €75.518) / 49,50%; vanaf-AOW 19,07% | belastingdienst.nl fisin2024 |
+| B1-premies-2024 | Premies volksverz. | AOW 17,90% / Anw 0,10% / Wlz 9,65% | belastingdienst.nl |
+| B1-ewf-2024 | Eigenwoningforfait | 0,35%; villagrens €1.310.000; boven €4.585 + 2,35% | belastingdienst.nl koopwoning |
+| B1-hra-2024 | Max HRA-aftrektarief | 36,97% | belastingdienst.nl |
+| B1-hillen-2024 | Hillen-aftrek | 80% (afbouw 3⅓%/jr sinds 2019) | art. 3.123a Wet IB 2001 |
+| OND-2024 | Ondernemersaftrek | zelfst. €3.750; starters €2.123; staking €3.630; urencrit. 1.225 | belastingdienst.nl |
+| OND-mkb-2024 | MKB-winstvrijstelling | 13,31% | belastingdienst.nl |
+| OND-KIA-2024 | KIA-staffel | 28% t/m €69.765; vast €19.535; afbouw 7,56% > €129.194; > €387.580 nihil | belastingdienst.nl |
+| HK-alg-2024 | Alg. heffingskorting | max €3.362; afbouw 6,63% v.a. €24.813 | belastingdienst.nl tabel |
+| HK-arb-2024 | Arbeidskorting | max €5.532; segmenten 8,425 / 31,433 / 2,471 / −6,510% | belastingdienst.nl tabel |
+| HK-iack-2024 | IACK | drempel €6.073; 11,45%; max €2.950 | belastingdienst.nl tabel |
+| HK-oud-2024 | Ouderen / alleenst.-ouderen / jonggehand. | €2.010 / €524 / €820 | belastingdienst.nl fisin2024 |
+| B3-2024 | Box 3 (definitief) | tarief 36%; heffingvrij €57.000; forfait bank 1,44% / overig 6,04% / schuld 2,61% | belastingdienst.nl box-3 2024 |
+| B3-groen-2024 | Groene vrijstelling | €71.251 p.p. | belastingdienst.nl |
+| PEN-03-2024 | AOW (benadering) | alleenstaand ~€19.416; samenwonend ~€13.224 p.p. | svb.nl |
+| PEN-01-2024 | Lijfrente jaarruimte | franchise €17.545; max premiegevend €137.800; max jaarruimte €36.077; reservering €41.608 | art. 3.127 Wet IB 2001 |
+| GIFT-2024 | Giftenaftrek | drempel 1%/min €60; plafond 10%; periodiek max €250.000 | belastingdienst.nl |
+| ZORG-2024 | Zorgkosten-drempel | solo €163 (t/m €9.420) → 1,65% → €825 + 5,75%; partner €326 (t/m €18.840) | belastingdienst.nl |
+| LEEG-2024 | Leegwaarderatio | 73/79/84/90/95/100% (identiek 2023–2026) | belastingdienst.nl UBIB 17a |
+| OVB-2024 | Overdrachtsbelasting | verhuurde woning én niet-woning 10,4% | Belastingplan 2023 (Stcrt) |
+| ZVW-2024 | Zvw-bijdrage | werkgeversheffing 6,57% / laag 5,32%; max €71.628 | belastingdienst.nl |
+| WV-2024 | Werkgeverspremies | Awf 2,64 / 7,64%; Aof 6,18 / 7,54%; Whk 1,22%; max €71.628 | Stcrt 2023, 31686 |
+| DGA-04-2024 | Box 2 | 24,5% t/m €67.000 / **33%** (per 2025 → 31%) | belastingdienst.nl |
+| DGA-07-2024 | Gebruikelijk loon | normbedrag €56.000 | nieuwsbrief loonheffingen 2024 |
+
 ## Bekende instabiele bronnen
 | Beschrijving | Probleem | Alternatief |
 |---|---|---|
