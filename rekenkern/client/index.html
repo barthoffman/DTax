@@ -1679,10 +1679,15 @@ $("authSend").onclick = async () => {
   if (!email) { $("authMsg").textContent = "Vul je e-mailadres in."; return; }
   $("authMsg").textContent = "Code versturen…";
   try {
-    await fetch("/auth/otp", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email})});
+    const r = await fetch("/auth/otp", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email})});
+    const d = await r.json().catch(() => ({}));
     $("authEmailShown").textContent = email;
     $("authStep1").classList.add("hide"); $("authStep2").classList.remove("hide");
-    $("authMsg").textContent = ""; $("authCode").focus();
+    $("authCode").focus();
+    if (d.dev_code) {  // dev-modus (geen SMTP): toon de code meteen
+      $("authCode").value = d.dev_code;
+      $("authMsg").innerHTML = `Dev-modus: je code is <b>${d.dev_code}</b> (in productie komt 'ie per mail).`;
+    } else $("authMsg").textContent = "";
   } catch { $("authMsg").innerHTML = '<span class="err">Kon de code niet versturen.</span>'; }
 };
 $("authVerify").onclick = async () => {

@@ -129,13 +129,16 @@ def _rate_ok(email) -> bool:
 
 def request_otp(email) -> dict:
     """Genereert + verstuurt een OTP als het adres bekend is. Lekt dat niet naar buiten:
-    de respons is altijd hetzelfde (geen e-mail-enumeratie)."""
+    de respons is altijd hetzelfde (geen e-mail-enumeratie) — behalve in dev-modus, waar de
+    code in de respons meekomt zodat je lokaal zonder SMTP kunt testen."""
     e = _norm(email)
+    resp = {"sent": True}
     if is_allowed(e) and _rate_ok(e):
         code = f"{secrets.randbelow(1_000_000):06d}"
         _otps[e] = {"code": code, "expires": time.time() + OTP_TTL, "tries": 0}
-        _send_otp(e, code)
-    return {"sent": True}
+        if _send_otp(e, code) == "dev":
+            resp["dev_code"] = code  # alleen zonder SMTP-config (lokaal testen)
+    return resp
 
 
 def verify_otp(email, code) -> str | None:
@@ -154,13 +157,14 @@ def verify_otp(email, code) -> str | None:
     return create_session(e)
 
 
-def _send_otp(email, code) -> None:
+def _send_otp(email, code) -> str:
+    """Verstuurt de code. Retourneert 'dev' (geen SMTP → log) of 'smtp' (echt verstuurd)."""
     host = os.environ.get("SMTP_HOST")
     text = (f"Je inlogcode voor het Belastingen-dashboard is: {code}\n\n"
             f"De code is 10 minuten geldig. Niet aangevraagd? Negeer deze mail.")
     if not host:  # dev-modus: geen SMTP geconfigureerd → naar het serverlog
         print(f"[AUTH][dev] OTP voor {email}: {code}  (10 min geldig)", flush=True)
-        return
+        return "dev"
     msg = EmailMessage()
     msg["Subject"] = "Je inlogcode voor het Belastingen-dashboard"
     msg["From"] = os.environ.get("SMTP_FROM") or os.environ.get("SMTP_USER") or ADMIN_EMAIL
@@ -172,3 +176,4 @@ def _send_otp(email, code) -> None:
         if user:
             smtp.login(user, pw)
         smtp.send_message(msg)
+    return "smtp"
