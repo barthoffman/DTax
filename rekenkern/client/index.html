@@ -269,13 +269,21 @@
             </div>
           </div>
         </div>
-        <p class="muted" style="margin:10px 0 2px"><b>Giften aan goede doelen (ANBI)</b> — aftrekbaar in box 1:</p>
-        <div class="row">
-          <label>Gewone giften dit jaar (€) — eerste 1% telt niet<input type="number" id="mixGiftGewoon" placeholder="0" min="0" step="100"></label>
-          <label>Periodieke giften (vastgelegd, ≥ 5 jr) (€) — geen drempel<input type="number" id="mixGiftPeriodiek" placeholder="0" min="0" step="100"></label>
+        <label class="chk" style="margin-top:10px"><input type="checkbox" id="hasGiften"> Giften aan goede doelen (ANBI)</label>
+        <div id="grpGiften" class="hide">
+          <div class="row">
+            <label>Gewone giften dit jaar (€) — eerste 1% telt niet<input type="number" id="mixGiftGewoon" placeholder="0" min="0" step="100"></label>
+            <label>Periodieke giften (vastgelegd, ≥ 5 jr) (€) — geen drempel<input type="number" id="mixGiftPeriodiek" placeholder="0" min="0" step="100"></label>
+          </div>
         </div>
-        <label>Betaalde partneralimentatie dit jaar (€) — aftrekbaar; kinderalimentatie niet<input type="number" id="mixAlimentatie" placeholder="0" min="0" step="500"></label>
-        <label>Specifieke zorgkosten dit jaar (€) — bijv. hulpmiddelen/medicijnen/vervoer; níet premie of eigen risico<input type="number" id="mixZorgkosten" placeholder="0" min="0" step="100"></label>
+        <label class="chk"><input type="checkbox" id="hasAlimentatie"> Betaal je partneralimentatie (na scheiding)?</label>
+        <div id="grpAlimentatie" class="hide">
+          <label>Betaalde partneralimentatie dit jaar (€) — kinderalimentatie is níet aftrekbaar<input type="number" id="mixAlimentatie" placeholder="0" min="0" step="500"></label>
+        </div>
+        <label class="chk"><input type="checkbox" id="hasZorgkosten"> Hoge (specifieke) zorgkosten</label>
+        <div id="grpZorgkosten" class="hide">
+          <label>Specifieke zorgkosten dit jaar (€) — bijv. hulpmiddelen/medicijnen/vervoer; níet premie of eigen risico<input type="number" id="mixZorgkosten" placeholder="0" min="0" step="100"></label>
+        </div>
       </fieldset>
     </div><!-- /modeIndividu -->
 
@@ -840,6 +848,9 @@ $("hasVermogen").onchange = () => {
   _toggle("grpVermogen", $("hasVermogen").checked, ["mixBank","mixBeleg"]);
   if (!$("hasVermogen").checked) $("grpRend").classList.add("hide");
 };
+$("hasGiften").onchange = () => _toggle("grpGiften", $("hasGiften").checked, ["mixGiftGewoon","mixGiftPeriodiek"]);
+$("hasAlimentatie").onchange = () => _toggle("grpAlimentatie", $("hasAlimentatie").checked, ["mixAlimentatie"]);
+$("hasZorgkosten").onchange = () => _toggle("grpZorgkosten", $("hasZorgkosten").checked, ["mixZorgkosten"]);
 function updateWonen() {
   const w = $("wonen").value;
   $("grpKoop").classList.toggle("hide", w !== "koop");
