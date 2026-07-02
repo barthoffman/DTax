@@ -9,6 +9,21 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-02 — Fase 32: positionering, verhuur-lijst, PDF voor boekhouder
+
+- **BESLISSING (positionering)**: framing *"wij maken de schatting, de boekhouder de controle
+  en het advies"* doorgevoerd — header, welkom-disclaimer, Vermogen-subtab "Advies" → "Schatting",
+  rapport-md-titel → "Fiscale schatting". Juridisch netter (geen "advies") + eerlijk.
+- **BESLISSING (verhuur)**: verhuurde woning van inline box 3-veld naar **eigen inklapbare
+  sectie** ("Verhuurde woning(en)") met **herhaalbare lijst** — meerdere panden, elk eigen
+  box 3-vs-BV-vergelijking (`/vastgoed`). `leegwaardeVal()` sommeert over alle panden; guard 0
+  als de sectie uit staat.
+- **BESLISSING (PDF)**: knop op de **Straks-pagina** — `pdfBoekhouder()` stelt de hele schatting
+  samen (uitgangspunten, huidige belasting, rechtsvorm, optimalisaties **mét wetsartikelen**,
+  vermogen, straks) en opent een **print-venster** ("Bewaar als PDF"). Dependency-vrij (geen
+  jsPDF); `</script>` in de template ge-escaped als `<\/script>`. De oude `.md`-knop blijft
+  verborgen. Betaalde/gestructureerde variant staat in de backlog.
+
 ## 2026-07-02 — Fase 31: invoer-verbouwing ("nu" = het invoer-hart) + Straks auto
 
 - **BESLISSING (invoerstructuur)**: alle huidige-situatie-invoer verhuisd naar **Mijn

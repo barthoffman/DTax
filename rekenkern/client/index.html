@@ -446,6 +446,9 @@
           </div>
         </div>
         <p class="muted">AOW-bedrag = SVB 2026 (alleenstaand € 20.929/jaar, gehuwd € 14.379 p.p., incl. vakantiegeld); pas aan naar jouw situatie.</p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:14px 0">
+        <button type="button" id="pdfBtn" style="width:auto;padding:8px 16px">📄 Download PDF voor je boekhouder</button>
+        <p class="muted" id="pdfInfo" style="margin:6px 0 0">Zet je hele schatting (uitgangspunten, huidige belasting, optimalisaties mét wetsartikelen, vermogen én straks) in één PDF om mee te nemen naar je boekhouder — voor de controle en het advies.</p>
       </fieldset>
     </div><!-- /modeStraks -->
 
@@ -1553,6 +1556,92 @@ async function berekenStraks() {
     out.innerHTML = html;
   } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
 }
+
+// Volledige schatting als PDF voor de boekhouder — dependency-vrij via een print-venster.
+async function pdfBoekhouder() {
+  const info = $("pdfInfo");
+  info.innerHTML = '<span class="muted">Schatting samenstellen…</span>';
+  try {
+    const adv = await post("/advies", tab1Body());
+    const va = await post("/vermogensadvies", vaBody(adv));
+    // Straks-body identiek aan berekenStraks (box 3 gepoold voor de heffing).
+    const p3b = $("strPartner").checked ? +$("strpBeleg").value : 0, p3s = $("strPartner").checked ? +$("strpBank").value : 0;
+    const sBody = {jaar:+$("jaar").value, aow:+$("strAow").value, pensioen:+$("strPensioen").value,
+      lijfrente:+$("strLijfrente").value, bv_dividend:+$("strDividend").value,
+      box3:{banktegoeden:+$("strBank").value + p3s, overige_bezittingen:+$("strBeleg").value + p3b, schulden:0}};
+    if ($("strPartner").checked) sBody.partner = {aow:+$("strpAow").value, pensioen:+$("strpPensioen").value, lijfrente:+$("strpLijfrente").value, box3:{}};
+    const straks = await post("/straks", sBody);
+
+    const s = somBronnen("#inkLijst"), partner = +$("mixPartner").value;
+    const datum = new Date().toLocaleDateString("nl-NL", {year:"numeric",month:"long",day:"numeric"});
+    const rij = (l,v) => `<tr><td>${l}</td><td class="num">${v}</td></tr>`;
+
+    let inputs = rij("Belastingjaar", adv.jaar);
+    if (s.loon) inputs += rij("Loon / uitkering", eur(s.loon));
+    if (s.winst) inputs += rij("Winst (IB-onderneming)", eur(s.winst));
+    if (s.winst_bv) inputs += rij("Winst (eigen BV)", eur(s.winst_bv));
+    if (partner) inputs += rij("Partner-inkomen", eur(partner));
+    if (+$("mixBank").value) inputs += rij("Spaargeld box 3", eur(+$("mixBank").value));
+    if (+$("mixBeleg").value) inputs += rij("Beleggingen box 3", eur(+$("mixBeleg").value));
+    if (leegwaardeVal()) inputs += rij("Verhuurde woning(en) — box 3-waarde", eur(leegwaardeVal()));
+    if (+$("mixFactorA").value) inputs += rij("Factor A (pensioenaangroei)", eur(+$("mixFactorA").value));
+    inputs += rij("Aanname rendement / horizon", `${$("mixRendement").value}% / ${$("mixHorizon").value} jaar`);
+
+    let rv = "";
+    if (adv.rechtsvorm) { const R = adv.rechtsvorm;
+      rv = `<h2>Beste ondernemingsvorm: ${R.beste_label}</h2><table><thead><tr><th>Ondernemen als</th><th>Huishouden netto</th></tr></thead><tbody>`
+        + R.opties.map(o=>`<tr${o.naam===R.beste?' class="win"':''}><td>${o.label}</td><td class="num">${eur(o.huishouden_netto)}</td></tr>`).join("") + `</tbody></table>`;
+    }
+    const sug = adv.suggesties.map(x => `<tr><td>${x.titel}<div class="mut">${x.toelichting||""}</div></td><td class="num">${eur(x.besparing)}</td><td class="mut">${x.wetsartikel||""}</td></tr>`).join("");
+
+    const A = va.allocatie || {}; let alloc = "";
+    if (A.lijfrente>0) alloc += rij("Naar lijfrente (jij)", eur(A.lijfrente));
+    if (A.lijfrente_partner>0) alloc += rij("Naar lijfrente (partner)", eur(A.lijfrente_partner));
+    if (A.box3>0) alloc += rij("Naar box 3", eur(A.box3));
+    if (A.bv>0) alloc += rij("In de BV laten groeien", eur(A.bv));
+    const P = va.projectie; let proj = "";
+    if (P) {
+      if (P.lijfrente_pot_jij>0) proj += rij("Lijfrente-pot jij (bij pensioen)", eur(P.lijfrente_pot_jij));
+      if (P.lijfrente_pot_partner>0) proj += rij("Lijfrente-pot partner", eur(P.lijfrente_pot_partner));
+      if (P.box3_straks_totaal>0) proj += rij("Box 3 (bij pensioen)", eur(P.box3_straks_totaal));
+      if (P.spaargeld_straks>0) proj += rij("Spaargeld (bij pensioen)", eur(P.spaargeld_straks));
+      if (P.bv_pot>0) proj += rij("BV-pot (bij pensioen)", eur(P.bv_pot));
+    }
+    const stRij = (t,p) => `<tr><td>${t}</td><td class="num">${eur(p.te_betalen)}</td><td class="num">${eur(p.netto)}</td></tr>`;
+    let straksRows = stRij(straks.partner?"Jij":"Belastingplichtige", straks.jij);
+    if (straks.partner) straksRows += stRij("Partner", straks.partner);
+
+    const html = `<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8"><title>Fiscale schatting ${adv.jaar}</title><style>
+      body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2937;max-width:820px;margin:24px auto;padding:0 22px;line-height:1.5}
+      h1{font-size:22px;margin:0 0 4px} h2{font-size:15px;margin:20px 0 6px;border-bottom:1px solid #e5e7eb;padding-bottom:3px}
+      table{width:100%;border-collapse:collapse;margin:6px 0} td,th{padding:5px 8px;border-bottom:1px solid #f1f1f1;text-align:left;font-size:13px;vertical-align:top}
+      th{color:#6b7280;font-weight:600;font-size:12px} .num{text-align:right;white-space:nowrap} .win{background:#eef7ee} .win td{font-weight:600}
+      .mut{color:#6b7280;font-size:12px} .disc{background:#f8f9fb;border:1px solid #e5e7eb;border-radius:6px;padding:9px 12px;font-size:12px;color:#4b5563}
+      footer{margin-top:26px;font-size:11px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:8px} @media print{body{margin:0}}
+    </style></head><body>
+      <h1>Fiscale schatting — ${adv.jaar}</h1>
+      <p class="disc"><b>Schatting op basis van de wet (${adv.jaar}).</b> Dit is géén belastingaangifte. Bedoeld ter <b>controle en advies door je boekhouder/adviseur</b> — wij maken de schatting, zij doen de controle. Opgesteld op ${datum}. Cijfers indicatief; primaire bron: wetten.overheid.nl.</p>
+      <h2>1. Uitgangspunten</h2><table>${inputs}</table>
+      <h2>2. Je belasting nu</h2>
+      <p>Je betaalt nu <b>${eur(adv.baseline_belasting)}</b> belasting${adv.baseline_toeslagen>0?` − ${eur(adv.baseline_toeslagen)} toeslagen`:""} · netto besteedbaar <b>${eur(adv.baseline_netto)}</b>.</p>
+      ${rv}
+      <h2>3. Optimalisaties — potentieel ${eur(adv.totaal_potentieel)}/jaar</h2>
+      ${sug ? `<table><thead><tr><th>Optimalisatie</th><th>Besparing/jaar</th><th>Wetsartikel</th></tr></thead><tbody>${sug}</tbody></table>` : `<p class="mut">Geen aanvullende optimalisaties gevonden.</p>`}
+      ${alloc ? `<h2>4. Vermogen — aanbevolen verdeling nieuwe inleg (${eur(va.nieuwe_inleg)}/jaar)</h2><table>${alloc}</table>` : ""}
+      ${proj ? `<h2>5. Vermogen bij pensioen (projectie, ${va.jaren} jaar)</h2><table>${proj}</table>` : ""}
+      <h2>6. Straks — je situatie vanaf pensioen (${straks.jaar}-tarieven)</h2>
+      <table><thead><tr><th></th><th>Te betalen</th><th>Netto besteedbaar</th></tr></thead><tbody>${straksRows}
+        <tr class="win"><td>Huishouden samen</td><td class="num">${eur(straks.huishouden.te_betalen)}</td><td class="num">${eur(straks.huishouden.netto)}</td></tr></tbody></table>
+      <footer>Gegenereerd door het Belastingen-dashboard — een <b>schatting</b> op basis van de wet ${adv.jaar}, geen aangifte. Laat controleren door je boekhouder. Bronnen: wetten.overheid.nl (Wet IB 2001, Wet Vpb, AWIR).</footer>
+      <script>window.onload=function(){window.focus();window.print();}<\/script></body></html>`;
+
+    const w = window.open("", "_blank");
+    if (!w) { info.innerHTML = '<span class="err">Pop-up geblokkeerd — sta pop-ups toe en probeer opnieuw.</span>'; return; }
+    w.document.write(html); w.document.close();
+    info.innerHTML = 'PDF-venster geopend — kies <b>"Bewaar als PDF"</b> in het printvenster. Werkt de knop niet? Sta pop-ups toe.';
+  } catch(e) { info.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+$("pdfBtn").onclick = pdfBoekhouder;
 
 $("bereken").onclick = () => {
   if (mode === "vergelijk") return bereken();

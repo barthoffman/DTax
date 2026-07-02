@@ -43,11 +43,12 @@ A is leeg.
 - **Positionering**: *wij maken de **schatting**, de boekhouder doet de **controle en het
   advies***. Doorgevoerd in de UI-teksten (2026-07-02): header-tagline, welkom-disclaimer,
   "Advies"-subtab → "Schatting", rapport-titel → "Fiscale schatting".
-- **Meeneembare PDF voor de boekhouder** — aan het eind een **PDF-export** die de gebruiker
-  meeneemt naar de boekhouder (voor de controle + het advies). Waarschijnlijk **betaald**.
-  De `.md`-export is nu verborgen (boekhouders werken niet met Markdown); de bouwstenen staan
-  er nog (`rapportBtn` met class `hide`, functies `rapport()`/`mdAdvies()` etc.) → basis voor
-  de PDF. Later: gestructureerd formaat dat aansluit op aangifte/boekhoudsoftware.
+- **Meeneembare PDF voor de boekhouder** — ✅ **basis gebouwd** (2026-07-02): knop op de
+  Straks-pagina (`pdfBtn` → `pdfBoekhouder()`) stelt de hele schatting samen (uitgangspunten,
+  huidige belasting, rechtsvorm, optimalisaties mét wetsartikelen, vermogen, straks) en opent
+  een **print-venster** ("Bewaar als PDF") — dependency-vrij. Later: **betaalde/gestructureerde**
+  variant die aansluit op aangifte/boekhoudsoftware; evt. server-side PDF i.p.v. browser-print.
+  De oude `.md`-export blijft verborgen (`rapportBtn` class `hide`).
 
 ---
 
