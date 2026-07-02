@@ -16,10 +16,14 @@ A is leeg.
 ### B. Nog niet in de rekenkern — bouwen
 | # | Optimalisatie | Voor wie | Inspanning |
 |---|---|---|---|
-| 1 | **KIA / kleinschaligheidsinvesteringsaftrek** | ondernemer met zakelijke investeringen | middel — investeringsbedrag-input + KIA-tabel (art. 3.41) |
-| 2 | **Giftenaftrek** (m.n. periodieke giften) | gever aan ANBI | middel — aftrekpost + drempel/plafond |
-| 3 | **Partneralimentatie (betaald)** | gescheiden, betaalt alimentatie | klein/middel — box 1-aftrekpost |
-| 4 | **Specifieke zorgkosten** | hoge zorgkosten boven drempel | middel — drempel afhankelijk van inkomen |
+| ~~KIA~~ | ✅ **KIA / kleinschaligheidsinvesteringsaftrek** (gebouwd 2026-07-01, JOURNAAL fase 29) | — | — |
+| 1 | **Giftenaftrek** (m.n. periodieke giften) | gever aan ANBI | middel — aftrekpost + drempel/plafond |
+| 2 | **Partneralimentatie (betaald)** | gescheiden, betaalt alimentatie | klein/middel — box 1-aftrekpost |
+| 3 | **Specifieke zorgkosten** | hoge zorgkosten boven drempel | middel — drempel afhankelijk van inkomen |
+
+> Ook gebouwd 2026-07-01 (fase 29): **jaarruimte-correctie factor A** (werkgeverspensioen verlaagt de
+> ruimte), **reserveringsruimte-inhaal** (met pensioen-bewuste cap), en de expliciete **cap-uitleg**
+> (rendement vs flexibiliteit boven de grens). Zie JOURNAAL.
 
 ---
 

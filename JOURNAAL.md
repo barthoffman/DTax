@@ -9,6 +9,22 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 
 ---
 
+## 2026-07-01 — Fase 29: KIA + jaarruimte-verfijningen + eerlijke cap-uitleg
+
+- **BESLISSING**: **KIA** (kleinschaligheidsinvesteringsaftrek) gebouwd — params-tabel 2025+2026
+  (art. 3.41, bron OND-KIA-*), `kia_aftrek()` in onderneming.py, advies past 'm toe + suggestie
+  (met bundel-tip bij de drempel). UI-veld "zakelijke investeringen".
+- **CORRECTIE**: **jaarruimte nam factor A = 0 aan** → maximale (te hoge) jaarruimte voor iedereen
+  met werkgeverspensioen. Nu factor A-invoer (jij + partner, van de UPO) via `jaarruimte(factor_a=)`.
+- **BESLISSING**: **reserveringsruimte-inhaal** als eenmalige suggestie, begrensd door de
+  **pensioen-bewuste cap** (inhaal tot de uitkering de schijfgrens raakt). Bron PEN-16 (10-jaars-
+  venster, max € 42.753, samen met jaarruimte max € 78.342).
+- **BEVINDING** (belangrijk, in BEVINDINGEN vastgelegd): boven de cap is het tariefvoordeel weg,
+  maar lijfrente groeit nog **belastingvrij** → op rendement wint doorvullen nog steeds; box 3 wint
+  pas bij **> ~2,16%/jaar** hoger rendement (eigen beheer). En: **"nu belastingvrij inleggen" is het
+  mechanisme, geen zelfstandig voordeel** — de pre-tax hefboom cancelt bij opname tegen de
+  opname-heffing; netto rest alleen tariefarbitrage (bij lager opnametarief) + belastingvrije groei.
+
 ## 2026-07-01 — Fase 28: huishoud-optimale allocator + per-persoon overal
 
 - **BESLISSING**: **allocator huishoud-optimaal** — `vermogensadvies` verdeelt lijfrente over beide
