@@ -242,14 +242,6 @@
           </div>
           <label>Hoeveel spaargeld vrij beschikbaar houden? (€) — je buffer; de <b>rest</b> is een <b>suggestie</b> om te herverdelen naar lijfrente/box 3 (0 = alles beleggen, geen buffer)<input type="number" id="vaVrij" placeholder="0" min="0"></label>
           <label>Waarvan groene beleggingen (box 3, €) — vrijstelling € 26.715 p.p.<input type="number" id="mixGroen" placeholder="0" min="0" step="5000"></label>
-          <div class="row">
-            <label>Verhuurde woning — WOZ-waarde (€)<input type="number" id="mixVerhuurWoz" placeholder="0" min="0" step="10000"></label>
-            <label>Jaarhuur van die woning (€)<input type="number" id="mixVerhuurHuur" placeholder="0" min="0" step="1000"></label>
-          </div>
-          <p class="muted" id="verhuurInfo" style="margin:2px 0 0">Verhuurd met huurbescherming? Dan telt de woning voor <b>WOZ × leegwaarderatio</b> in box 3, niet de volle WOZ.</p>
-          <label>Jaarlijkse kosten van dit pand (€, voor de BV-vergelijking)<input type="number" id="mixVerhuurKosten" placeholder="0" min="0" step="500"></label>
-          <button type="button" id="vastgoedBtn" style="width:auto;padding:6px 12px;margin-top:6px">Vergelijk box 3 vs BV voor dit pand</button>
-          <div id="vastgoedInfo" class="muted" style="margin-top:6px"></div>
           <label>Schulden box 3 (hypotheek 2e woning, leningen — niet je eigen woning) (€)<input type="number" id="mixSchulden" placeholder="0" min="0" step="5000"></label>
           <p class="muted" style="margin:2px 0 0">Bestaande schuld bij een box 3-bezit. Lenen puur om box 3-belasting te verlagen loont niet: een schuld bespaart maar ~0,97%/jaar (2,7% forfait × 36%), terwijl je 4–5% echte rente betaalt — en de eerste € 3.800 p.p. telt door de drempel niet mee.</p>
           <div id="grpRend" class="hide">
@@ -258,6 +250,12 @@
               <label>Horizon tot pensioen (jaren) — auto uit je leeftijd, aanpasbaar<input type="number" id="mixHorizon" value="15" min="1"></label>
             </div>
           </div>
+        </div>
+        <label class="chk"><input type="checkbox" id="hasVerhuur"> Verhuurde woning(en) — box 3 of BV</label>
+        <div id="grpVerhuur" class="hide">
+          <p class="muted" style="margin:2px 0 6px">Verhuurd met huurbescherming? Dan telt de woning voor <b>WOZ × leegwaarderatio</b> in box 3, niet de volle WOZ. Voeg elk verhuurpand los toe:</p>
+          <div id="verhuurLijst"></div>
+          <button type="button" id="verhuurAdd" style="width:auto;padding:6px 14px;margin-top:4px">+ verhuurde woning</button>
         </div>
         <label class="chk"><input type="checkbox" id="hasKinderen"> Kinderen (kindgebonden budget + kinderopvang)</label>
         <div id="grpKinderen" class="hide">
@@ -778,38 +776,73 @@ $("jaar").addEventListener("change", () => {  // AOW-defaults volgen het gekozen
 });
 
 let leegwaardeCache = null;  // {jaar: {schijven, boven}} — leegwaarderatio-tabel uit params (bron LEEG-*)
-function leegwaardeVal() {  // box 3-waarde verhuurde woning = WOZ × leegwaarderatio
-  const woz = +$("mixVerhuurWoz").value, huur = +$("mixVerhuurHuur").value;
-  const t = leegwaardeCache && leegwaardeCache[$("jaar").value];
+function leegwaardeVanWoz(woz, huur, t) {  // box 3-waarde één woning = WOZ × leegwaarderatio
   if (!woz || !t) return woz || 0;  // zonder tabel: volle WOZ (defensief)
   let ratio = t.boven; const verh = huur / woz;
   for (const s of t.schijven) if (verh < s.tot_verhouding) { ratio = s.ratio; break; }
   return Math.round(woz * ratio);
 }
-function updateVerhuur() {
-  const woz = +$("mixVerhuurWoz").value;
-  if (!woz) { $("verhuurInfo").innerHTML = "Verhuurd met huurbescherming? Dan telt de woning voor <b>WOZ × leegwaarderatio</b> in box 3, niet de volle WOZ."; return; }
-  const v = leegwaardeVal();
-  $("verhuurInfo").innerHTML = `Box 3-waarde: <b>${eur(v)}</b> = WOZ × ${Math.round(v / woz * 100)}% leegwaarderatio — <b>${eur(woz - v)}</b> lager dan de volle WOZ. <span style="opacity:.8">(Vervalt per 2027; géén ratio bij niet-zakelijke verhuur aan naasten.)</span>`;
+function leegwaardeVal() {  // som over alle verhuurde woningen (0 als de sectie uit staat)
+  if (!$("hasVerhuur") || !$("hasVerhuur").checked) return 0;
+  const t = leegwaardeCache && leegwaardeCache[$("jaar").value];
+  let sum = 0;
+  document.querySelectorAll("#verhuurLijst .verhuurRij").forEach(div =>
+    sum += leegwaardeVanWoz(+div.querySelector(".verhWoz").value, +div.querySelector(".verhHuur").value, t));
+  return sum;
 }
-fetch("/leegwaarde").then(r => r.json()).then(d => { leegwaardeCache = d.leegwaarderatio; updateVerhuur(); }).catch(() => {});
-$("mixVerhuurWoz").addEventListener("input", updateVerhuur);
-$("mixVerhuurHuur").addEventListener("input", updateVerhuur);
-$("vastgoedBtn").onclick = async () => {  // box 3 vs BV voor het verhuurpand
-  const woz = +$("mixVerhuurWoz").value;
-  if (!woz) { $("vastgoedInfo").textContent = "Vul eerst de WOZ-waarde in."; return; }
-  $("vastgoedInfo").innerHTML = '<span class="muted">Bezig…</span>';
+function updateVerhuurRij(div) {
+  const woz = +div.querySelector(".verhWoz").value, huur = +div.querySelector(".verhHuur").value;
+  const info = div.querySelector(".verhInfo");
+  const t = leegwaardeCache && leegwaardeCache[$("jaar").value];
+  if (!woz) { info.innerHTML = "Vul de WOZ-waarde in — met huurbescherming telt de woning voor <b>WOZ × leegwaarderatio</b> in box 3."; return; }
+  const v = leegwaardeVanWoz(woz, huur, t);
+  info.innerHTML = `Box 3-waarde: <b>${eur(v)}</b> = WOZ × ${Math.round(v / woz * 100)}% leegwaarderatio — <b>${eur(woz - v)}</b> lager dan de volle WOZ. <span style="opacity:.8">(Vervalt per 2027; géén ratio bij niet-zakelijke verhuur aan naasten.)</span>`;
+}
+async function vergelijkVastgoed(div) {  // box 3 vs BV voor dít pand
+  const woz = +div.querySelector(".verhWoz").value, out = div.querySelector(".verhVastgoed");
+  if (!woz) { out.textContent = "Vul eerst de WOZ-waarde in."; return; }
+  out.innerHTML = '<span class="muted">Bezig…</span>';
   try {
-    const r = await post("/vastgoed", {jaar:+$("jaar").value, woz, jaarhuur:+$("mixVerhuurHuur").value, kosten:+$("mixVerhuurKosten").value});
+    const r = await post("/vastgoed", {jaar:+$("jaar").value, woz, jaarhuur:+div.querySelector(".verhHuur").value, kosten:+div.querySelector(".verhKosten").value});
     const beste = r.beste === "box3" ? "box 3" : "de BV";
-    $("vastgoedInfo").innerHTML =
+    out.innerHTML =
       `<b>Box 3</b>: ${eur(r.box3_heffing)}/jaar (forfait over ${eur(r.netto_box3_waarde)} = WOZ × leegwaarderatio − schuld).<br>`
       + `<b>BV</b>: ${eur(r.bv_vpb)}/jaar Vpb over de huurwinst (${eur(r.netto_huur)}); mét box 2 bij uitkeren → ${eur(r.bv_uitgekeerd)}/jaar.<br>`
       + `Eenmalig bij aankoop/inbreng in een BV: <b>overdrachtsbelasting ${eur(r.overdrachtsbelasting)}</b> (${(r.ovb_pct*100).toFixed(1)}%).<br>`
       + `→ <b>Jaarlijks is ${beste} goedkoper</b> (BV in de BV gehouden). `
       + `<span style="opacity:.8">Caveats: box 3-vastgoed wijzigt per 2027 (leegwaarderatio weg) en 2028 (werkelijk rendement); afschrijving, waardegroei en jaarlijkse BV-overhead niet meegerekend.</span>`;
-  } catch(e) { $("vastgoedInfo").innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+  } catch(e) { out.innerHTML = `<span class="err">Fout: ${e.message}</span>`; }
+}
+function verhuurRij(woz="", huur="", kosten="") {
+  const div = document.createElement("div");
+  div.className = "verhuurRij";
+  div.style.cssText = "border:1px solid #e5e7eb;border-radius:8px;padding:10px;margin-bottom:8px";
+  div.innerHTML = `
+    <div class="row">
+      <label>WOZ-waarde (€)<input type="number" class="verhWoz" value="${woz}" min="0" step="10000"></label>
+      <label>Jaarhuur (€)<input type="number" class="verhHuur" value="${huur}" min="0" step="1000"></label>
+    </div>
+    <label>Jaarlijkse kosten (€, voor de BV-vergelijking)<input type="number" class="verhKosten" value="${kosten}" min="0" step="500"></label>
+    <p class="muted verhInfo" style="margin:2px 0 0"></p>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+      <button type="button" class="verhVergelijk" style="width:auto;padding:6px 12px">Vergelijk box 3 vs BV</button>
+      <button type="button" class="del" style="width:auto;padding:6px 12px">× verwijderen</button>
+    </div>
+    <div class="verhVastgoed muted" style="margin-top:6px"></div>`;
+  div.querySelector(".verhWoz").addEventListener("input", () => updateVerhuurRij(div));
+  div.querySelector(".verhHuur").addEventListener("input", () => updateVerhuurRij(div));
+  div.querySelector(".verhVergelijk").onclick = () => vergelijkVastgoed(div);
+  div.querySelector(".del").onclick = () => div.remove();
+  updateVerhuurRij(div);
+  return div;
+}
+$("verhuurAdd").onclick = () => $("verhuurLijst").appendChild(verhuurRij());
+$("hasVerhuur").onchange = () => {
+  _toggle("grpVerhuur", $("hasVerhuur").checked);  // geen clearIds: ingevoerde panden blijven staan
+  if ($("hasVerhuur").checked && !$("verhuurLijst").children.length) $("verhuurLijst").appendChild(verhuurRij());
 };
+fetch("/leegwaarde").then(r => r.json()).then(d => { leegwaardeCache = d.leegwaarderatio;
+  document.querySelectorAll("#verhuurLijst .verhuurRij").forEach(updateVerhuurRij); }).catch(() => {});
 function fiscaalPartner() { return $("hasPartner").checked && $("mixFiscaalPartner").checked; }
 function partnerBox3() { return fiscaalPartner() ? {bank:+$("mixPartnerBank").value, beleg:+$("mixPartnerBeleg").value} : {bank:0, beleg:0}; }
 function pensSom() {  // → {jij:{pot,uitk}, partner:{pot,uitk}} — twee aparte lijsten
