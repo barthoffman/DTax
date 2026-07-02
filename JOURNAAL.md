@@ -21,9 +21,14 @@ korte tekst, en waar relevant de bron-ID of het KB-bestand.
 - **Bronnen**: ~60 waarden gesourcet (belastingdienst.nl fisin2024/tabellen, wetten.overheid.nl,
   svb.nl, Stcrt) — bron-ID's `*-2024` in `bronregister.md`. Definitieve box 3-forfaits (bank 1,44% /
   schuld 2,61%), MKB 13,31%, zelfstandigenaftrek € 3.750, box 2 hoog 33%, gebruikelijk loon € 56.000.
-- **OPEN PUNT**: de **toeslagen**-sectie draagt nog de 2025-benadering (`_2024_nog_te_sourcen`) →
-  IB-kern is 2024-correct, toeslagen (zorg/huur/KGB/kinderopvang) nog te sourcen. Klein: AOW-jaarbedrag
-  benadering, `schijf1_grens_geboren_voor_1946` + `excessief_lenen_drempel` te verifiëren.
+- **CORRECTIE**: de jaar-dropdown in de client bleek **hardcoded** (2025/2026) — niet uit `/jaren`.
+  2024 als `<option>` toegevoegd; de endpoints (`/jaren`, `/aow`, `/leegwaarde`) detecteerden 't al wel.
+- **AANVULLING**: **toeslagen 2024 gesourcet** (officiële Dienst Toeslagen-rekenbladen 2024): zorgtoeslag,
+  huurtoeslag, kinderopvangtoeslag, kindgebonden budget (bron-ID's `TOE-*-2024`). `_2024_nog_te_sourcen`
+  verwijderd. Volledige advies-flow 2024 getest (loon 28k, alleenstaande, 2 kinderen → toeslagen € 6.097).
+- **OPEN PUNT (klein)**: AOW-jaarbedrag is benadering; zorgtoeslag-drempelinkomen afgeleid; huurtoeslag
+  als lineaire benadering; `schijf1_grens_geboren_voor_1946` + `excessief_lenen_drempel` nog te verifiëren.
+  Precieze toeslagbedragen tegen een echte 2024-beschikking kruischecken is een nette vervolgstap.
 
 ## 2026-07-02 — Fase 33: e-mail-OTP-login + admin-allowlist (stdlib, geen deps)
 

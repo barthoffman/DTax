@@ -292,6 +292,10 @@ en `excessief_lenen_drempel` zijn nog te verifiëren.
 | WV-2024 | Werkgeverspremies | Awf 2,64 / 7,64%; Aof 6,18 / 7,54%; Whk 1,22%; max €71.628 | Stcrt 2023, 31686 |
 | DGA-04-2024 | Box 2 | 24,5% t/m €67.000 / **33%** (per 2025 → 31%) | belastingdienst.nl |
 | DGA-07-2024 | Gebruikelijk loon | normbedrag €56.000 | nieuwsbrief loonheffingen 2024 |
+| TOE-ZT-2024 | Zorgtoeslag | max solo €1.476 / partner €2.832; grens €37.496 / €47.368; vermogen €140.213 / €177.301 | belastingdienst.nl toeslagen |
+| TOE-HT-2024 | Huurtoeslag | kwaliteitskortingsgrens €454,47; aftopping €650,43 / €697,07; max huur €879,66; min basishuur €188,95 | rekenblad huurtoeslag 2024 |
+| TOE-KOT-2024 | Kinderopvangtoeslag | uurtarief dag €10,25 / BSO €9,12 / gastouder €7,53; max 96% (t/m €28.297) → 33,3% (v.a. €138.890) | rekenblad KOT 2024 |
+| TOE-KGB-2024 | Kindgebonden budget | basis €2.436/kind; opslag €694 (12-15) / €924 (16-17); ouderkop €3.480; afbouw 6,75% v.a. €26.819 / €35.849 | rekenblad KGB 2024 |
 
 ## Bekende instabiele bronnen
 | Beschrijving | Probleem | Alternatief |
