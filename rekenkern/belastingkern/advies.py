@@ -21,6 +21,7 @@ from .engine import bereken_persoon
 from .mix import bereken_mix, _persoon_detail
 from .model import Box3Vermogen, EigenWoning, Onderneming, Persoon
 from .giften import giftenaftrek
+from .zorgkosten import zorgkosten_aftrek, zorgkosten_drempel
 from .onderneming import kia_aftrek
 from .optimalisatiemotor import box3_last
 from .vermogensadvies import _lijf_cap_persoon
@@ -112,6 +113,7 @@ def optimalisatie_advies(
     giften_gewoon: float = 0.0,
     giften_periodiek: float = 0.0,
     partneralimentatie: float = 0.0,
+    zorgkosten: float = 0.0,
 ) -> AdviesResultaat:
     """Het ondernemersinkomen ís de te optimaliseren variabele (ZZP vs BV vs loon).
     `huidige_vorm` ("zzp" of "bv") bepaalt de baseline: wat de gebruiker NU betaalt."""
@@ -355,6 +357,23 @@ def optimalisatie_advies(
                 "Betaalde partneralimentatie is aftrekbaar in box 1 (aftrektarief max ~37,56% door de "
                 "tariefaanpassing) en verlaagt je toetsingsinkomen. Let op: kinderalimentatie is níet aftrekbaar.",
                 "art. 6.3 Wet IB 2001"))
+
+    # 2f. Specifieke zorgkosten — aftrekbaar boven de inkomensafhankelijke drempel (persoonsgebonden, afgetopt).
+    if zorgkosten > 0:
+        di_z = rp.verzamelinkomen + (rpp.verzamelinkomen if rpp else 0.0)  # bij fiscaal partner: samen
+        aftrek_z = zorgkosten_aftrek(zorgkosten, di_z, partner is not None, p)
+        if aftrek_z > 0:
+            p_z = dataclasses.replace(op_persoon, persoonsgebonden_aftrek=op_persoon.persoonsgebonden_aftrek + aftrek_z)
+            t_z, ts_z, _ = _huishouden(p_z, partner, profiel, p, inkomen, op_box2, op_extra, minst, partner_minst)
+            besp_z = round((op_tax - t_z) + (ts_z - op_toeslagen), 2)
+            if besp_z > 1:
+                drempel_z = zorgkosten_drempel(di_z, partner is not None, p)
+                sugg.append(Suggestie(
+                    f"Specifieke zorgkosten — € {aftrek_z:,.0f} aftrekbaar".replace(",", "."), besp_z,
+                    f"Boven de inkomensafhankelijke drempel (€ {drempel_z:,.0f}) zijn specifieke zorgkosten "
+                    "aftrekbaar in box 1 (afgetopt op ~37,56%). Premie en eigen risico tellen níet mee. Bepaalde "
+                    "kosten mogen +40% (onder AOW-leeftijd, laag inkomen) — hier conservatief níet meegerekend.".replace(",", "."),
+                    "art. 6.17 Wet IB 2001"))
 
     # 3. Partnertoerekening eigen woning (op het box 1-inkomen van de gekozen route).
     if partner and (ew.woz_waarde or ew.betaalde_hypotheekrente):

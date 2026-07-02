@@ -67,6 +67,13 @@
     "periodiek_max": 1500000,
     "_bron": "GIFT-2025"
   },
+  "zorgkosten": {
+    "drempel_vast_solo": 164, "grens_vast_solo": 9534,
+    "drempel_vast_partner": 328, "grens_vast_partner": 19068,
+    "midden_pct": 0.0165, "midden_tot": 50635,
+    "hoog_vast": 835, "hoog_vanaf": 50635, "hoog_pct": 0.0575,
+    "_bron": "ZORG-2025"
+  },
   "heffingskortingen": {
     "algemene": {
       "_bron": "HK-02",

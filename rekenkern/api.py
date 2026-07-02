@@ -234,6 +234,7 @@ def _advies_handler(body: dict) -> dict:
         giften_gewoon=float(body.get("giften_gewoon", 0) or 0),
         giften_periodiek=float(body.get("giften_periodiek", 0) or 0),
         partneralimentatie=float(body.get("partneralimentatie", 0) or 0),
+        zorgkosten=float(body.get("zorgkosten", 0) or 0),
     )
     return {
         "jaar": r.jaar, "baseline_belasting": r.baseline_belasting,

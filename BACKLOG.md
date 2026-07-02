@@ -19,7 +19,7 @@ A is leeg.
 | ~~KIA~~ | ✅ **KIA / kleinschaligheidsinvesteringsaftrek** (gebouwd 2026-07-01, JOURNAAL fase 29) | — | — |
 | ~~1~~ | ✅ **Giftenaftrek** (gebouwd 2026-07-02, gewoon + periodiek + drempel/plafond, GIFT-*) | — | — |
 | ~~2~~ | ✅ **Partneralimentatie** (gebouwd 2026-07-02, persoonsgebonden aftrek + aftopping, ALIM) | — | — |
-| 3 | **Specifieke zorgkosten** | hoge zorgkosten boven drempel | middel — drempel afhankelijk van inkomen |
+| ~~3~~ | ✅ **Specifieke zorgkosten** (gebouwd 2026-07-02, drempelstaffel, ZORG-*) | — | — | **Blok B compleet.** |
 
 > Ook gebouwd 2026-07-01 (fase 29): **jaarruimte-correctie factor A** (werkgeverspensioen verlaagt de
 > ruimte), **reserveringsruimte-inhaal** (met pensioen-bewuste cap), en de expliciete **cap-uitleg**

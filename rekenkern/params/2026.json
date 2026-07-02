@@ -68,6 +68,13 @@
     "periodiek_max": 1500000,
     "_bron": "GIFT-2026"
   },
+  "zorgkosten": {
+    "drempel_vast_solo": 166, "grens_vast_solo": 9680,
+    "drempel_vast_partner": 332, "grens_vast_partner": 19360,
+    "midden_pct": 0.0165, "midden_tot": 51411,
+    "hoog_vast": 848, "hoog_vanaf": 51411, "hoog_pct": 0.0575,
+    "_bron": "ZORG-2026"
+  },
   "heffingskortingen": {
     "algemene": {
       "_bron": "HK-03",
