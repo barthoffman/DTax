@@ -1,0 +1,7 @@
+# Secrets en runtime-data horen niet in de image (worden gemount bij het draaien)
+rekenkern/.env
+rekenkern/authdata/
+# Python-rommel
+**/__pycache__/
+*.pyc
+.git/

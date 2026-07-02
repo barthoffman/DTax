@@ -699,9 +699,9 @@ class Handler(BaseHTTPRequestHandler):
         pass
 
 
-def main(poort: int = 8000) -> None:
-    server = ThreadingHTTPServer(("127.0.0.1", poort), Handler)
-    print(f"Belasting-API op http://127.0.0.1:{poort}  (Ctrl-C om te stoppen)")
+def main(poort: int = 8000, host: str = "127.0.0.1") -> None:
+    server = ThreadingHTTPServer((host, poort), Handler)
+    print(f"Belasting-API op http://{host}:{poort}  (Ctrl-C om te stoppen)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -712,6 +712,7 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--poort", type=int, default=8000)
+    ap.add_argument("--poort", type=int, default=int(os.environ.get("PORT", "8000")))
+    ap.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))  # 0.0.0.0 in een container
     args = ap.parse_args()
-    main(args.poort)
+    main(args.poort, args.host)
